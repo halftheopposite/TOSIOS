@@ -1,0 +1,42 @@
+{
+  "name": "tosios",
+  "version": "0.1.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/halftheopposite/tosios"
+  },
+  "author": {
+    "name": "Aymeric Chauvin",
+    "url": "https://hoglets.io"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "clean:dependencies": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' +",
+    "clean:builds": "find . -name \"build\" -type d -prune -exec rm -rf '{}' +",
+    "clean": "yarn clean:dependencies; yarn clean:builds",
+    "lint": "yarn workspace @tosios/client lint; yarn workspace @tosios/server lint",
+    "lint:fix": "yarn workspace @tosios/client lint:fix; yarn workspace @tosios/server lint:fix",
+    "start:common": "yarn workspace @tosios/common start",
+    "start:client": "yarn workspace @tosios/client start",
+    "start:server": "yarn workspace @tosios/server start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:common\" \"yarn start:client\" \"yarn start:server\"",
+    "build:common": "yarn workspace @tosios/common build",
+    "build:client": "yarn workspace @tosios/client build",
+    "build:server": "yarn workspace @tosios/server build",
+    "build:move": "mv ./packages/client/build ./packages/server/build/public",
+    "build": "yarn build:common && yarn build:client && yarn build:server && yarn build:move",
+    "serve": "yarn workspace @tosios/server serve"
+  },
+  "dependencies": {
+    "concurrently": "^4.1.1",
+    "tslint": "^5.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.5.3"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "extends": [
+    "tslint:latest"
+  ],
+  "rules": {
+    "prefer-conditional-expression": false,
+    "no-empty-interface": false,
+    "no-submodule-imports": false,
+    "no-consecutive-blank-lines": false,
+    "member-access": false,
+    "arrow-parens": false,
+    "no-console": false,
+    "align": false,
+    "object-literal-sort-keys": false,
+    "max-classes-per-file": false,
+    "variable-name": false,
+    "adjacent-overload-signatures": false,
+    "object-literal-shorthand": false,
+    "member-ordering": false,
+    "forin": false,
+    "prefer-for-of": false,
+    "quotemark": false
+  },
+  "linterOptions": {
+    "exclude": [
+      "node_modules"
+    ]
+  }
+}

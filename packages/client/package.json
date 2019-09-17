@@ -1,0 +1,46 @@
+{
+  "name": "@tosios/client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@tosios/common": "0.1.0",
+    "@reach/router": "^1.2.1",
+    "classnames": "^2.2.6",
+    "colyseus.js": "^0.10.8",
+    "pixi-particles": "^4.1.2",
+    "pixi-viewport": "^4.1.4",
+    "pixi.js": "^5.1.1",
+    "querystringify": "^2.1.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-helmet": "^5.2.1",
+    "react-scripts": "3.1.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.17",
+    "@types/node": "^12.7.0",
+    "@types/pixi.js": "^4.8.8",
+    "@types/querystringify": "^2.0.0",
+    "@types/reach__router": "^1.2.4",
+    "@types/react": "^16.8.25",
+    "@types/react-dom": "^16.8.5",
+    "@types/react-helmet": "^5.0.9",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.5.3"
+  },
+  "scripts": {
+    "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
+    "lint:fix": "tslint --fix -c tslint.json 'src/**/*.{ts,tsx}'",
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

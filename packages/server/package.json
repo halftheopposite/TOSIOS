@@ -1,0 +1,27 @@
+{
+  "name": "@tosios/server",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./build/index.js",
+  "dependencies": {
+    "@tosios/common": "0.1.0",
+    "@colyseus/schema": "^0.4.55",
+    "colyseus": "^0.10.5",
+    "express": "^4.17.1",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@types/node": "^10.3.2",
+    "nodemon": "^1.19.2",
+    "ts-node": "^8.3.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.5.3"
+  },
+  "scripts": {
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "lint:fix": "tslint --fix -c tslint.json 'src/**/*.ts'",
+    "start": "nodemon --watch './src/**/*.ts' --exec ts-node ./src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "serve": "node build/index.js"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@tosios/common",
+  "version": "0.1.0",
+  "private": true,
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "dependencies": {
+    "react": "^16.8.6"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.25",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.5.3"
+  },
+  "scripts": {
+    "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
+    "lint:fix": "tslint --fix -c tslint.json 'src/**/*.{ts,tsx}'",
+    "start": "tsc --watch",
+    "build": "tsc -p tsconfig.json"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
