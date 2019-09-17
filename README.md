@@ -40,6 +40,8 @@ This project is a monorepo (with the help of Yarn workspaces). It contains the f
 * `server` - An `Express` app using `Colyseus`.
 * `common` - A collection of constants and methods shared amongst `client` and `server`.
 
+## Modding
+
 ### Maps
 
 TODO
@@ -48,9 +50,16 @@ TODO
 
 TODO
 
-## Modding
+## Roadmap (Q3 2019)
 
-TODO
+This is not an exhaustive, nor final, features list but it will give you a good indication on what I am working on:
+* Let users select the number of players in a room
+* Let users choose a password for a room
+* Add mobile mode (updated GUI and virtual joysticks)
+* Add visual feedback when a player gets hit
+* Add a Team Death Match mode
+* Publish the docker image onto a registry and add a `docker-compose` file
+* Add a playable demo(official) website for anyone to test and play the game
 
 ## Special thanks
 
