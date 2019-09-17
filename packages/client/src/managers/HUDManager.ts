@@ -3,7 +3,6 @@ import { Container } from 'pixi.js';
 
 import { HUDLives, HUDText } from '../entities';
 
-const SHOW_FPS = process.env.NODE_ENV !== 'production';
 const HUD_PADDING = 32;
 const CENTERED_TEXT_LIFETIME = 3000;
 const CENTERED_TEXT_ANIMATION_TICK = 50;
@@ -94,7 +93,7 @@ export default class HUDManager extends Container {
       1,
       1,
     );
-    this.fpsText.alpha = SHOW_FPS ? 0.2 : 0;
+    this.fpsText.alpha = Constants.SHOW_FPS ? 0.2 : 0;
     this.addChild(this.fpsText);
 
     this.updatePositions();

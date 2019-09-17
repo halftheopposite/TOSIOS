@@ -4,6 +4,8 @@ export const APP_TITLE = 'TOSIOS';
 export const WS_PORT = 3001;
 export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name
 export const ROOM_REFRESH = 5000;
+export const SHOW_GHOST = false;
+export const SHOW_FPS = false;
 
 // Game
 export const BACKGROUND_COLOR = '#25131A';

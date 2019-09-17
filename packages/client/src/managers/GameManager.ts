@@ -25,8 +25,6 @@ import {
   PropsManager,
 } from './';
 
-const SHOW_GHOST = process.env.NODE_ENV !== 'production';
-
 // These two constants should be calculated automatically.
 // They are actually used to interpolate movements of other players
 // between two points.
@@ -189,7 +187,7 @@ export default class GameManager {
   }
 
   private updateGhost = (deltaTime: number) => {
-    if (!SHOW_GHOST || !this.ghost) {
+    if (!Constants.SHOW_GHOST || !this.ghost) {
       return;
     }
 
@@ -464,7 +462,7 @@ export default class GameManager {
 
   // EXTERNAL: Ghost
   private ghostAdd = (attributes: any) => {
-    if (!SHOW_GHOST || this.ghost) {
+    if (!Constants.SHOW_GHOST || this.ghost) {
       return;
     }
 
@@ -482,7 +480,7 @@ export default class GameManager {
   }
 
   private ghostUpdate = (attributes: any) => {
-    if (!SHOW_GHOST || !this.ghost) {
+    if (!Constants.SHOW_GHOST || !this.ghost) {
       return;
     }
 
@@ -498,7 +496,7 @@ export default class GameManager {
   }
 
   private ghostRemove = () => {
-    if (!SHOW_GHOST || !this.ghost) {
+    if (!Constants.SHOW_GHOST || !this.ghost) {
       return;
     }
 
