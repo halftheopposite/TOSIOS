@@ -24,7 +24,7 @@
     "start:common": "yarn workspace @tosios/common start",
     "start:client": "yarn workspace @tosios/client start",
     "start:server": "yarn workspace @tosios/server start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:common\" \"yarn start:client\" \"yarn start:server\"",
+    "start": "yarn build:common && concurrently --kill-others-on-fail \"yarn start:common\" \"yarn start:client\" \"yarn start:server\"",
     "build:common": "yarn workspace @tosios/common build",
     "build:client": "yarn workspace @tosios/client build",
     "build:server": "yarn workspace @tosios/server build",
