@@ -4,6 +4,8 @@
 
 The Open-Source IO Shooter is an open-source multiplayer game in the browser. It is meant to be hostable and playable by (almost) anyone. This is not an attempt at creating an outstanding gaming experience, but to create an easily understandable and modifiable multiplayer browser game.
 
+![banner](images/banner.jpg "An in-game screenshot")
+
 ## Building
 
 **Docker**
@@ -34,6 +36,20 @@ Run `yarn serve`.
 
 To get your local IP you can run `ipconfig getifaddr en0`.
 
+## Playing
+
+Moving:
+
+<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or <kbd>Up</kbd><kbd>Left</kbd><kbd>Down</kbd><kbd>Right</kbd>.
+
+Aiming and shooting:
+
+<kbd>Mouse</kbd><kbd>Left click</kbd>
+
+![banner](images/game.gif "An in-game animation")
+
+
+
 ## Project architecture
 
 This project is a monorepo (with the help of Yarn workspaces). It contains the following packages:
@@ -46,7 +62,26 @@ This project is a monorepo (with the help of Yarn workspaces). It contains the f
 
 ### Maps
 
-TODO
+Maps are composed of `arrays` of `arrays` where each number greater than `0` represents a `wall` in which entities will collide.
+
+Each number represents a specific sprite to be drawn:
+* `1` for a wall on the left
+* `2` for a wall on the top
+* `3` for a wall on the right
+* `4` for a wall on the bottom
+* `7` for a wall on the bottom-left
+* `8` for a wall on the bottom-right
+
+Examples:
+```json
+  [
+    [1, 2, 2, 2, 2, 3],
+    [1, 0, 0, 0, 0, 3],
+    [1, 0, 0, 0, 0, 3],
+    [1, 0, 0, 0, 0, 3],
+    [7, 4, 4, 4, 4, 8],
+  ]
+```
 
 ### Props
 
