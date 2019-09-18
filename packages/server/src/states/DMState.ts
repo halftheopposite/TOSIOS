@@ -1,16 +1,17 @@
 import {
-  Collisions,
-  Constants,
-  Geometry,
-  Maths,
-  Types,
-} from '@tosios/common';
-import {
   ArraySchema,
   MapSchema,
   Schema,
   type,
 } from '@colyseus/schema';
+import {
+  Collisions,
+  Constants,
+  Geometry,
+  Maps,
+  Maths,
+  Types,
+} from '@tosios/common';
 
 import { Action } from '../entities/Action';
 import { Bullet } from '../entities/Bullet';
@@ -20,7 +21,7 @@ import { Message } from '../entities/Message';
 import { Player } from '../entities/Player';
 import { Prop } from '../entities/Prop';
 import { Wall } from '../entities/Wall';
-import { parse } from '../maps';
+import { parseByName } from '../maps';
 
 export class DMState extends Schema {
 
@@ -48,13 +49,13 @@ export class DMState extends Schema {
 
   // Init
   constructor(
-    map: Types.MapNames,
+    map: Maps.Names,
     onMessage: any,
   ) {
     super();
 
     // Map
-    const { width, height, walls } = parse(map);
+    const { width, height, walls } = parseByName(map);
     this.map = new Map(width, height);
     this.walls.push(...walls);
 

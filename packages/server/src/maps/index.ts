@@ -1,33 +1,40 @@
-import { Constants, Types } from '@tosios/common';
 import { ArraySchema } from '@colyseus/schema';
+import { Constants, Maps } from '@tosios/common';
 import { Wall } from '../entities/Wall';
 import bigMap from './big';
 import longMap from './long';
 import smallMap from './small';
 
-export const maps = {
+const MAPS = {
   small: smallMap,
   long: longMap,
   big: bigMap,
 };
 
-export const parse = (id: Types.MapNames): {
+/**
+ * Parse a map by Id
+ * @param id The map id
+ */
+export const parseByName = (name: Maps.Names): {
   width: number;
   height: number;
   walls: ArraySchema<Wall>;
 } => {
-  const walls: ArraySchema<Wall> = new ArraySchema<Wall>();
-  const rows = maps[id].tiles;
+  const walls = new ArraySchema<Wall>();
+  const rows = MAPS[name];
 
   let width = 0;
   const height = rows.length * Constants.TILE_SIZE;
   let x = 0;
   let y = 0;
+
+  // Rows
   for (const row of rows) {
     if (y === 0) {
       width = row.length * Constants.TILE_SIZE;
     }
 
+    // Columns
     for (const col of row) {
       if (col > 0) {
         walls.push(new Wall(x, y, Constants.TILE_SIZE, Constants.TILE_SIZE, col));

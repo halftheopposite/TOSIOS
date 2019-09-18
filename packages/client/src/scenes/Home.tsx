@@ -1,5 +1,5 @@
-import { Constants } from '@tosios/common';
 import { navigate, RouteComponentProps } from '@reach/router';
+import { Constants, Maps } from '@tosios/common';
 import { Client } from 'colyseus.js';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
@@ -14,12 +14,6 @@ import Select from '../components/Select';
 import Separator from '../components/Separator';
 import Space from '../components/Space';
 import View from '../components/View';
-
-const MAPS_LIST = [
-  { value: 'small', title: 'Small (2 players)' },
-  { value: 'long', title: 'Long (4 players)' },
-  { value: 'big', title: 'Big (8 players)' },
-];
 
 interface IProps extends RouteComponentProps {
 }
@@ -44,7 +38,7 @@ class Home extends Component<IProps, IState> {
     hasNameChanged: false,
     isNewRoom: false,
     roomName: '',
-    roomMap: MAPS_LIST[0].value,
+    roomMap: Maps.List[0].value,
     roomPassword: '',
     rooms: [],
     timer: null,
@@ -243,7 +237,7 @@ class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMap}
-              values={MAPS_LIST}
+              values={Maps.List}
               onChange={(event: any) => this.setState({ roomMap: event.target.value })}
             />
             <Space size="xxs" />

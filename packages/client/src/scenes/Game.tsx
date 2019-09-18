@@ -1,5 +1,5 @@
-import { Constants, Keys } from '@tosios/common';
 import { navigate, RouteComponentProps } from '@reach/router';
+import { Constants, Keys } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
 import React, { Component, RefObject } from 'react';
