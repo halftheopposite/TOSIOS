@@ -89,7 +89,7 @@ TODO
 ## Roadmap (Q3 2019)
 
 This is not an exhaustive, nor final, features list but it will give you a good indication on what I am working on:
-* Let users select the number of players in a room
+* ~Let users select the number of players in a room~
 * Let users choose a password for a room
 * Add mobile mode (updated GUI and virtual joysticks)
 * Add visual feedback when a player gets hit
