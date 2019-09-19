@@ -40,15 +40,13 @@ To get your local IP you can run `ipconfig getifaddr en0`.
 
 Moving:
 
-<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or <kbd>Up</kbd><kbd>Left</kbd><kbd>Down</kbd><kbd>Right</kbd>.
+<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
 
 Aiming and shooting:
 
-<kbd>Mouse</kbd><kbd>Left click</kbd>
+<kbd>Mouse</kbd> <kbd>Click</kbd>
 
 ![banner](images/game.gif "An in-game animation")
-
-
 
 ## Project architecture
 
