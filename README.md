@@ -1,4 +1,4 @@
-# TOSIOS
+# TOSIOS (The Open-Source IO Shooter)
 
 ![](https://github.com/halftheopposite/tosios/workflows/Docker%20Publish/badge.svg)
 
@@ -65,10 +65,10 @@ Each number represents a specific wall sprite to be drawn:
 * `2` for a wall on the top
 * `3` for a wall on the right
 * `4` for a wall on the bottom
-* `7` for a wall on the bottom-left (concave angle)
-* `8` for a wall on the bottom-right (concave angle)
-* `9` for a wall on the top-left (convexe angle)
-* `10` for a wall on the bottom-right (convexe angle)
+* `7` for a wall on the bottom-left (concave)
+* `8` for a wall on the bottom-right (concave)
+* `9` for a wall on the top-left (convexe)
+* `10` for a wall on the top-right (convexe)
 
 Examples:
 ```json
