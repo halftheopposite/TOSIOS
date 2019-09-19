@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet';
 
 import Box from '../components/Box';
 import Button from '../components/Button';
+import Inline from '../components/Inline';
 import Input from '../components/Input';
 import Room from '../components/Room';
 import Select from '../components/Select';
@@ -109,6 +110,11 @@ class Home extends Component<IProps, IState> {
     navigate(`/new${qs.stringify(options, true)}`);
   }
 
+  handleCancelRoomClick = () => {
+    this.setState({
+      isNewRoom: false,
+    });
+  }
 
   // METHODS
   updateRooms = () => {
@@ -262,11 +268,20 @@ class Home extends Component<IProps, IState> {
             <Space size="s" />
 
             {/* Button */}
-            <Button
-              title="Create room"
-              onClick={this.handleCreateRoomClick}
-              text={'Create'}
-            />
+            <View flex={true}>
+              <Button
+                title="Create room"
+                onClick={this.handleCreateRoomClick}
+                text={'Create'}
+              />
+              <Inline size="xs" />
+              <Button
+                title="Cancel"
+                onClick={this.handleCancelRoomClick}
+                text={'Cancel'}
+                reversed={true}
+              />
+            </View>
           </View>
         )}
       </View>
@@ -295,13 +310,12 @@ class Home extends Component<IProps, IState> {
       );
     }
 
-    const list = rooms.map(({ roomId, metadata, clients, maxClients }, index) => (
+    return rooms.map(({ roomId, metadata, clients, maxClients }, index) => (
       <Fragment key={roomId}>
         <Room
           id={roomId}
           roomName={metadata.roomName}
           roomMap={metadata.roomMap}
-          isPrivate={metadata.isPrivate}
           clients={clients}
           maxClients={maxClients}
           onClick={this.handleRoomClick}
@@ -309,8 +323,6 @@ class Home extends Component<IProps, IState> {
         {(index !== rooms.length - 1) && <Space size="xxs" />}
       </Fragment>
     ));
-
-    return list;
   }
 }
 

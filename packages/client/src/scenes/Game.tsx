@@ -14,6 +14,7 @@ interface IProps extends RouteComponentProps {
 interface IState {
   playerId: string;
   playersCount: number;
+  maxPlayersCount: number;
 }
 
 class Game extends Component<IProps, IState> {
@@ -27,6 +28,7 @@ class Game extends Component<IProps, IState> {
   state: IState = {
     playerId: '',
     playersCount: 0,
+    maxPlayersCount: 0,
   };
 
   // BASE
@@ -87,7 +89,10 @@ class Game extends Component<IProps, IState> {
         playerId: this.room.sessionId,
       });
 
-      this.gameManager.start(this.gameCanvas.current);
+      this.gameManager.start(
+        this.gameCanvas.current,
+        this.room.options.roomMaxPlayers,
+      );
 
       // Replace the URL with the Room's ID
       window.history.replaceState(null, '', `/${this.room.id}`);

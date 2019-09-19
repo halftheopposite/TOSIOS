@@ -48,6 +48,7 @@ export default class GameManager {
   private playersManager: PlayersManager;
 
   // Game
+  private maxPlayers: number = 0;
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
   private gameEndsAt: number = 0;
@@ -116,10 +117,11 @@ export default class GameManager {
     this.onRotationChange = onRotationChange;
   }
 
-  start = (renderView: any) => {
+  start = (renderView: any, maxPlayers: number) => {
     renderView.appendChild(this.app.view);
     this.app.start();
     this.app.ticker.add(this.update);
+    this.maxPlayers = maxPlayers;
   }
 
 
@@ -313,7 +315,7 @@ export default class GameManager {
 
   private updateHUDPlayers = () => {
     const count = this.playersManager.getAll().length + 1;
-    const text = count !== 1 ? `${count} players` : `${count} player`;
+    const text = `[${count}/${this.maxPlayers}] players`;
     this.hudManager.setText('players', text);
   }
 
