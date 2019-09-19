@@ -6,6 +6,7 @@ import {
 } from '../images/icons';
 import Button from './Button';
 import Inline from './Inline';
+import View from './View';
 
 const ROOM = {
   border: '1px solid rgba(9,30,66,.1)',
@@ -22,67 +23,43 @@ const ROOM_HOVERED = {
   cursor: 'pointer',
 };
 
-interface IProps {
+export default function (props: {
   id: string;
   roomName: string;
   roomMap: string;
   clients: number;
   maxClients: number;
-  isPrivate: boolean;
   onClick: (id: string) => void;
-}
+}): React.ReactElement {
+  const {
+    id,
+    roomName,
+    roomMap,
+    clients,
+    maxClients,
+    onClick,
+  } = props;
+  const [hovered, setHovered] = React.useState(false);
 
-interface IState {
-  isHovered: boolean;
-}
-
-class Room extends Component<IProps, IState> {
-
-  state: IState = {
-    isHovered: false,
-  };
-
-  render() {
-    const {
-      isHovered,
-    } = this.state;
-    const {
-      id,
-      roomName,
-      roomMap,
-      clients,
-      maxClients,
-      isPrivate,
-      onClick,
-    } = this.props;
-
-    return (
-      <div
-        style={{
-          ...ROOM,
-          ...(isHovered && ROOM_HOVERED),
-        }}
-        onMouseEnter={() => this.setState({ isHovered: true })}
-        onMouseLeave={() => this.setState({ isHovered: false })}
-        onClick={() => onClick(id)}
+  return (
+    <View
+      style={{
+        ...ROOM,
+        ...(hovered && ROOM_HOVERED),
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => onClick(id)}
+    >
+      <div>
+        <p><b>{`${roomName} [${clients}/${maxClients}]`}</b></p>
+      </div>
+      <Button
+        type="button"
+        style={{ marginLeft: 'auto' }}
       >
-        <img
-          src={isPrivate ? lockIcon : lockOpenIcon}
-          alt={isPrivate ? 'locked' : 'open'}
-        />
-        <Inline size="xxs" />
-        <div>
-          <p><b>{`${roomName} [${clients}/${maxClients}]`}</b></p>
-        </div>
-        <Button
-          type="button"
-          style={{ marginLeft: 'auto' }}
-        >
-          Join
-        </Button>
-      </div >
-    );
-  }
+        Join
+      </Button>
+    </View>
+  );
 }
-
-export default Room;
