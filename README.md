@@ -38,13 +38,11 @@ To get your local IP you can run `ipconfig getifaddr en0`.
 
 ## Playing
 
-Moving:
+Move: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
 
-<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
+Aim: <kbd>Mouse</kbd>
 
-Aiming and shooting:
-
-<kbd>Mouse</kbd> <kbd>Click</kbd>
+Shoot: <kbd>Left click</kbd>
 
 ![banner](images/game.gif "An in-game animation")
 
