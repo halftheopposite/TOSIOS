@@ -60,20 +60,23 @@ This project is a monorepo (with the help of Yarn workspaces). It contains the f
 
 Maps are composed of `arrays` of `arrays` where each number greater than `0` represents a `wall` in which entities will collide.
 
-Each number represents a specific sprite to be drawn:
+Each number represents a specific wall sprite to be drawn:
 * `1` for a wall on the left
 * `2` for a wall on the top
 * `3` for a wall on the right
 * `4` for a wall on the bottom
-* `7` for a wall on the bottom-left
-* `8` for a wall on the bottom-right
+* `7` for a wall on the bottom-left (concave angle)
+* `8` for a wall on the bottom-right (concave angle)
+* `9` for a wall on the top-left (convexe angle)
+* `10` for a wall on the bottom-right (convexe angle)
 
 Examples:
 ```json
   [
     [1, 2, 2, 2, 2, 3],
     [1, 0, 0, 0, 0, 3],
-    [1, 0, 0, 0, 0, 3],
+    [1, 0, 9, 10, 0, 3],
+    [1, 0, 4, 4, 0, 3],
     [1, 0, 0, 0, 0, 3],
     [7, 4, 4, 4, 4, 8],
   ]
