@@ -7,16 +7,16 @@ import { DMState } from '../states/DMState';
 export class DMRoom extends Room<DMState> {
 
   // Base
-  onInit(options: any) {
-    this.maxClients = Constants.ROOM_MAX_CLIENT;
+  onInit(options: Types.IRoomOptions) {
+    this.maxClients = options.roomMaxPlayers || Constants.ROOM_MAX_CLIENT;
 
     // Init Metadata
     this.setMetadata({
       playerName: options.playerName || '',
       roomName: options.roomName || '',
       roomMap: options.roomMap || 'default',
+      roomMaxPlayers: this.maxClients,
       roomPassword: options.roomPassword || '',
-      isPrivate: options.isPrivate,
     });
 
     // Init State

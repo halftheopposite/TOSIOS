@@ -1,5 +1,5 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Keys } from '@tosios/common';
+import { Constants, Keys, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
 import React, { Component, RefObject } from 'react';
@@ -12,7 +12,6 @@ interface IProps extends RouteComponentProps {
 }
 
 interface IState {
-  name: string;
   playerId: string;
   playersCount: number;
 }
@@ -26,7 +25,6 @@ class Game extends Component<IProps, IState> {
   pressedKeys = { up: false, down: false, left: false, right: false };
 
   state: IState = {
-    name: localStorage.getItem('name') || '',
     playerId: '',
     playersCount: 0,
   };
@@ -61,18 +59,11 @@ class Game extends Component<IProps, IState> {
         search = '',
       } = {},
     } = this.props;
-    const {
-      name,
-    } = this.state;
 
-    const parsedSearch: any = qs.parse(search);
-    const isNewRoom = roomId === 'new';
-    const options = {
-      playerName: name,
-      roomName: parsedSearch.name,
-      roomMap: parsedSearch.map,
-      roomPassword: parsedSearch.password,
-      create: isNewRoom,
+    const parsedSearch = qs.parse(search) as Types.IRoomOptions;
+    const options: Types.IRoomOptions = {
+      ...parsedSearch,
+      create: roomId === 'new',
     };
 
     // Client
