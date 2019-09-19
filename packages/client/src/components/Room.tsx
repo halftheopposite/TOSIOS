@@ -6,9 +6,8 @@ import {
 } from '../images/icons';
 import Button from './Button';
 import Inline from './Inline';
-import Space from './Space';
 
-const BUTTON = {
+const ROOM = {
   border: '1px solid rgba(9,30,66,.1)',
   borderRadius: 8,
   padding: 8,
@@ -17,7 +16,7 @@ const BUTTON = {
   alignItems: 'center',
 };
 
-const BUTTON_HOVERED = {
+const ROOM_HOVERED = {
   backgroundColor: '#efefef33',
   filter: 'brightness(90%)',
   cursor: 'pointer',
@@ -60,8 +59,8 @@ class Room extends Component<IProps, IState> {
     return (
       <div
         style={{
-          ...BUTTON,
-          ...(isHovered && BUTTON_HOVERED),
+          ...ROOM,
+          ...(isHovered && ROOM_HOVERED),
         }}
         onMouseEnter={() => this.setState({ isHovered: true })}
         onMouseLeave={() => this.setState({ isHovered: false })}
