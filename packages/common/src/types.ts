@@ -17,6 +17,5 @@ export interface IRoomOptions {
   roomName: string;
   roomMap: MapNameType;
   roomMaxPlayers: number;
-  roomPassword: string;
   create?: boolean;
 }

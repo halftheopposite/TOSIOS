@@ -16,7 +16,6 @@ export class DMRoom extends Room<DMState> {
       roomName: options.roomName || '',
       roomMap: options.roomMap || 'default',
       roomMaxPlayers: this.maxClients,
-      roomPassword: options.roomPassword || '',
     });
 
     // Init State

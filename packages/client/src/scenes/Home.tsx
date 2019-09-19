@@ -25,7 +25,6 @@ interface IState {
   roomName: string;
   roomMap: any;
   roomMaxPlayers: any;
-  roomPassword: string;
   rooms: RoomAvailable[];
   timer: any;
 }
@@ -43,7 +42,6 @@ class Home extends Component<IProps, IState> {
     roomName: '',
     roomMap: Maps.List[0].value,
     roomMaxPlayers: Maps.Players[0].value,
-    roomPassword: '',
   };
 
   // BASE
@@ -99,7 +97,6 @@ class Home extends Component<IProps, IState> {
       roomName,
       roomMap,
       roomMaxPlayers,
-      roomPassword,
     } = this.state;
 
     const options: Types.IRoomOptions = {
@@ -107,7 +104,6 @@ class Home extends Component<IProps, IState> {
       roomName,
       roomMap,
       roomMaxPlayers,
-      roomPassword,
     };
 
     navigate(`/new${qs.stringify(options, true)}`);
@@ -213,7 +209,6 @@ class Home extends Component<IProps, IState> {
       roomName,
       roomMap,
       roomMaxPlayers,
-      roomPassword,
     } = this.state;
     return (
       <View
@@ -263,16 +258,6 @@ class Home extends Component<IProps, IState> {
               value={roomMaxPlayers}
               values={Maps.Players}
               onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
-            />
-            <Space size="s" />
-
-            {/* Password */}
-            <p>Password (optional):</p>
-            <Space size="xxs" />
-            <Input
-              placeholder="Password"
-              value={roomPassword}
-              onChange={(event: any) => this.setState({ roomPassword: event.target.value })}
             />
             <Space size="s" />
 
