@@ -6,9 +6,9 @@ import {
 } from '../images/icons';
 import Button from './Button';
 import Inline from './Inline';
-import Space from './Space';
+import View from './View';
 
-const BUTTON = {
+const ROOM = {
   border: '1px solid rgba(9,30,66,.1)',
   borderRadius: 8,
   padding: 8,
@@ -17,73 +17,49 @@ const BUTTON = {
   alignItems: 'center',
 };
 
-const BUTTON_HOVERED = {
+const ROOM_HOVERED = {
   backgroundColor: '#efefef33',
   filter: 'brightness(90%)',
   cursor: 'pointer',
 };
 
-interface IProps {
+export default function (props: {
   id: string;
   roomName: string;
   roomMap: string;
   clients: number;
   maxClients: number;
-  isPrivate: boolean;
   onClick: (id: string) => void;
-}
+}): React.ReactElement {
+  const {
+    id,
+    roomName,
+    roomMap,
+    clients,
+    maxClients,
+    onClick,
+  } = props;
+  const [hovered, setHovered] = React.useState(false);
 
-interface IState {
-  isHovered: boolean;
-}
-
-class Room extends Component<IProps, IState> {
-
-  state: IState = {
-    isHovered: false,
-  };
-
-  render() {
-    const {
-      isHovered,
-    } = this.state;
-    const {
-      id,
-      roomName,
-      roomMap,
-      clients,
-      maxClients,
-      isPrivate,
-      onClick,
-    } = this.props;
-
-    return (
-      <div
-        style={{
-          ...BUTTON,
-          ...(isHovered && BUTTON_HOVERED),
-        }}
-        onMouseEnter={() => this.setState({ isHovered: true })}
-        onMouseLeave={() => this.setState({ isHovered: false })}
-        onClick={() => onClick(id)}
+  return (
+    <View
+      style={{
+        ...ROOM,
+        ...(hovered && ROOM_HOVERED),
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => onClick(id)}
+    >
+      <div>
+        <p><b>{`${roomName} [${clients}/${maxClients}]`}</b></p>
+      </div>
+      <Button
+        type="button"
+        style={{ marginLeft: 'auto' }}
       >
-        <img
-          src={isPrivate ? lockIcon : lockOpenIcon}
-          alt={isPrivate ? 'locked' : 'open'}
-        />
-        <Inline size="xxs" />
-        <div>
-          <p><b>{`${roomName} [${clients}/${maxClients}]`}</b></p>
-        </div>
-        <Button
-          type="button"
-          style={{ marginLeft: 'auto' }}
-        >
-          Join
-        </Button>
-      </div >
-    );
-  }
+        Join
+      </Button>
+    </View>
+  );
 }
-
-export default Room;

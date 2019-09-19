@@ -49,7 +49,7 @@ export class DMState extends Schema {
 
   // Init
   constructor(
-    map: Maps.Names,
+    map: Types.MapNameType,
     onMessage: any,
   ) {
     super();

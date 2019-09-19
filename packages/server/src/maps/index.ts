@@ -1,5 +1,5 @@
 import { ArraySchema } from '@colyseus/schema';
-import { Constants, Maps } from '@tosios/common';
+import { Constants, Types } from '@tosios/common';
 import { Wall } from '../entities/Wall';
 import bigMap from './big';
 import longMap from './long';
@@ -12,10 +12,10 @@ const MAPS = {
 };
 
 /**
- * Parse a map by Id
- * @param id The map id
+ * Parse a map by its name
+ * @param name The map's name
  */
-export const parseByName = (name: Maps.Names): {
+export const parseByName = (name: Types.MapNameType): {
   width: number;
   height: number;
   walls: ArraySchema<Wall>;

@@ -1,4 +1,4 @@
-import React, { Component, CSSProperties, ReactNode } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 
 const FLEX: CSSProperties = {
   display: 'flex',
@@ -9,35 +9,37 @@ const CENTER_FLEX: CSSProperties = {
   justifyContent: 'center',
 };
 
-interface IProps {
+export default function (props: {
   flex?: boolean;
   center?: boolean;
   children: ReactNode;
   style?: CSSProperties;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onClick?: () => void;
+}): React.ReactElement {
+  const {
+    flex = false,
+    center = false,
+    children,
+    style,
+    onMouseEnter,
+    onMouseLeave,
+    onClick,
+  } = props;
+
+  return (
+    <div
+      style={{
+        ...(flex && FLEX),
+        ...(center && CENTER_FLEX),
+        ...style,
+      }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  );
 }
-
-class View extends Component<IProps> {
-
-  render() {
-    const {
-      flex = false,
-      center = false,
-      children,
-      style,
-    } = this.props;
-
-    return (
-      <div
-        style={{
-          ...(flex && FLEX),
-          ...(center && CENTER_FLEX),
-          ...style,
-        }}
-      >
-        {children}
-      </div>
-    );
-  }
-}
-
-export default View;

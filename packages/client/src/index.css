@@ -9,7 +9,6 @@ html, body {
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 h1, p, input, select, button {

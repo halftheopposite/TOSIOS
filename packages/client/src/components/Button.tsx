@@ -1,5 +1,7 @@
 import React, { Component, CSSProperties, ReactNode } from 'react';
 
+const BUTTON_COLOR = '#375a7f';
+
 const BUTTON: CSSProperties = {
   fontSize: 16,
   borderRadius: 8,
@@ -7,7 +9,7 @@ const BUTTON: CSSProperties = {
   outline: 'none',
   border: 'none',
   cursor: 'pointer',
-  backgroundColor: '#375a7f',
+  backgroundColor: BUTTON_COLOR,
   color: 'white',
   minHeight: 48,
 };
@@ -16,63 +18,57 @@ const BUTTON_HOVERED: CSSProperties = {
   filter: 'brightness(90%)',
 };
 
+const BUTTON_REVERSED: CSSProperties = {
+  backgroundColor: 'white',
+  color: BUTTON_COLOR,
+  border: `2px solid ${BUTTON_COLOR}`,
+};
+
 const ICON: CSSProperties = {
   width: 20,
   height: 20,
 };
 
-interface IState {
-  hovered: boolean;
-}
-
-interface IProps {
+export default function (props: {
   type?: 'button' | 'submit';
   text?: string;
   children?: ReactNode;
   style?: CSSProperties;
   icon?: string;
   title?: string;
+  reversed?: boolean;
   onClick?: () => void;
-}
+}): React.ReactElement {
+  const {
+    type = 'button',
+    text,
+    children,
+    style,
+    icon,
+    title,
+    reversed = false,
+    onClick,
+  } = props;
+  const [hovered, setHovered] = React.useState(false);
 
-export default class Button extends Component<IProps, IState> {
-
-  state: IState = {
-    hovered: false,
-  };
-
-  render() {
-    const {
-      hovered,
-    } = this.state;
-    const {
-      type = 'button',
-      text,
-      children,
-      style,
-      icon,
-      title,
-      onClick,
-    } = this.props;
-
-    return (
-      <button
-        type={type}
-        style={{
-          ...BUTTON,
-          ...(hovered && BUTTON_HOVERED),
-          ...style,
-        }}
-        onMouseEnter={() => this.setState({ hovered: true })}
-        onMouseLeave={() => this.setState({ hovered: false })}
-        title={title}
-        onClick={onClick}
-      >
-        {icon ?
-          <img src={icon} alt="icon" style={ICON} /> :
-          text || children
-        }
-      </button>
-    );
-  }
+  return (
+    <button
+      type={type}
+      style={{
+        ...BUTTON,
+        ...(hovered && BUTTON_HOVERED),
+        ...(reversed && BUTTON_REVERSED),
+        ...style,
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title={title}
+      onClick={onClick}
+    >
+      {icon ?
+        <img src={icon} alt="icon" style={ICON} /> :
+        text || children
+      }
+    </button>
+  );
 }

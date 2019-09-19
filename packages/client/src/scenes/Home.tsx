@@ -1,5 +1,5 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Maps } from '@tosios/common';
+import { Constants, Maps, Types } from '@tosios/common';
 import { Client } from 'colyseus.js';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet';
 
 import Box from '../components/Box';
 import Button from '../components/Button';
+import Inline from '../components/Inline';
 import Input from '../components/Input';
 import Room from '../components/Room';
 import Select from '../components/Select';
@@ -19,12 +20,12 @@ interface IProps extends RouteComponentProps {
 }
 
 interface IState {
-  name: string;
+  playerName: string;
   hasNameChanged: boolean;
   isNewRoom: boolean;
   roomName: string;
-  roomMap: string;
-  roomPassword: string;
+  roomMap: any;
+  roomMaxPlayers: any;
   rooms: RoomAvailable[];
   timer: any;
 }
@@ -34,14 +35,14 @@ class Home extends Component<IProps, IState> {
   client: Client | null = null;
 
   state: IState = {
-    name: localStorage.getItem('name') || '',
+    playerName: localStorage.getItem('playerName') || '',
     hasNameChanged: false,
     isNewRoom: false,
-    roomName: '',
-    roomMap: Maps.List[0].value,
-    roomPassword: '',
     rooms: [],
     timer: null,
+    roomName: '',
+    roomMap: Maps.List[0].value,
+    roomMaxPlayers: Maps.Players[0].value,
   };
 
   // BASE
@@ -74,14 +75,14 @@ class Home extends Component<IProps, IState> {
   // HANDLERS
   handleNameChange = (event: any) => {
     this.setState({
-      name: event.target.value,
+      playerName: event.target.value,
       hasNameChanged: true,
     });
   }
 
   handleNameSave = () => {
-    const { name } = this.state;
-    localStorage.setItem('name', name);
+    const { playerName } = this.state;
+    localStorage.setItem('playerName', playerName);
     this.setState({
       hasNameChanged: false,
     });
@@ -93,18 +94,27 @@ class Home extends Component<IProps, IState> {
 
   handleCreateRoomClick = () => {
     const {
+      playerName,
       roomName,
       roomMap,
-      roomPassword,
+      roomMaxPlayers,
     } = this.state;
 
-    navigate(`/new${qs.stringify({
-      name: roomName,
-      map: roomMap,
-      password: roomPassword,
-    }, true)}`);
+    const options: Types.IRoomOptions = {
+      playerName,
+      roomName,
+      roomMap,
+      roomMaxPlayers,
+    };
+
+    navigate(`/new${qs.stringify(options, true)}`);
   }
 
+  handleCancelRoomClick = () => {
+    this.setState({
+      isNewRoom: false,
+    });
+  }
 
   // METHODS
   updateRooms = () => {
@@ -160,7 +170,7 @@ class Home extends Component<IProps, IState> {
         <p>Pick your name:</p>
         <Space size="xs" />
         <Input
-          value={this.state.name}
+          value={this.state.playerName}
           placeholder="Name"
           maxLength={Constants.NAME_SIZE_MAX}
           onChange={this.handleNameChange}
@@ -204,6 +214,7 @@ class Home extends Component<IProps, IState> {
       isNewRoom,
       roomName,
       roomMap,
+      roomMaxPlayers,
     } = this.state;
     return (
       <View
@@ -225,14 +236,18 @@ class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Separator />
             <Space size="xxs" />
-            <p>Title:</p>
+
+            {/* Name */}
+            <p>Name:</p>
             <Space size="xxs" />
             <Input
-              placeholder="Room title"
+              placeholder="Name"
               value={roomName}
               onChange={(event: any) => this.setState({ roomName: event.target.value })}
             />
             <Space size="s" />
+
+            {/* Map */}
             <p>Map:</p>
             <Space size="xxs" />
             <Select
@@ -240,12 +255,33 @@ class Home extends Component<IProps, IState> {
               values={Maps.List}
               onChange={(event: any) => this.setState({ roomMap: event.target.value })}
             />
+            <Space size="s" />
+
+            {/* Players */}
+            <p>Max players:</p>
             <Space size="xxs" />
-            <Button
-              title="Create room"
-              onClick={this.handleCreateRoomClick}
-              text={'Create'}
+            <Select
+              value={roomMaxPlayers}
+              values={Maps.Players}
+              onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
             />
+            <Space size="s" />
+
+            {/* Button */}
+            <View flex={true}>
+              <Button
+                title="Create room"
+                onClick={this.handleCreateRoomClick}
+                text={'Create'}
+              />
+              <Inline size="xs" />
+              <Button
+                title="Cancel"
+                onClick={this.handleCancelRoomClick}
+                text={'Cancel'}
+                reversed={true}
+              />
+            </View>
           </View>
         )}
       </View>
@@ -274,13 +310,12 @@ class Home extends Component<IProps, IState> {
       );
     }
 
-    const list = rooms.map(({ roomId, metadata, clients, maxClients }, index) => (
+    return rooms.map(({ roomId, metadata, clients, maxClients }, index) => (
       <Fragment key={roomId}>
         <Room
           id={roomId}
           roomName={metadata.roomName}
           roomMap={metadata.roomMap}
-          isPrivate={metadata.isPrivate}
           clients={clients}
           maxClients={maxClients}
           onClick={this.handleRoomClick}
@@ -288,8 +323,6 @@ class Home extends Component<IProps, IState> {
         {(index !== rooms.length - 1) && <Space size="xxs" />}
       </Fragment>
     ));
-
-    return list;
   }
 }
 

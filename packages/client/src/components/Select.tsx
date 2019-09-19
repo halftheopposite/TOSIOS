@@ -1,3 +1,4 @@
+import { Types } from '@tosios/common';
 import React, { Component, CSSProperties, SyntheticEvent } from 'react';
 
 const SELECT: CSSProperties = {
@@ -11,11 +12,8 @@ const SELECT: CSSProperties = {
 };
 
 interface IProps {
-  value?: string;
-  values: Array<{
-    value: string;
-    title: string;
-  }>;
+  value?: any;
+  values: Types.IListItem[];
   style?: CSSProperties;
   onChange?: (event: SyntheticEvent) => void;
 }
