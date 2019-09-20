@@ -1,19 +1,23 @@
 export const APP_TITLE = 'TOSIOS';
 
 // Connection
-export const WS_PORT = 3001;
-export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name
+export const WS_PORT = 3000;
+export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name (no need to change)
 export const ROOM_REFRESH = 5000;
 export const SHOW_GHOST = false;
 export const SHOW_FPS = false;
 
 // Game
-export const BACKGROUND_COLOR = '#25131A';
-export const NAME_SIZE_MAX = 16;
+export const ROOM_PLAYERS_MIN = 2;
+export const ROOM_PLAYERS_MAX = 16;
+export const ROOM_NAME_MAX = 16;
+export const PLAYER_NAME_MAX = 16;
 export const LOG_LINES_MAX = 5;
-export const ROOM_MAX_CLIENT = 4;
-export const LOBBY_DURATION = 1000 * 3;
-export const GAME_DURATION = 1000 * 90;
+export const LOBBY_DURATION = 1000 * 10; // 10 seconds
+export const GAME_DURATION = 1000 * 90; // 90 seconds
+
+// Background
+export const BACKGROUND_COLOR = '#25131A';
 
 // Tile (rectangle)
 export const TILE_SIZE = 32;
