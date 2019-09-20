@@ -1,4 +1,4 @@
-import React, { Component, CSSProperties, ReactNode } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 
 const BUTTON_COLOR = '#375a7f';
 
@@ -24,7 +24,7 @@ const BUTTON_REVERSED: CSSProperties = {
   border: `2px solid ${BUTTON_COLOR}`,
 };
 
-const ICON: CSSProperties = {
+const BUTTON_ICON: CSSProperties = {
   width: 20,
   height: 20,
 };
@@ -66,7 +66,7 @@ export default function (props: {
       onClick={onClick}
     >
       {icon ?
-        <img src={icon} alt="icon" style={ICON} /> :
+        <img src={icon} alt="icon" style={BUTTON_ICON} /> :
         text || children
       }
     </button>

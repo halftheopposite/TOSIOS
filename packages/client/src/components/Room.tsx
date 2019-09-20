@@ -1,11 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-import {
-  lockIcon,
-  lockOpenIcon,
-} from '../images/icons';
 import Button from './Button';
-import Inline from './Inline';
 import View from './View';
 
 const ROOM = {
