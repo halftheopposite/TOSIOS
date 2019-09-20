@@ -172,7 +172,7 @@ class Home extends Component<IProps, IState> {
         <Input
           value={this.state.playerName}
           placeholder="Name"
-          maxLength={Constants.NAME_SIZE_MAX}
+          maxLength={Constants.PLAYER_NAME_MAX}
           onChange={this.handleNameChange}
         />
         {this.state.hasNameChanged && (
@@ -243,6 +243,7 @@ class Home extends Component<IProps, IState> {
             <Input
               placeholder="Name"
               value={roomName}
+              maxLength={Constants.ROOM_NAME_MAX}
               onChange={(event: any) => this.setState({ roomName: event.target.value })}
             />
             <Space size="s" />

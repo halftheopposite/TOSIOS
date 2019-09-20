@@ -1,4 +1,4 @@
-import { Constants, Types } from '@tosios/common';
+import { Constants, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus';
 
 import { Message } from '../entities/Message';
@@ -8,13 +8,17 @@ export class DMRoom extends Room<DMState> {
 
   // Base
   onInit(options: Types.IRoomOptions) {
-    this.maxClients = options.roomMaxPlayers || Constants.ROOM_MAX_CLIENT;
+    this.maxClients = Maths.clamp(
+      options.roomMaxPlayers || 0,
+      Constants.ROOM_PLAYERS_MIN,
+      Constants.ROOM_PLAYERS_MAX,
+    );
 
     // Init Metadata
     this.setMetadata({
-      playerName: options.playerName || '',
-      roomName: options.roomName || '',
-      roomMap: options.roomMap || 'default',
+      playerName: options.playerName.slice(0, Constants.PLAYER_NAME_MAX),
+      roomName: options.roomName.slice(0, Constants.ROOM_NAME_MAX),
+      roomMap: options.roomMap,
       roomMaxPlayers: this.maxClients,
     });
 
