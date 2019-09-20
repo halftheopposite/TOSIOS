@@ -65,20 +65,20 @@ Each number represents a specific wall sprite to be drawn:
 * `2` for a wall on the top
 * `3` for a wall on the right
 * `4` for a wall on the bottom
-* `7` for a wall on the bottom-left (concave angle)
-* `8` for a wall on the bottom-right (concave angle)
-* `9` for a wall on the top-left (convexe angle)
-* `10` for a wall on the bottom-right (convexe angle)
+* `5` for a wall on the bottom-left (concave angle)
+* `6` for a wall on the bottom-right (concave angle)
+* `7` for a wall on the top-left (convexe angle)
+* `8` for a wall on the bottom-right (convexe angle)
 
 Examples:
 ```json
   [
     [1, 2, 2, 2, 2, 3],
     [1, 0, 0, 0, 0, 3],
-    [1, 0, 9, 10, 0, 3],
+    [1, 0, 7, 8, 0, 3],
     [1, 0, 4, 4, 0, 3],
     [1, 0, 0, 0, 0, 3],
-    [7, 4, 4, 4, 4, 8],
+    [5, 4, 4, 4, 4, 6],
   ]
 ```
 

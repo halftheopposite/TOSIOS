@@ -24,13 +24,13 @@ const getTexture = (type: number): Texture => {
       return WALLS.right;
     case 4:
       return WALLS.bottom;
-    case 7:
+    case 5:
       return WALLS.bottomLeft;
-    case 8:
+    case 6:
       return WALLS.bottomRight;
-    case 9:
+    case 7:
       return WALLS.centerTopLeft;
-    case 10:
+    case 8:
       return WALLS.centerTopRight;
     default:
       return WALLS.bottom;
