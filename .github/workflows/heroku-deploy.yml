@@ -22,13 +22,13 @@ jobs:
       - name: Push to Heroku
         uses: actions/heroku@1.0.0
         with:
-          args: container:push -a tosios.demo web
+          args: container:push -a tosios-demo web
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
       - name: Release in Heroku
         uses: actions/heroku@1.0.0
         with:
-          args: container:release -a tosios.demo web
+          args: container:release -a tosios-demo web
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
