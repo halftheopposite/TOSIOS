@@ -1,4 +1,4 @@
-name: Docker Publish
+name: Publish to Docker Hub
 
 on:
   push:
@@ -9,8 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Publish to Registry
+      - name: Checkout Master
+        uses: actions/checkout@master
+
+      - name: Build & Publish
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: halftheopposite/tosios
