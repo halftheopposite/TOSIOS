@@ -70,7 +70,8 @@ class Game extends Component<IProps, IState> {
 
     // Client
     const host = window.document.location.host.replace(/:.*/, '');
-    const url = `${window.location.protocol.replace(/http|https/i, 'ws')}//${host}:${Constants.WS_PORT}`;
+    const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
+    const url = window.location.protocol.replace('http', 'ws') + "//" + host + (port ? ':' + port : '');
 
     this.client = new Client(url);
     this.client.onError.add((err: any) => {
