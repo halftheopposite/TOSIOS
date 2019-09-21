@@ -19,34 +19,30 @@ You can see a very small amount of gameplay below (the framerate of this GIF is 
 
 ![banner](images/game.gif "An in-game animation")
 
-
 **Movements**
 
 * Move: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
 * Aim: <kbd>Mouse</kbd>
 * Shoot: <kbd>Left click</kbd>
 
-## 🏗️ Building
+## 🚀 Running
 
 You can build this game yourself easily if you are experienced with modern javascript development or Docker.
 
-### Docker
-
-Run `docker build -t tosios .`
-
-### Local (Yarn is required)
-
-Run `yarn && yarn build`
-
-## 🚀 Running
-
 ### Docker Compose
 
-The easiest way to run the game is to use the `docker-compose.yml` file with the following command `docker-compose up`.
+The easiest way to run the game is to use the `docker-compose.yml` file with the following command `docker-compose up -d`.
+
+The `up` option will download the image if you don't have it yet and run the container.
+
+The `-d` option will run the container in the background.
 
 ### Docker
 
-Run `docker run -d -p 3001:3001 [IMAGE_ID]`
+You can also build the Docker image yourself:
+
+1. Build it with `docker build -t tosios .`
+2. Run it with `docker run -d -p 3001:3001 [IMAGE_ID]`
 
 The `-d` option will run the container in the background (recommended if you want to have access to your current terminal session).
 
@@ -56,32 +52,45 @@ The `[IMAGE_ID]` is easily discoverable by running `docker images` in the termin
 
 ### Local
 
-Run `yarn serve` and the game will be available at http://localhost:3001.
+You can also build the game directly using `yarn` (you cannot use `npm install` as this repo is using the `workspace` feature of Yarn):
+
+1. Install dependencies with `yarn`.
+2. Build game with `yarn build`.
+3. Run `yarn serve`.
+4. The game is available at http://localhost:3001.
 
 **Tips**
 
 If you want to **play with friends** at work or home, you can run 
-the following command to get your local network IP: `ipconfig getifaddr en0` (ex: http://192.168.1.10:3001).
+the following command to get your local network IP: `ipconfig getifaddr en0`. You can then share the obtained IP and port(ex: http://192.168.1.10:3001).
 
 ## 🔧 Development
 
-To run the project in development mode you can run `yarn && yarn start` at the root of the project.
+To run the project in development:
 
-The development mode uses `hot-reloading`, meaning that changes (except for the `common` module) are live. Therefore the URL for testing is http://localhost:3000, as it points towards `create-react-app` development server.
+1. Install dependencies with `yarn`.
+2. Start game with `yarn start`.
+3. The game is available at http://localhost:3001.
 
-If you encounter a **white screen** the first time you try to load the game, that's normal, just refresh the page. This is due to the order in which things are built at launch.
+If you encounter a **white screen** the first time you try to load the game in the browser, that's normal, just refresh the page. This is due to the order in which things are built the first time at launch.
+
+In development, the `front` application is NOT served by the `server`, thus requiring you to access it through port `3000` instead of `3001` as seen before.
+
+In development changes made to `client` and `server` are live, except for the `common` module.
 
 ## Project architecture
 
 This project is a monorepo (with the help of Yarn workspaces). It contains the following packages:
 
-* `client` - A `Create React App` using `PIXI.js` and `Colyseus.js`.
-* `server` - A `NodeJS` app using `Express` and `Colyseus`.
+* `client` - The frontend application using `Create React App`, `PIXI.js` and `Colyseus.js`.
+* `server` - The authoritarive server running on `NodeJS`, `Express` and `Colyseus`.
 * `common` - A collection of constants and methods shared amongst `client` and `server`.
 
 ## Modding
 
 ### Maps
+
+Anyone can create their own map pretty easily in TOSIOS.
 
 Maps are composed of `arrays` of `arrays` where each number greater than `0` represents a `wall` to which entities will collide.
 
