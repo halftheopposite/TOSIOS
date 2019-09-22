@@ -194,11 +194,13 @@ export class DMState extends Schema {
             bullet.active = false;
             player.hurt();
 
-            this.onMessage(new Message('killed', {
-              killerName: this.players[bullet.playerId].name,
-              killedName: player.name,
-            }));
-            this.setPlayerScore(bullet.playerId);
+            if (!player.isAlive) {
+              this.onMessage(new Message('killed', {
+                killerName: this.players[bullet.playerId].name,
+                killedName: player.name,
+              }));
+              this.setPlayerScore(bullet.playerId);
+            }
           }
         }
       }
