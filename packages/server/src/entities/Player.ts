@@ -1,11 +1,13 @@
+import { type } from '@colyseus/schema';
 import {
   Constants,
   Maths,
 } from '@tosios/common';
-import { type } from '@colyseus/schema';
 import { Circle } from './Circle';
 
 const validateName = (name: string) => name.trim().slice(0, 16);
+const generateColor = () => '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
+
 
 export class Player extends Circle {
 
@@ -15,8 +17,8 @@ export class Player extends Circle {
   @type('string')
   name: string;
 
-  @type('number')
-  color: number;
+  @type('string')
+  color: string;
 
   @type('number')
   score: number;
@@ -33,6 +35,7 @@ export class Player extends Circle {
     super(x, y, radius);
     this.lives = lives;
     this.name = validateName(name);
+    this.color = generateColor();
     this.score = 0;
     this.rotation = 0;
     this.lastMoveAt = undefined;

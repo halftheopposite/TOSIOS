@@ -1,5 +1,5 @@
 import { Maths } from '@tosios/common';
-import { AnimatedSprite } from 'pixi.js';
+import { AnimatedSprite, utils } from 'pixi.js';
 import { PlayerTextures } from '../images/textures';
 import { HUDText } from './';
 import { CircleSprite } from './CircleSprite';
@@ -11,6 +11,7 @@ export default class Player extends CircleSprite {
   private _toX: number = 0;
   private _toY: number = 0;
   private _name: string = '';
+  private _color: string = '#FFFFFF';
   private _lives: number = 0;
   private _score: number = 0;
   private _rotation: number = 0;
@@ -24,6 +25,7 @@ export default class Player extends CircleSprite {
     radius: number,
     rotation: number,
     name: string,
+    color: string,
     lives: number,
     score: number,
   ) {
@@ -47,6 +49,7 @@ export default class Player extends CircleSprite {
     this.toY = y;
     this.rotation = rotation;
     this.name = name;
+    this.color = color;
     this.lives = lives;
     this.score = score;
 
@@ -104,6 +107,11 @@ export default class Player extends CircleSprite {
     this._nameTextSprite.text = name;
   }
 
+  set color(color: string) {
+    this._color = color;
+    this.sprite.tint = utils.string2hex(color);
+  }
+
   set lives(lives: number) {
     if (this._lives === lives) {
       return;
@@ -151,6 +159,10 @@ export default class Player extends CircleSprite {
 
   get name() {
     return this._name;
+  }
+
+  get color() {
+    return this._color;
   }
 
   get lives() {

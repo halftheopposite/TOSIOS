@@ -427,6 +427,7 @@ export default class GameManager {
       attributes.radius,
       attributes.rotation,
       attributes.name,
+      attributes.color,
       attributes.lives,
       attributes.score,
     );
@@ -474,6 +475,7 @@ export default class GameManager {
       attributes.radius,
       attributes.rotation,
       '',
+      '',
       0,
       0,
     );
@@ -514,6 +516,7 @@ export default class GameManager {
       attributes.radius,
       attributes.rotation,
       attributes.name,
+      attributes.color,
       attributes.lives,
       attributes.score,
     ));
