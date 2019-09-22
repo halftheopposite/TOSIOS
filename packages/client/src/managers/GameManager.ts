@@ -259,9 +259,12 @@ export default class GameManager {
   }
 
   private updateHUD = () => {
+    const isMobile = utils.isMobile.any;
+    this.hudManager.setMobile(isMobile);
+
     this.updateHUDLives();
     this.updateHUDTimeLeft();
-    this.updateHUDPlayers();
+    this.updateHUDPlayers(isMobile);
     this.updateHUDFPS();
   }
 
@@ -313,9 +316,9 @@ export default class GameManager {
     this.hudManager.setText('time', text);
   }
 
-  private updateHUDPlayers = () => {
+  private updateHUDPlayers = (isMobile: boolean) => {
     const count = this.playersManager.getAll().length + 1;
-    const text = `[${count}/${this.maxPlayers}] players`;
+    const text = `[${count}/${this.maxPlayers}]${isMobile ? '' : ' players'}`;
     this.hudManager.setText('players', text);
   }
 

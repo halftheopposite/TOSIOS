@@ -125,6 +125,16 @@ export default class HUDManager extends Container {
     this.hudLives.maxLives = maxLives;
   }
 
+  setMobile = (mobile: boolean) => {
+    if (mobile) {
+      this.logsText.visible = false;
+      this.hudLives.mobile = true;
+    } else {
+      this.logsText.visible = true;
+      this.hudLives.mobile = false;
+    }
+  }
+
   setLives = (lives: number) => {
     this.hudLives.lives = lives;
   }
@@ -174,5 +184,8 @@ export default class HUDManager extends Container {
     }
 
     this.setText('logs', this.logs.join('\n'));
+  }
+
+  hideLogs = (hide: boolean) => {
   }
 }
