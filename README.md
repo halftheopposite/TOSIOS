@@ -126,7 +126,7 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 
 * ~Let users select the number of players in a room.~
 * ~Publish the docker image onto a registry and add a `docker-compose` file.~
-* Add a playable demo website for anyone to test and play the game.
+* ~Add a playable demo website for anyone to test and play the game.~
 * Add mobile mode (updated GUI and virtual joysticks).
 * Add visual feedback when a player gets hit.
 * Add a Team Death Match mode.
