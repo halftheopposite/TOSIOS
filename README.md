@@ -27,7 +27,7 @@ You can see a very small amount of gameplay below (the framerate of this GIF is 
 
 * Move: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
 * Aim: <kbd>Mouse</kbd>
-* Shoot: <kbd>Left click</kbd>
+* Shoot: <kbd>Left click</kbd> or <kbd>Space</kbd>
 
 ## 🚀 Running
 
@@ -143,8 +143,9 @@ Thanks to [@pixel_poem](https://twitter.com/pixel_poem) for the art package he p
 
 This project is under the MIT license.
 
-The major libraries used in this project have the following licenses:
+The major libraries and assets used in this project have the following licenses:
 
 * Colyseus: [MIT](https://github.com/colyseus/colyseus/blob/master/LICENSE)
 * PIXI.js: [MIT](https://github.com/pixijs/pixi.js/blob/dev/LICENSE)
+* Font "Press Start 2P": [Creative Common Zero](http://www.zone38.net/font/)
 * TOSIOS: [MIT](https://github.com/halftheopposite/tosios/blob/master/LICENSE)

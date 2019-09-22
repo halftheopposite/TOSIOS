@@ -23,7 +23,7 @@ class Game extends Component<IProps, IState> {
   gameManager: GameManager;
   client: Client | null = null;
   room: Room | null = null;
-  pressedKeys = { up: false, down: false, left: false, right: false };
+  pressedKeys = { up: false, down: false, left: false, right: false, shoot: false };
 
   state: IState = {
     playerId: '',
@@ -99,7 +99,8 @@ class Game extends Component<IProps, IState> {
       window.history.replaceState(null, '', `/${this.room.id}`);
 
       // Inputs
-      window.document.addEventListener('click', this.handleMouseClick);
+      window.document.addEventListener('mousedown', this.handleMouseDown);
+      window.document.addEventListener('mouseup', this.handleMouseUp);
       window.document.addEventListener('keydown', this.handleKeyDown);
       window.document.addEventListener('keyup', this.handleKeyUp);
       window.addEventListener('resize', this.handleWindowResize);
@@ -237,10 +238,16 @@ class Game extends Component<IProps, IState> {
 
 
   // HANDLERS: Inputs
-  handleMouseClick = (event: any) => {
+  handleMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    this.sendPlayerShootMessage(this.gameManager.getMeRotation());
+    this.pressedKeys.shoot = true;
+  }
+
+  handleMouseUp = (event: any) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.pressedKeys.shoot = false;
   }
 
   handleKeyDown = (event: any) => {
@@ -267,6 +274,9 @@ class Game extends Component<IProps, IState> {
         this.pressedKeys.right = true;
         event.preventDefault();
         break;
+      case Keys.KEY_SPACE:
+        this.pressedKeys.shoot = true;
+        event.preventDefault();
       default:
         break;
     }
@@ -296,6 +306,9 @@ class Game extends Component<IProps, IState> {
         this.pressedKeys.right = false;
         event.preventDefault();
         break;
+      case Keys.KEY_SPACE:
+        this.pressedKeys.shoot = false;
+        event.preventDefault();
       default:
         break;
     }
@@ -362,6 +375,7 @@ class Game extends Component<IProps, IState> {
   }
 
   updateInputs = () => {
+    // Move
     const dir = { x: 0, y: 0 };
     if (this.pressedKeys.up || this.pressedKeys.down || this.pressedKeys.left || this.pressedKeys.right) {
       dir.x = 0;
@@ -387,6 +401,11 @@ class Game extends Component<IProps, IState> {
         this.sendPlayerMoveMessage(dir.x, dir.y);
       }
     }
+
+    // Shoot
+    if (this.pressedKeys.shoot) {
+      this.sendPlayerShootMessage(this.gameManager.getMeRotation());
+    }
   }
 
 
@@ -407,7 +426,8 @@ class Game extends Component<IProps, IState> {
     }
 
     // Inputs
-    window.document.removeEventListener('click', this.handleMouseClick);
+    window.document.removeEventListener('mousedown', this.handleMouseDown);
+    window.document.removeEventListener('mouseup', this.handleMouseUp);
     window.document.removeEventListener('keydown', this.handleKeyDown);
     window.document.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('resize', this.handleWindowResize);
