@@ -1,9 +1,10 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Keys, Types } from '@tosios/common';
+import { Constants, Keys, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
-import React, { Component, RefObject } from 'react';
+import React, { Component, Fragment, RefObject } from 'react';
 import { Helmet } from 'react-helmet';
+import ReactNipple from 'react-nipple';
 
 import GameManager from '../managers/GameManager';
 
@@ -455,9 +456,43 @@ class Game extends Component<IProps, IState> {
           <title>{`Death Match (${this.state.playersCount})`}</title>
         </Helmet>
         <div ref={this.gameCanvas} />
+        {this.renderLeftJoyStick()}
       </div>
+    );
+  }
+
+
+
+  renderLeftJoyStick = () => {
+    return (
+      <Fragment>
+        <ReactNipple
+          options={{ mode: 'static', position: { bottom: '20%', left: '20%' } }}
+          onMove={(evt: any, data: any) => this.sendPlayerRotationMessage(data.angle.radian)}
+        />
+        <ReactNipple
+          options={{ mode: 'static', position: { bottom: '20%', right: '20%' } }}
+          onEnd={() => {
+            this.pressedKeys.up = false;
+            this.pressedKeys.down = false;
+            this.pressedKeys.left = false;
+            this.pressedKeys.right = false;
+          }}
+          onMove={(event: any, data: any) => {
+            const cardinal = Maths.degreeToCardinal(data.angle.degree);
+            this.pressedKeys.up = cardinal === 'NW' || cardinal === 'N' || cardinal === 'NE';
+            this.pressedKeys.right = cardinal === 'NE' || cardinal === 'E' || cardinal === 'SE';
+            this.pressedKeys.down = cardinal === 'SE' || cardinal === 'S' || cardinal === 'SW';
+            this.pressedKeys.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
+          }}
+        />
+      </Fragment>
     );
   }
 }
 
 export default Game;
+
+
+// 0 -> 90 right
+// 1
