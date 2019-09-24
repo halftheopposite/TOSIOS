@@ -1,8 +1,11 @@
 import { Maths } from '@tosios/common';
-import { AnimatedSprite, utils } from 'pixi.js';
-import { PlayerTextures } from '../images/textures';
+import { AnimatedSprite, Sprite, utils } from 'pixi.js';
+import { PlayerTextures, WeaponTextures } from '../images/textures';
 import { HUDText } from './';
 import { CircleSprite } from './CircleSprite';
+
+const NAME_OFFSET = 4;
+const STAFF_OFFSET = 10;
 
 type PlayerDirection = 'left' | 'right';
 
@@ -16,6 +19,7 @@ export default class Player extends CircleSprite {
   private _score: number = 0;
   private _rotation: number = 0;
   private _direction: PlayerDirection = 'right';
+  private _weaponSprite: Sprite;
   private _nameTextSprite: HUDText;
 
   // Init
@@ -42,7 +46,16 @@ export default class Player extends CircleSprite {
       },
     );
 
-    this._nameTextSprite = new HUDText(this.name, 10, 0.5, 1);
+    // Weapon
+    this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
+    this._weaponSprite.anchor.set(0, 0.5);
+    this._weaponSprite.position.set(
+      x,
+      y + STAFF_OFFSET,
+    );
+
+    // Name
+    this._nameTextSprite = new HUDText(name, 10, 0.5, 1);
     this._nameTextSprite.position.set(x, this.body.top);
 
     this.toX = x;
@@ -65,13 +78,18 @@ export default class Player extends CircleSprite {
 
     this.x = this.x + speedX;
     this.y = this.y + speedY;
-    this._nameTextSprite.position.set(this.x, this.body.top - 4);
+    this._weaponSprite.position.set(
+      this.x,
+      this.y + STAFF_OFFSET,
+    );
+    this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
   }
 
   updateTextures() {
     const isAlive = this.lives > 0;
 
     this.sprite.alpha = isAlive ? 1.0 : 0.2;
+    this.weaponSprite.visible = isAlive;
     this.nameTextSprite.alpha = isAlive ? 1.0 : 0.2;
 
     (this.sprite as AnimatedSprite).textures = isAlive
@@ -94,7 +112,11 @@ export default class Player extends CircleSprite {
   set position(position: { x: number; y: number }) {
     this.x = position.x;
     this.y = position.y;
-    this._nameTextSprite.position.set(this.x, this.body.top - 4);
+    this._weaponSprite.position.set(
+      this.x,
+      this.y + STAFF_OFFSET,
+    );
+    this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
   }
 
   set toPosition(position: { toX: number, toY: number }) {
@@ -110,6 +132,7 @@ export default class Player extends CircleSprite {
   set color(color: string) {
     this._color = color;
     this.sprite.tint = utils.string2hex(color);
+    this.weaponSprite.tint = utils.string2hex(color);
   }
 
   set lives(lives: number) {
@@ -133,6 +156,8 @@ export default class Player extends CircleSprite {
     } else {
       this.direction = 'left';
     }
+
+    this._weaponSprite.rotation = rotation;
   }
 
   set direction(direction: PlayerDirection) {
@@ -179,6 +204,10 @@ export default class Player extends CircleSprite {
 
   get direction() {
     return this._direction;
+  }
+
+  get weaponSprite() {
+    return this._weaponSprite;
   }
 
   get nameTextSprite() {

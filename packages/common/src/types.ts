@@ -13,7 +13,7 @@ export type MapNameType = 'small' | 'long' | 'big';
 
 
 export interface IRoomOptions {
-  playerName: string;
+  playerName?: string;
   roomName: string;
   roomMap: MapNameType;
   roomMaxPlayers: number;
