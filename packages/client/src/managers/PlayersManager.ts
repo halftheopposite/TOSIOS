@@ -11,11 +11,13 @@ export default class PlayersManager extends ManagerContainer<Player> {
   public add = (playerId: string, player: Player) => {
     this.entities[playerId] = player;
     this.addChild(player.sprite);
+    this.addChild(player.weaponSprite);
     this.addChild(player.nameTextSprite);
   }
 
   public remove = (playerId: string) => {
     this.removeChild(this.entities[playerId].sprite);
+    this.removeChild(this.entities[playerId].weaponSprite);
     this.removeChild(this.entities[playerId].nameTextSprite);
     delete this.entities[playerId];
   }

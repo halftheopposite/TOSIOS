@@ -433,6 +433,7 @@ export default class GameManager {
     );
 
     this.viewport.addChild(this.me.sprite);
+    this.viewport.addChild(this.me.weaponSprite);
     this.viewport.addChild(this.me.nameTextSprite);
     this.viewport.follow(this.me.sprite);
     this.ghostAdd(attributes);
@@ -457,6 +458,7 @@ export default class GameManager {
     }
 
     this.viewport.removeChild(this.me.sprite);
+    this.viewport.removeChild(this.me.weaponSprite);
     this.viewport.removeChild(this.me.nameTextSprite);
     delete this.me;
     this.ghostRemove();
