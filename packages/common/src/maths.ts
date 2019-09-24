@@ -68,7 +68,7 @@ export const normalize2D = (ax: number, ay: number) => {
 /**
  * Transform a degree angle to one of the 8 cardinals.
  */
-export const degreeToCardinal = (degree: number) {
+export const degreeToCardinal = (degree: number) => {
   const cardinals = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
   const remainder = degree %= 360;
   const index = Math.round((remainder < 0 ? degree + 360 : degree) / 45) % 8;
