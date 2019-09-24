@@ -62,10 +62,12 @@ class Game extends Component<IProps, IState> {
       } = {},
     } = this.props;
 
+    const isNewRoom = roomId === 'new';
     const parsedSearch = qs.parse(search) as Types.IRoomOptions;
     const options: Types.IRoomOptions = {
       ...parsedSearch,
-      create: roomId === 'new',
+      ...(!isNewRoom && { playerName: localStorage.getItem('name') || '' }),
+      create: isNewRoom,
     };
 
     // Client
