@@ -233,11 +233,7 @@ class Home extends Component<IProps, IState> {
           />
         )}
         {isNewRoom && (
-          <View flex={true} style={{ alignItems: 'flex-start', flexDirection: 'column' }}>
-            <Space size="xxs" />
-            <Separator />
-            <Space size="xxs" />
-
+          <View style={{ width: '100%' }}>
             {/* Name */}
             <p>Name:</p>
             <Space size="xxs" />
@@ -270,13 +266,13 @@ class Home extends Component<IProps, IState> {
             <Space size="s" />
 
             {/* Button */}
-            <View flex={true}>
+            <View>
               <Button
                 title="Create room"
                 onClick={this.handleCreateRoomClick}
                 text={'Create'}
               />
-              <Inline size="xs" />
+              <Space size="xs" />
               <Button
                 title="Cancel"
                 onClick={this.handleCancelRoomClick}
