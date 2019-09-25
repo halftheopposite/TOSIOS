@@ -6,8 +6,7 @@ import { DMState } from '../states/DMState';
 
 export class DMRoom extends Room<DMState> {
 
-  // Base
-  onInit(options: Types.IRoomOptions) {
+  onCreate(options: Types.IRoomOptions) {
     this.maxClients = Maths.clamp(
       options.roomMaxPlayers || 0,
       Constants.ROOM_PLAYERS_MIN,
@@ -28,23 +27,14 @@ export class DMRoom extends Room<DMState> {
       this.handleMessage,
     ));
 
-    this.setSimulationInterval((deltaTime) => this.tick(deltaTime));
+    this.setSimulationInterval((deltaTime) => this.handleTick(deltaTime));
 
     console.log('Room created', options);
   }
 
-  requestJoin(options: any, isNew?: boolean) {
-    return options.create ? isNew : true;
-  }
-
-  onJoin(client: Client, options: any) {
+  onJoin(client: Client, options: Types.IPlayerOptions) {
     this.state.playerAdd(client.sessionId, options.playerName);
-    console.log('Player joined:', client.sessionId);
-  }
-
-  onLeave(client: Client) {
-    this.state.playerRemove(client.sessionId);
-    console.log('Player left:', client.sessionId);
+    console.log('Player joined:', client.sessionId, options.playerName);
   }
 
   onMessage(client: Client, data: any) {
@@ -83,15 +73,20 @@ export class DMRoom extends Room<DMState> {
     }
   }
 
-  tick(deltaTime: number) {
-    this.state.update(deltaTime);
+  onLeave(client: Client) {
+    this.state.playerRemove(client.sessionId);
+    console.log('Player left:', client.sessionId);
   }
 
   onDispose() {
     console.log('Room deleted');
   }
 
-  // Broadcasts
+  // Handlers
+  handleTick = (deltaTime: number) => {
+    this.state.update(deltaTime);
+  }
+
   handleMessage = (message: Message) => {
     this.broadcast(message.JSON);
   }

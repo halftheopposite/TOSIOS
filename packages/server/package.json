@@ -4,9 +4,11 @@
   "private": true,
   "main": "./build/index.js",
   "dependencies": {
+    "@colyseus/monitor": "^0.11.5",
+    "@colyseus/schema": "^0.4.56",
     "@tosios/common": "0.1.0",
-    "@colyseus/schema": "^0.4.55",
-    "colyseus": "^0.10.5",
+    "colyseus": "^0.11.14",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "path": "^0.12.7"
   },

@@ -54,7 +54,7 @@ class Game extends Component<IProps, IState> {
 
 
   // START
-  start = () => {
+  start = async () => {
     const {
       roomId,
       location: {
@@ -63,23 +63,39 @@ class Game extends Component<IProps, IState> {
     } = this.props;
 
     const isNewRoom = roomId === 'new';
-    const parsedSearch = qs.parse(search) as Types.IRoomOptions;
-    const options: Types.IRoomOptions = {
-      ...parsedSearch,
-      ...(!isNewRoom && { playerName: localStorage.getItem('playerName') || '' }),
-      create: isNewRoom,
-    };
+    const parsedSearch = qs.parse(search);
+    let options;
+    if (isNewRoom) {
+      options = {
+        ...(parsedSearch as Types.IRoomOptions),
+      };
+    } else {
+      options = {
+        playerName: localStorage.getItem('playerName'),
+      };
+    }
 
     // Client
     const host = window.document.location.host.replace(/:.*/, '');
     const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
     const url = window.location.protocol.replace('http', 'ws') + "//" + host + (port ? ':' + port : '');
 
-    this.client = new Client(url);
-    this.client.onError.add((err: any) => {
-      console.error(err);
+    if (!roomId) {
       navigate('/');
-    });
+    }
+
+    this.client = new Client(url);
+    if (isNewRoom) {
+      this.room = await this.client.create(Constants.ROOM_NAME, options);
+    } else {
+      this.room = await this.client.joinById(roomId, options);
+    }
+
+    //FIXME:
+    // this.client.onError.add((err: any) => {
+    //   console.error(err);
+    //   navigate('/');
+    // });
 
     // Room
     this.room = this.client.join(Constants.ROOM_NAME, options);
@@ -123,8 +139,8 @@ class Game extends Component<IProps, IState> {
       this.room.state.props.onAdd = this.handlePropAdd;
       this.room.state.props.onChange = this.handlePropUpdate;
       this.room.state.props.onRemove = this.handlePropRemove;
-      this.room.onMessage.add(this.handleMessage);
-      this.room.onError.add(() => { console.log('Error with the room'); });
+      this.room.onMessage(this.handleMessage);
+      this.room.onError(() => { console.log('Error with the room'); });
     });
   }
 
@@ -419,10 +435,6 @@ class Game extends Component<IProps, IState> {
     // Colyseus
     if (this.room) {
       this.room.leave();
-    }
-
-    if (this.client) {
-      this.client.close();
     }
 
     // Game

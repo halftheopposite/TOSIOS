@@ -11,11 +11,13 @@ export type MessageType = 'waiting' | 'start' | 'stop' | 'joined' | 'killed' | '
 export type PropType = 'potion-red';
 export type MapNameType = 'small' | 'long' | 'big';
 
-
 export interface IRoomOptions {
   playerName?: string;
   roomName: string;
   roomMap: MapNameType;
   roomMaxPlayers: number;
-  create?: boolean;
+}
+
+export interface IPlayerOptions {
+  playerName?: string;
 }
