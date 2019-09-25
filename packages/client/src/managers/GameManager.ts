@@ -83,7 +83,11 @@ export default class GameManager {
     this.app.stage.addChild(this.viewport);
 
     // HUD
-    this.hudManager = new HUDManager(screenWidth, screenHeight);
+    this.hudManager = new HUDManager(
+      screenWidth,
+      screenHeight,
+      utils.isMobile.any,
+    );
     this.app.stage.addChild(this.hudManager);
 
     // Map
@@ -259,71 +263,29 @@ export default class GameManager {
   }
 
   private updateHUD = () => {
-    const isMobile = utils.isMobile.any;
-    this.hudManager.setMobile(isMobile);
+    // Lives
+    this.hudManager.lives = this.me ? this.me.lives : 0;
+    this.hudManager.maxLives = Constants.PLAYER_LIVES; // TODO: This should be on the Player model
 
-    this.updateHUDLives();
-    this.updateHUDTimeLeft();
-    this.updateHUDPlayers(isMobile);
-    this.updateHUDFPS();
-  }
-
-  private updateHUDLives = () => {
-    if (!this.me) {
-      return;
+    // Time
+    switch (this.state) {
+      case 'lobby':
+        this.hudManager.time = this.lobbyEndsAt - Date.now();
+        break;
+      case 'game':
+        this.hudManager.time = this.gameEndsAt - Date.now();
+        break;
+      default:
+        this.hudManager.time = 0;
+        break;
     }
 
-    this.hudManager.setLives(this.me.lives);
-  }
+    // Players
+    this.hudManager.players = this.playersManager.getAll().length + 1;
+    this.hudManager.maxPlayers = this.maxPlayers;
 
-  private updateHUDTimeLeft = () => {
-    let text = '';
-    if (this.state === 'waiting') {
-      text = '00:00';
-    } else {
-      const getMinutes = (seconds: number) => {
-        return Math.floor(seconds / 60);
-      };
-
-      const getSeconds = (seconds: number) => {
-        return Math.floor(seconds % 60);
-      };
-
-      let minutesLeft: number;
-      let secondsLeft: number;
-      switch (this.state) {
-        case 'lobby':
-          minutesLeft = getMinutes((this.lobbyEndsAt - Date.now()) / 1000);
-          secondsLeft = getSeconds((this.lobbyEndsAt - Date.now()) / 1000);
-          break;
-        case 'game':
-          minutesLeft = getMinutes((this.gameEndsAt - Date.now()) / 1000);
-          secondsLeft = getSeconds((this.gameEndsAt - Date.now()) / 1000);
-          break;
-        default:
-          minutesLeft = 0;
-          secondsLeft = 0;
-          break;
-      }
-
-      if (secondsLeft < 0) {
-        secondsLeft = 0;
-      }
-
-      text = `${minutesLeft.toString().padStart(2, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
-    }
-
-    this.hudManager.setText('time', text);
-  }
-
-  private updateHUDPlayers = (isMobile: boolean) => {
-    const count = this.playersManager.getAll().length + 1;
-    const text = `[${count}/${this.maxPlayers}]${isMobile ? '' : ' players'}`;
-    this.hudManager.setText('players', text);
-  }
-
-  private updateHUDFPS = () => {
-    this.hudManager.setText('fps', `${Math.floor(this.app.ticker.FPS)}`);
+    // FPS
+    this.hudManager.fps = Math.floor(this.app.ticker.FPS);
   }
 
 
@@ -463,7 +425,6 @@ export default class GameManager {
     this.viewport.removeChild(this.me.nameTextSprite);
     delete this.me;
     this.ghostRemove();
-    this.hudManager.setLives(0);
   }
 
   // EXTERNAL: Ghost
@@ -615,6 +576,6 @@ export default class GameManager {
   }
 
   winnerAdd = (name: string) => {
-    this.hudManager.setText('announce', `${name} wins this round!`);
+    this.hudManager.announce = `${name} wins this round!`;
   }
 }
