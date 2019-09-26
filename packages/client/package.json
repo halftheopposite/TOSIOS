@@ -12,6 +12,7 @@
     "pixi.js": "^5.1.1",
     "querystringify": "^2.1.1",
     "react": "^16.8.6",
+    "react-device-detect": "^1.9.10",
     "react-dom": "^16.8.6",
     "react-helmet": "^5.2.1",
     "react-nipple": "^1.0.1",
