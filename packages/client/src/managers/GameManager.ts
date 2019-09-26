@@ -83,7 +83,11 @@ export default class GameManager {
     this.app.stage.addChild(this.viewport);
 
     // HUD
-    this.hudManager = new HUDManager(screenWidth, screenHeight);
+    this.hudManager = new HUDManager(
+      screenWidth,
+      screenHeight,
+      utils.isMobile.any,
+    );
     this.app.stage.addChild(this.hudManager);
 
     // Map
@@ -117,11 +121,10 @@ export default class GameManager {
     this.onRotationChange = onRotationChange;
   }
 
-  start = (renderView: any, maxPlayers: number) => {
+  start = (renderView: any) => {
     renderView.appendChild(this.app.view);
     this.app.start();
     this.app.ticker.add(this.update);
-    this.maxPlayers = maxPlayers;
   }
 
 
@@ -172,19 +175,21 @@ export default class GameManager {
       }
     }
 
-    // Angle
-    const screenPlayerPosition = this.viewport.toScreen(this.me.x, this.me.y);
-    const mouse = this.app.renderer.plugins.interaction.mouse.global;
-    const rotation = Maths.round2Digits(Maths.calculateAngle(
-      mouse.x,
-      mouse.y,
-      screenPlayerPosition.x,
-      screenPlayerPosition.y,
-    ));
+    // Calculate rotation (on mobile this happens in the React Game class)
+    if (!utils.isMobile.any) {
+      const screenPlayerPosition = this.viewport.toScreen(this.me.x, this.me.y);
+      const mouse = this.app.renderer.plugins.interaction.mouse.global;
+      const rotation = Maths.round2Digits(Maths.calculateAngle(
+        mouse.x,
+        mouse.y,
+        screenPlayerPosition.x,
+        screenPlayerPosition.y,
+      ));
 
-    if (this.me.rotation !== rotation) {
-      this.me.rotation = rotation;
-      this.onRotationChange(this.me.rotation);
+      if (this.me.rotation !== rotation) {
+        this.me.rotation = rotation;
+        this.onRotationChange(this.me.rotation);
+      }
     }
   }
 
@@ -259,68 +264,29 @@ export default class GameManager {
   }
 
   private updateHUD = () => {
-    this.updateHUDLives();
-    this.updateHUDTimeLeft();
-    this.updateHUDPlayers();
-    this.updateHUDFPS();
-  }
+    // Lives
+    this.hudManager.lives = this.me ? this.me.lives : 0;
+    this.hudManager.maxLives = Constants.PLAYER_LIVES; // TODO: This should be on the Player model
 
-  private updateHUDLives = () => {
-    if (!this.me) {
-      return;
+    // Time
+    switch (this.state) {
+      case 'lobby':
+        this.hudManager.time = this.lobbyEndsAt - Date.now();
+        break;
+      case 'game':
+        this.hudManager.time = this.gameEndsAt - Date.now();
+        break;
+      default:
+        this.hudManager.time = 0;
+        break;
     }
 
-    this.hudManager.setLives(this.me.lives);
-  }
+    // Players
+    this.hudManager.players = this.playersManager.getAll().length + 1;
+    this.hudManager.maxPlayers = this.maxPlayers;
 
-  private updateHUDTimeLeft = () => {
-    let text = '';
-    if (this.state === 'waiting') {
-      text = '00:00';
-    } else {
-      const getMinutes = (seconds: number) => {
-        return Math.floor(seconds / 60);
-      };
-
-      const getSeconds = (seconds: number) => {
-        return Math.floor(seconds % 60);
-      };
-
-      let minutesLeft: number;
-      let secondsLeft: number;
-      switch (this.state) {
-        case 'lobby':
-          minutesLeft = getMinutes((this.lobbyEndsAt - Date.now()) / 1000);
-          secondsLeft = getSeconds((this.lobbyEndsAt - Date.now()) / 1000);
-          break;
-        case 'game':
-          minutesLeft = getMinutes((this.gameEndsAt - Date.now()) / 1000);
-          secondsLeft = getSeconds((this.gameEndsAt - Date.now()) / 1000);
-          break;
-        default:
-          minutesLeft = 0;
-          secondsLeft = 0;
-          break;
-      }
-
-      if (secondsLeft < 0) {
-        secondsLeft = 0;
-      }
-
-      text = `${minutesLeft.toString().padStart(2, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
-    }
-
-    this.hudManager.setText('time', text);
-  }
-
-  private updateHUDPlayers = () => {
-    const count = this.playersManager.getAll().length + 1;
-    const text = `[${count}/${this.maxPlayers}] players`;
-    this.hudManager.setText('players', text);
-  }
-
-  private updateHUDFPS = () => {
-    this.hudManager.setText('fps', `${Math.floor(this.app.ticker.FPS)}`);
+    // FPS
+    this.hudManager.fps = Math.floor(this.app.ticker.FPS);
   }
 
 
@@ -397,6 +363,9 @@ export default class GameManager {
         // Hide props when outside a game
         this.state === 'game' ? this.propsManager.show() : this.propsManager.hide();
         break;
+      case 'maxPlayers':
+        this.maxPlayers = value;
+        break;
       case 'lobbyEndsAt':
         this.lobbyEndsAt = value;
         break;
@@ -443,6 +412,14 @@ export default class GameManager {
     this.dir.set(dirX, dirY);
   }
 
+  meUpdateRotation = (rotation: number) => {
+    if (!this.me) {
+      return;
+    }
+
+    this.me.rotation = rotation;
+  }
+
   meUpdate = (attributes: any) => {
     if (!this.me) {
       return;
@@ -462,7 +439,6 @@ export default class GameManager {
     this.viewport.removeChild(this.me.nameTextSprite);
     delete this.me;
     this.ghostRemove();
-    this.hudManager.setLives(0);
   }
 
   // EXTERNAL: Ghost
@@ -614,6 +590,6 @@ export default class GameManager {
   }
 
   winnerAdd = (name: string) => {
-    this.hudManager.setText('announce', `${name} wins this round!`);
+    this.hudManager.announce = `${name} wins this round!`;
   }
 }

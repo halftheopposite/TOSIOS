@@ -1,9 +1,11 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Keys, Types } from '@tosios/common';
+import { Constants, Keys, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
-import React, { Component, RefObject } from 'react';
+import React, { Component, Fragment, RefObject } from 'react';
+import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
+import ReactNipple from 'react-nipple';
 
 import GameManager from '../managers/GameManager';
 
@@ -66,6 +68,7 @@ class Game extends Component<IProps, IState> {
     const parsedSearch = qs.parse(search) as Types.IRoomOptions;
     const options: Types.IRoomOptions = {
       ...parsedSearch,
+      roomMaxPlayers: Number(parsedSearch.roomMaxPlayers),
       ...(!isNewRoom && { playerName: localStorage.getItem('playerName') || '' }),
       create: isNewRoom,
     };
@@ -88,17 +91,11 @@ class Game extends Component<IProps, IState> {
         return;
       }
 
-      console.log(this.client)
-      console.log(this.room)
-
       this.setState({
         playerId: this.room.sessionId,
       });
 
-      this.gameManager.start(
-        this.gameCanvas.current,
-        this.room.options.roomMaxPlayers,
-      );
+      this.gameManager.start(this.gameCanvas.current);
 
       // Replace the URL with the Room's ID
       window.history.replaceState(null, '', `/${this.room.id}`);
@@ -460,7 +457,53 @@ class Game extends Component<IProps, IState> {
           <title>{`Death Match (${this.state.playersCount})`}</title>
         </Helmet>
         <div ref={this.gameCanvas} />
+        {isMobile && this.renderJoySticks()}
       </div>
+    );
+  }
+
+  renderJoySticks = () => {
+    return (
+      <Fragment>
+        {/* Position */}
+        <ReactNipple
+          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
+          onEnd={() => {
+            this.pressedKeys.up = false;
+            this.pressedKeys.down = false;
+            this.pressedKeys.left = false;
+            this.pressedKeys.right = false;
+          }}
+          onMove={(event: any, data: any) => {
+            const cardinal = Maths.degreeToCardinal(data.angle.degree);
+            this.pressedKeys.up = cardinal === 'NW' || cardinal === 'N' || cardinal === 'NE';
+            this.pressedKeys.right = cardinal === 'NE' || cardinal === 'E' || cardinal === 'SE';
+            this.pressedKeys.down = cardinal === 'SE' || cardinal === 'S' || cardinal === 'SW';
+            this.pressedKeys.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
+          }}
+        />
+
+        {/* Rotation + shoot */}
+        <ReactNipple
+          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
+          onMove={(event: any, data: any) => {
+            const radians = Maths.round2Digits(data.angle.radian - Math.PI);
+            let rotation = 0;
+            if (radians < 0) {
+              rotation = Maths.reverseNumber(radians, -Math.PI, 0);
+            } else {
+              rotation = Maths.reverseNumber(radians, 0, Math.PI);
+            }
+
+            this.sendPlayerRotationMessage(rotation);
+            this.pressedKeys.shoot = true;
+            this.gameManager.meUpdateRotation(rotation);
+          }}
+          onEnd={() => {
+            this.pressedKeys.shoot = false;
+          }}
+        />
+      </Fragment>
     );
   }
 }

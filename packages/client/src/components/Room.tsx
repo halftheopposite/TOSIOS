@@ -51,7 +51,7 @@ export default function (props: {
       </div>
       <Button
         type="button"
-        style={{ marginLeft: 'auto' }}
+        style={{ marginLeft: 'auto', width: 'fit-content' }}
       >
         Join
       </Button>

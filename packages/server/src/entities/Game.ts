@@ -1,5 +1,5 @@
-import { Types } from '@tosios/common';
 import { Schema, type } from '@colyseus/schema';
+import { Types } from '@tosios/common';
 
 export class Game extends Schema {
 
@@ -12,14 +12,23 @@ export class Game extends Schema {
   @type('number')
   gameEndsAt: number;
 
+  @type('number')
+  maxPlayers: number;
+
   lobbyDuration: number;
   gameDuration: number;
 
   // Init
-  constructor(lobbyDuration: number, gameDuration: number, state: Types.GameState = 'waiting') {
+  constructor(
+    lobbyDuration: number,
+    gameDuration: number,
+    maxPlayers: number,
+    state: Types.GameState = 'waiting',
+  ) {
     super();
     this.lobbyDuration = lobbyDuration;
     this.gameDuration = gameDuration;
+    this.maxPlayers = maxPlayers;
     this.setState(state);
   }
 

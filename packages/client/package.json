@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tosios/common": "0.1.0",
     "@reach/router": "^1.2.1",
+    "@tosios/common": "0.1.0",
     "classnames": "^2.2.6",
     "colyseus.js": "^0.10.8",
     "pixi-particles": "^4.1.2",
@@ -12,8 +12,10 @@
     "pixi.js": "^5.1.1",
     "querystringify": "^2.1.1",
     "react": "^16.8.6",
+    "react-device-detect": "^1.9.10",
     "react-dom": "^16.8.6",
     "react-helmet": "^5.2.1",
+    "react-nipple": "^1.0.1",
     "react-scripts": "3.1.1"
   },
   "devDependencies": {

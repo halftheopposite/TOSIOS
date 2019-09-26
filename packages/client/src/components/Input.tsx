@@ -9,7 +9,8 @@ const INPUT: CSSProperties = {
   outline: 'none',
   border: '1px solid #efefef',
   boxSizing: 'border-box',
-  minWidth: '100%',
+  width: '100%',
+  maxWidth: '100%',
 };
 
 interface IProps {

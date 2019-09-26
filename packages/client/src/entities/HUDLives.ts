@@ -7,6 +7,7 @@ const HEART_PADDING = 16;
 
 export default class HUDLives extends Container {
 
+  private _mobile: boolean;
   private _maxLives: number;
   private _lives: number;
 
@@ -16,12 +17,22 @@ export default class HUDLives extends Container {
   ) {
     super();
 
+    this._mobile = false;
     this._maxLives = maxLives;
     this._lives = lives;
     this.updateLives();
   }
 
   // Setters
+  set mobile(mobile: boolean) {
+    if (this._mobile === mobile) {
+      return;
+    }
+
+    this._mobile = mobile;
+    this.updateLives();
+  }
+
   set maxLives(maxLives: number) {
     if (this._maxLives === maxLives) {
       return;
@@ -41,6 +52,10 @@ export default class HUDLives extends Container {
   }
 
   // Getters
+  get mobile() {
+    return this._mobile;
+  }
+
   get maxLives() {
     return this._maxLives;
   }
@@ -53,6 +68,9 @@ export default class HUDLives extends Container {
   updateLives = () => {
     this.removeChildren();
 
+    const heartSize = this.mobile ? HEART_SIZE * 0.75 : HEART_SIZE;
+    const heartPadding = this.mobile ? HEART_PADDING / 2 : HEART_PADDING;
+
     for (let i = 0; i < this.maxLives; i++) {
       let sprite: Sprite;
       if (i < this.lives) {
@@ -61,10 +79,10 @@ export default class HUDLives extends Container {
         sprite = new Sprite(GUITextures.heartEmptyTexture);
       }
 
-      sprite.width = HEART_SIZE;
-      sprite.height = HEART_SIZE;
-      const offset = HEART_SIZE * i;
-      const padding = HEART_PADDING * i;
+      sprite.width = heartSize;
+      sprite.height = heartSize;
+      const offset = heartSize * i;
+      const padding = heartPadding * i;
       sprite.position.set(offset + padding, 0);
 
       this.addChild(sprite);

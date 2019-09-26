@@ -25,6 +25,7 @@ export class DMRoom extends Room<DMState> {
     // Init State
     this.setState(new DMState(
       options.roomMap,
+      this.maxClients,
       this.handleMessage,
     ));
 

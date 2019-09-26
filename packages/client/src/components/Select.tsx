@@ -9,6 +9,8 @@ const SELECT: CSSProperties = {
   paddingRight: 8,
   outline: 'none',
   border: '1px solid #efefef',
+  width: '100%',
+  maxWidth: '100%',
 };
 
 interface IProps {
