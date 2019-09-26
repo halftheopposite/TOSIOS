@@ -26,7 +26,7 @@ import { parseByName } from '../maps';
 export class DMState extends Schema {
 
   @type(Game)
-  game: Game = new Game(Constants.LOBBY_DURATION, Constants.GAME_DURATION);
+  game: Game;
 
   @type(Map)
   map: Map;
@@ -50,9 +50,17 @@ export class DMState extends Schema {
   // Init
   constructor(
     map: Types.MapNameType,
+    maxPlayers: number,
     onMessage: any,
   ) {
     super();
+
+    // Game
+    this.game = new Game(
+      Constants.LOBBY_DURATION,
+      Constants.GAME_DURATION,
+      maxPlayers,
+    );
 
     // Map
     const { width, height, walls } = parseByName(map);

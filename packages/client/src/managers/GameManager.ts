@@ -121,11 +121,10 @@ export default class GameManager {
     this.onRotationChange = onRotationChange;
   }
 
-  start = (renderView: any, maxPlayers: number) => {
+  start = (renderView: any) => {
     renderView.appendChild(this.app.view);
     this.app.start();
     this.app.ticker.add(this.update);
-    this.maxPlayers = maxPlayers;
   }
 
 
@@ -363,6 +362,9 @@ export default class GameManager {
 
         // Hide props when outside a game
         this.state === 'game' ? this.propsManager.show() : this.propsManager.hide();
+        break;
+      case 'maxPlayers':
+        this.maxPlayers = value;
         break;
       case 'lobbyEndsAt':
         this.lobbyEndsAt = value;

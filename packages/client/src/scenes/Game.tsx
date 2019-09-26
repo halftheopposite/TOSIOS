@@ -67,6 +67,7 @@ class Game extends Component<IProps, IState> {
     const parsedSearch = qs.parse(search) as Types.IRoomOptions;
     const options: Types.IRoomOptions = {
       ...parsedSearch,
+      roomMaxPlayers: Number(parsedSearch.roomMaxPlayers),
       ...(!isNewRoom && { playerName: localStorage.getItem('playerName') || '' }),
       create: isNewRoom,
     };
@@ -93,10 +94,7 @@ class Game extends Component<IProps, IState> {
         playerId: this.room.sessionId,
       });
 
-      this.gameManager.start(
-        this.gameCanvas.current,
-        this.room.options.roomMaxPlayers,
-      );
+      this.gameManager.start(this.gameCanvas.current);
 
       // Replace the URL with the Room's ID
       window.history.replaceState(null, '', `/${this.room.id}`);
@@ -464,10 +462,6 @@ class Game extends Component<IProps, IState> {
   }
 
   renderJoySticks = () => {
-    const reverseNumber = (num: number, min: number, max: number) => {
-      return (max + min) - num;
-    };
-
     return (
       <Fragment>
         {/* Position */}
@@ -495,9 +489,9 @@ class Game extends Component<IProps, IState> {
             const radians = Maths.round2Digits(data.angle.radian - 3.14);
             let rotation = 0;
             if (radians < 0) {
-              rotation = reverseNumber(radians, -3.14, 0);
+              rotation = Maths.reverseNumber(radians, -3.14, 0);
             } else {
-              rotation = reverseNumber(radians, 0.01, 3.14);
+              rotation = Maths.reverseNumber(radians, 0.01, 3.14);
             }
 
             this.sendPlayerRotationMessage(rotation);

@@ -74,3 +74,12 @@ export const degreeToCardinal = (degree: number) => {
   const index = Math.round((remainder < 0 ? degree + 360 : degree) / 45) % 8;
   return cardinals[index];
 };
+
+/**
+ * Reverse a number between a range
+ * @example
+ * reverseNumber(1.2, 0, 3) // returns 1.8
+ */
+export const reverseNumber = (num: number, min: number, max: number) => {
+  return (max + min) - num;
+};
