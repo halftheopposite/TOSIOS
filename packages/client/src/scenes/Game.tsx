@@ -89,9 +89,6 @@ class Game extends Component<IProps, IState> {
         return;
       }
 
-      console.log(this.client)
-      console.log(this.room)
-
       this.setState({
         playerId: this.room.sessionId,
       });
@@ -461,22 +458,21 @@ class Game extends Component<IProps, IState> {
           <title>{`Death Match (${this.state.playersCount})`}</title>
         </Helmet>
         <div ref={this.gameCanvas} />
-        {this.renderLeftJoyStick()}
+        {this.renderJoySticks()}
       </div>
     );
   }
 
+  renderJoySticks = () => {
+    const reverseNumber = (num: number, min: number, max: number) => {
+      return (max + min) - num;
+    };
 
-
-  renderLeftJoyStick = () => {
     return (
       <Fragment>
+        {/* Position */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', left: '20%' } }}
-          onMove={(evt: any, data: any) => this.sendPlayerRotationMessage(data.angle.radian)}
-        />
-        <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', right: '20%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
           onEnd={() => {
             this.pressedKeys.up = false;
             this.pressedKeys.down = false;
@@ -491,13 +487,30 @@ class Game extends Component<IProps, IState> {
             this.pressedKeys.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
           }}
         />
+
+        {/* Rotation + shoot */}
+        <ReactNipple
+          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
+          onMove={(event: any, data: any) => {
+            const radians = Maths.round2Digits(data.angle.radian - 3.14);
+            let rotation = 0;
+            if (radians < 0) {
+              rotation = reverseNumber(radians, -3.14, 0);
+            } else {
+              rotation = reverseNumber(radians, 0.01, 3.14);
+            }
+
+            this.sendPlayerRotationMessage(rotation);
+            this.pressedKeys.shoot = true;
+            this.gameManager.meUpdateRotation(rotation);
+          }}
+          onEnd={() => {
+            this.pressedKeys.shoot = false;
+          }}
+        />
       </Fragment>
     );
   }
 }
 
 export default Game;
-
-
-// 0 -> 90 right
-// 1

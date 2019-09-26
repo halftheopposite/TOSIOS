@@ -176,19 +176,21 @@ export default class GameManager {
       }
     }
 
-    // Angle
-    const screenPlayerPosition = this.viewport.toScreen(this.me.x, this.me.y);
-    const mouse = this.app.renderer.plugins.interaction.mouse.global;
-    const rotation = Maths.round2Digits(Maths.calculateAngle(
-      mouse.x,
-      mouse.y,
-      screenPlayerPosition.x,
-      screenPlayerPosition.y,
-    ));
+    // Calculate rotation (on mobile this happens in the React Game class)
+    if (!utils.isMobile.any) {
+      const screenPlayerPosition = this.viewport.toScreen(this.me.x, this.me.y);
+      const mouse = this.app.renderer.plugins.interaction.mouse.global;
+      const rotation = Maths.round2Digits(Maths.calculateAngle(
+        mouse.x,
+        mouse.y,
+        screenPlayerPosition.x,
+        screenPlayerPosition.y,
+      ));
 
-    if (this.me.rotation !== rotation) {
-      this.me.rotation = rotation;
-      this.onRotationChange(this.me.rotation);
+      if (this.me.rotation !== rotation) {
+        this.me.rotation = rotation;
+        this.onRotationChange(this.me.rotation);
+      }
     }
   }
 
@@ -406,6 +408,14 @@ export default class GameManager {
 
   meUpdateDir = (dirX: number, dirY: number) => {
     this.dir.set(dirX, dirY);
+  }
+
+  meUpdateRotation = (rotation: number) => {
+    if (!this.me) {
+      return;
+    }
+
+    this.me.rotation = rotation;
   }
 
   meUpdate = (attributes: any) => {
