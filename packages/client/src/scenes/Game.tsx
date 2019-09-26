@@ -3,6 +3,7 @@ import { Constants, Keys, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
 import React, { Component, Fragment, RefObject } from 'react';
+import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
 
@@ -456,7 +457,7 @@ class Game extends Component<IProps, IState> {
           <title>{`Death Match (${this.state.playersCount})`}</title>
         </Helmet>
         <div ref={this.gameCanvas} />
-        {this.renderJoySticks()}
+        {isMobile && this.renderJoySticks()}
       </div>
     );
   }
@@ -486,12 +487,12 @@ class Game extends Component<IProps, IState> {
         <ReactNipple
           options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
           onMove={(event: any, data: any) => {
-            const radians = Maths.round2Digits(data.angle.radian - 3.14);
+            const radians = Maths.round2Digits(data.angle.radian - Math.PI);
             let rotation = 0;
             if (radians < 0) {
-              rotation = Maths.reverseNumber(radians, -3.14, 0);
+              rotation = Maths.reverseNumber(radians, -Math.PI, 0);
             } else {
-              rotation = Maths.reverseNumber(radians, 0.01, 3.14);
+              rotation = Maths.reverseNumber(radians, 0, Math.PI);
             }
 
             this.sendPlayerRotationMessage(rotation);
