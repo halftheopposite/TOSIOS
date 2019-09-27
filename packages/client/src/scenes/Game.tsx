@@ -95,7 +95,6 @@ class Game extends Component<IProps, IState> {
         this.room = await this.client.joinById(roomId, options);
       }
     } catch (error) {
-      console.log('ERROR GAME:', error)
       navigate('/');
       return;
     }
