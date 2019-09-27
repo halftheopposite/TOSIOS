@@ -2,6 +2,7 @@ import React from 'react';
 
 import Button from './Button';
 import View from './View';
+import Space from './Space';
 
 const ROOM = {
   border: '1px solid rgba(9,30,66,.1)',
@@ -46,9 +47,11 @@ export default function (props: {
       onMouseLeave={() => setHovered(false)}
       onClick={() => onClick(id)}
     >
-      <div>
-        <p><b>{`${roomName} [${clients}/${maxClients}]`}</b></p>
-      </div>
+      <View>
+        <p><b>{`${roomName || `Unknown's room`} [${clients}/${maxClients}]`}</b></p>
+        <Space size="xxs" />
+        <p><b>{`Map: ${roomMap}`}</b></p>
+      </View>
       <Button
         type="button"
         style={{ marginLeft: 'auto', width: 'fit-content' }}

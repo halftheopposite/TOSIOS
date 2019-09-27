@@ -23,8 +23,8 @@ class Game extends Component<IProps, IState> {
 
   gameCanvas: RefObject<HTMLDivElement>;
   gameManager: GameManager;
-  client: Client | null = null;
-  room: Room | null = null;
+  client?: Client;
+  room?: Room;
   pressedKeys = { up: false, down: false, left: false, right: false, shoot: false };
 
   state: IState = {
@@ -56,9 +56,9 @@ class Game extends Component<IProps, IState> {
 
 
   // START
-  start = () => {
+  start = async () => {
     const {
-      roomId,
+      roomId = '',
       location: {
         search = '',
       } = {},
@@ -66,63 +66,68 @@ class Game extends Component<IProps, IState> {
 
     const isNewRoom = roomId === 'new';
     const parsedSearch = qs.parse(search) as Types.IRoomOptions;
-    const options: Types.IRoomOptions = {
-      ...parsedSearch,
-      roomMaxPlayers: Number(parsedSearch.roomMaxPlayers),
-      ...(!isNewRoom && { playerName: localStorage.getItem('playerName') || '' }),
-      create: isNewRoom,
-    };
 
-    // Client
-    const host = window.document.location.host.replace(/:.*/, '');
-    const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
-    const url = window.location.protocol.replace('http', 'ws') + "//" + host + (port ? ':' + port : '');
+    let options;
+    if (isNewRoom) {
+      options = {
+        ...parsedSearch,
+        roomMaxPlayers: Number(parsedSearch.roomMaxPlayers),
+      };
+    } else {
+      options = {
+        playerName: localStorage.getItem('playerName'),
+      };
+    }
 
-    this.client = new Client(url);
-    this.client.onError.add((err: any) => {
-      console.error(err);
-      navigate('/');
-    });
+    // Connect
+    try {
+      const host = window.document.location.host.replace(/:.*/, '');
+      const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
+      const url = window.location.protocol.replace('http', 'ws') + "//" + host + (port ? ':' + port : '');
 
-    // Room
-    this.room = this.client.join(Constants.ROOM_NAME, options);
-    this.room.onJoin.add(() => {
-      if (!this.room) {
-        return;
+      this.client = new Client(url);
+      if (isNewRoom) {
+        this.room = await this.client.create(Constants.ROOM_NAME, options);
+
+        // We replace the "new" in the URL with the room's id
+        window.history.replaceState(null, '', `/${this.room.id}`);
+      } else {
+        this.room = await this.client.joinById(roomId, options);
       }
+    } catch (error) {
+      navigate('/');
+      return;
+    }
 
-      this.setState({
-        playerId: this.room.sessionId,
-      });
-
-      this.gameManager.start(this.gameCanvas.current);
-
-      // Replace the URL with the Room's ID
-      window.history.replaceState(null, '', `/${this.room.id}`);
-
-      // Inputs
-      window.document.addEventListener('mousedown', this.handleMouseDown);
-      window.document.addEventListener('mouseup', this.handleMouseUp);
-      window.document.addEventListener('keydown', this.handleKeyDown);
-      window.document.addEventListener('keyup', this.handleKeyUp);
-      window.addEventListener('resize', this.handleWindowResize);
-
-      // State
-      this.room.state.game.onChange = this.handleGameChange;
-      this.room.state.map.onChange = this.handleMapChange;
-      this.room.state.walls.onAdd = this.handleWallAdd;
-      this.room.state.players.onAdd = this.handlePlayerAdd;
-      this.room.state.players.onChange = this.handlePlayerChange;
-      this.room.state.players.onRemove = this.handlePlayerRemove;
-      this.room.state.bullets.onAdd = this.handleBulletAdd;
-      this.room.state.bullets.onChange = this.handleBulletChange;
-      this.room.state.bullets.onRemove = this.handleBulletRemove;
-      this.room.state.props.onAdd = this.handlePropAdd;
-      this.room.state.props.onChange = this.handlePropUpdate;
-      this.room.state.props.onRemove = this.handlePropRemove;
-      this.room.onMessage.add(this.handleMessage);
-      this.room.onError.add(() => { console.log('Error with the room'); });
+    this.setState({
+      playerId: this.room.sessionId,
     });
+
+    // Listen for state changes
+    this.room.state.walls.onAdd = this.handleWallAdd;
+    this.room.state.game.onChange = this.handleGameChange;
+    this.room.state.map.onChange = this.handleMapChange;
+    this.room.state.walls.onAdd = this.handleWallAdd;
+    this.room.state.players.onAdd = this.handlePlayerAdd;
+    this.room.state.players.onChange = this.handlePlayerChange;
+    this.room.state.players.onRemove = this.handlePlayerRemove;
+    this.room.state.bullets.onAdd = this.handleBulletAdd;
+    this.room.state.bullets.onChange = this.handleBulletChange;
+    this.room.state.bullets.onRemove = this.handleBulletRemove;
+    this.room.state.props.onAdd = this.handlePropAdd;
+    this.room.state.props.onChange = this.handlePropUpdate;
+    this.room.state.props.onRemove = this.handlePropRemove;
+
+    // Listen for Messages
+    this.room.onMessage((data: any) => this.handleMessage);
+
+    this.gameManager.start(this.gameCanvas.current);
+
+    window.document.addEventListener('mousedown', this.handleMouseDown);
+    window.document.addEventListener('mouseup', this.handleMouseUp);
+    window.document.addEventListener('keydown', this.handleKeyDown);
+    window.document.addEventListener('keyup', this.handleKeyUp);
+    window.addEventListener('resize', this.handleWindowResize);
   }
 
 
@@ -279,6 +284,7 @@ class Game extends Component<IProps, IState> {
       case Keys.KEY_SPACE:
         this.pressedKeys.shoot = true;
         event.preventDefault();
+        break;
       default:
         break;
     }
@@ -311,6 +317,7 @@ class Game extends Component<IProps, IState> {
       case Keys.KEY_SPACE:
         this.pressedKeys.shoot = false;
         event.preventDefault();
+        break;
       default:
         break;
     }
@@ -418,14 +425,8 @@ class Game extends Component<IProps, IState> {
       this.room.leave();
     }
 
-    if (this.client) {
-      this.client.close();
-    }
-
     // Game
-    if (this.gameManager) {
-      this.gameManager.stop();
-    }
+    this.gameManager.stop();
 
     // Inputs
     window.document.removeEventListener('mousedown', this.handleMouseDown);
@@ -467,7 +468,7 @@ class Game extends Component<IProps, IState> {
       <Fragment>
         {/* Position */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
           onEnd={() => {
             this.pressedKeys.up = false;
             this.pressedKeys.down = false;
@@ -485,7 +486,7 @@ class Game extends Component<IProps, IState> {
 
         {/* Rotation + shoot */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
           onMove={(event: any, data: any) => {
             const radians = Maths.round2Digits(data.angle.radian - Math.PI);
             let rotation = 0;

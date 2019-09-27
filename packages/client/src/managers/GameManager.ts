@@ -590,6 +590,6 @@ export default class GameManager {
   }
 
   winnerAdd = (name: string) => {
-    this.hudManager.announce = `${name} wins this round!`;
+    this.hudManager.announce = `${name} wins!`;
   }
 }

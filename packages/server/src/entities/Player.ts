@@ -58,9 +58,7 @@ export class Player extends Circle {
   }
 
   heal() {
-    console.log('PLAYER before', this.lives)
     this.lives = this.lives + 1;
-    console.log('PLAYER after', this.lives)
   }
 
   // Getters
