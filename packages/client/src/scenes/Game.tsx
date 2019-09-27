@@ -468,7 +468,7 @@ class Game extends Component<IProps, IState> {
       <Fragment>
         {/* Position */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
           onEnd={() => {
             this.pressedKeys.up = false;
             this.pressedKeys.down = false;
@@ -486,7 +486,7 @@ class Game extends Component<IProps, IState> {
 
         {/* Rotation + shoot */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
           onMove={(event: any, data: any) => {
             const radians = Maths.round2Digits(data.angle.radian - Math.PI);
             let rotation = 0;
