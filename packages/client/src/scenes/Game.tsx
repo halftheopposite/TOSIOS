@@ -2,11 +2,12 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import { Constants, Keys, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
-import React, { Component, Fragment, RefObject } from 'react';
+import React, { Component, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
 
+import View from '../components/View';
 import GameManager from '../managers/GameManager';
 
 interface IProps extends RouteComponentProps {
@@ -465,10 +466,18 @@ class Game extends Component<IProps, IState> {
 
   renderJoySticks = () => {
     return (
-      <Fragment>
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      >
         {/* Position */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', left: '15%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', left: '20%' } }}
           onEnd={() => {
             this.pressedKeys.up = false;
             this.pressedKeys.down = false;
@@ -486,7 +495,7 @@ class Game extends Component<IProps, IState> {
 
         {/* Rotation + shoot */}
         <ReactNipple
-          options={{ mode: 'static', position: { bottom: '20%', right: '15%' } }}
+          options={{ mode: 'static', position: { bottom: '20%', right: '20%' } }}
           onMove={(event: any, data: any) => {
             const radians = Maths.round2Digits(data.angle.radian - Math.PI);
             let rotation = 0;
@@ -504,7 +513,7 @@ class Game extends Component<IProps, IState> {
             this.pressedKeys.shoot = false;
           }}
         />
-      </Fragment>
+      </View>
     );
   }
 }
