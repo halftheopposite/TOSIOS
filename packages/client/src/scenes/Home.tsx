@@ -8,7 +8,6 @@ import { Helmet } from 'react-helmet';
 
 import Box from '../components/Box';
 import Button from '../components/Button';
-import Inline from '../components/Inline';
 import Input from '../components/Input';
 import Room from '../components/Room';
 import Select from '../components/Select';
@@ -26,13 +25,13 @@ interface IState {
   roomName: string;
   roomMap: any;
   roomMaxPlayers: any;
-  rooms: RoomAvailable[];
+  rooms: RoomAvailable<any>[];
   timer: any;
 }
 
 class Home extends Component<IProps, IState> {
 
-  client: Client | null = null;
+  client?: Client;
 
   state: IState = {
     playerName: localStorage.getItem('playerName') || '',
@@ -47,25 +46,24 @@ class Home extends Component<IProps, IState> {
 
   // BASE
   componentDidMount() {
-    const host = window.document.location.host.replace(/:.*/, '');
-    const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
-    const url = window.location.protocol.replace('http', 'ws') + "//" + host + (port ? ':' + port : '');
+    try {
+      const host = window.document.location.host.replace(/:.*/, '');
+      const port = process.env.NODE_ENV !== 'production' ? Constants.WS_PORT : window.location.port;
+      const url = window.location.protocol.replace('http', 'ws') + "//" + host + (port ? ':' + port : '');
 
-    this.client = new Client(url);
-
-    this.setState({
-      timer: setInterval(this.updateRooms, Constants.ROOM_REFRESH),
-    }, this.updateRooms);
+      this.client = new Client(url);
+      this.setState({
+        timer: setInterval(this.updateRooms, Constants.ROOM_REFRESH),
+      }, this.updateRooms);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   componentWillUnmount() {
     const {
       timer,
     } = this.state;
-
-    if (this.client) {
-      this.client.close();
-    }
 
     if (timer) {
       clearInterval(timer);
@@ -118,16 +116,15 @@ class Home extends Component<IProps, IState> {
   }
 
   // METHODS
-  updateRooms = () => {
+  updateRooms = async () => {
     if (!this.client) {
       return;
     }
 
-    this.client.getAvailableRooms(Constants.ROOM_NAME, (rooms: RoomAvailable[]) =>
-      this.setState({
-        rooms,
-      }),
-    );
+    const rooms = await this.client.getAvailableRooms(Constants.ROOM_NAME);
+    this.setState({
+      rooms,
+    });
   }
 
 
@@ -233,11 +230,7 @@ class Home extends Component<IProps, IState> {
           />
         )}
         {isNewRoom && (
-          <View flex={true} style={{ alignItems: 'flex-start', flexDirection: 'column' }}>
-            <Space size="xxs" />
-            <Separator />
-            <Space size="xxs" />
-
+          <View style={{ width: '100%' }}>
             {/* Name */}
             <p>Name:</p>
             <Space size="xxs" />
@@ -270,13 +263,13 @@ class Home extends Component<IProps, IState> {
             <Space size="s" />
 
             {/* Button */}
-            <View flex={true}>
+            <View>
               <Button
                 title="Create room"
                 onClick={this.handleCreateRoomClick}
                 text={'Create'}
               />
-              <Inline size="xs" />
+              <Space size="xs" />
               <Button
                 title="Cancel"
                 onClick={this.handleCancelRoomClick}

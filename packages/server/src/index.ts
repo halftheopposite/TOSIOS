@@ -1,7 +1,7 @@
 import { monitor } from '@colyseus/monitor';
 import { Constants } from '@tosios/common';
 import { Server } from 'colyseus';
-import cors from 'cors';
+import * as cors from 'cors';
 import * as express from 'express';
 import { createServer } from 'http';
 

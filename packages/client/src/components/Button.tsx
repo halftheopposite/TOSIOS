@@ -12,6 +12,8 @@ const BUTTON: CSSProperties = {
   backgroundColor: BUTTON_COLOR,
   color: 'white',
   minHeight: 48,
+  width: '100%',
+  maxWidth: '100%',
 };
 
 const BUTTON_HOVERED: CSSProperties = {
