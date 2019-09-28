@@ -75,6 +75,7 @@ class Game extends Component<IProps, IState> {
         roomMaxPlayers: Number(parsedSearch.roomMaxPlayers),
       };
     } else {
+      // The only thing to pass when joining an existing room is a player's name
       options = {
         playerName: localStorage.getItem('playerName'),
       };
@@ -120,10 +121,12 @@ class Game extends Component<IProps, IState> {
     this.room.state.props.onRemove = this.handlePropRemove;
 
     // Listen for Messages
-    this.room.onMessage((data: any) => this.handleMessage);
+    this.room.onMessage(this.handleMessage);
 
+    // Start game
     this.gameManager.start(this.gameCanvas.current);
 
+    // Listen for inputs
     window.document.addEventListener('mousedown', this.handleMouseDown);
     window.document.addEventListener('mouseup', this.handleMouseUp);
     window.document.addEventListener('keydown', this.handleKeyDown);
@@ -219,9 +222,11 @@ class Game extends Component<IProps, IState> {
     switch (message.type) {
       case 'waiting':
         this.gameManager.logAdd(`Waiting for other players...`);
+        this.gameManager.announceAdd(`Waiting for others to join...`);
         break;
       case 'start':
         this.gameManager.logAdd(`[GAME STARTS]`);
+        this.gameManager.announceAdd(`Game starts!`);
         break;
       case 'stop':
         this.gameManager.logAdd(`[GAME ENDS]`);
@@ -234,7 +239,7 @@ class Game extends Component<IProps, IState> {
         break;
       case 'won':
         this.gameManager.logAdd(`"${message.params.name}" is the winner.`);
-        this.gameManager.winnerAdd(message.params.name);
+        this.gameManager.announceAdd(`${message.params.name} wins!`);
         break;
       case 'left':
         this.gameManager.logAdd(`"${message.params.name}" left this room.`);
@@ -449,7 +454,7 @@ class Game extends Component<IProps, IState> {
   // RENDER
   render() {
     return (
-      <div
+      <View
         style={{
           position: 'relative',
           height: '100%',
@@ -460,7 +465,7 @@ class Game extends Component<IProps, IState> {
         </Helmet>
         <div ref={this.gameCanvas} />
         {isMobile && this.renderJoySticks()}
-      </div>
+      </View>
     );
   }
 
