@@ -107,6 +107,9 @@ When creating a map each number represents a specific wall sprite that will be d
 * `6` for a wall on the bottom-right (concave angle)
 * `7` for a wall on the top-left (convexe angle)
 * `8` for a wall on the bottom-right (convexe angle)
+* `9` for a left door
+* `10` for a right door
+* `11` for a torch
 
 Examples:
 ```js
@@ -120,16 +123,18 @@ Examples:
   ]
 ```
 
-## Roadmap (Q3 2019)
+## Roadmap (Q4 2019)
 
 This is not an exhaustive, nor final, features list but it will give you a good indication on what I am working on:
 
 * ~Let users select the number of players in a room.~
 * ~Publish the docker image onto a registry and add a `docker-compose` file.~
 * ~Add a playable demo website for anyone to test and play the game.~
-* Add mobile mode (updated GUI and virtual joysticks).
-* Add visual feedback when a player gets hit.
+* ~Add mobile mode (updated GUI and virtual joysticks).~
+* ~Add visual feedback when a player gets hit.~
 * Add a Team Death Match mode.
+* Implement a quadtree for performances.
+* Add some monsters that attack all players.
 
 ## Special thanks
 
