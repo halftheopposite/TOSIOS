@@ -22,10 +22,4 @@ export default class HUDText extends Text {
     this.anchor.set(anchorX, anchorY);
     this.text = text;
   }
-
-  setText = (text: string) => {
-    if (text !== this.text) {
-      this.text = text;
-    }
-  }
 }
