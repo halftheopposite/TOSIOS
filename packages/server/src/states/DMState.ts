@@ -168,29 +168,21 @@ export class DMState extends Schema {
   }
 
   private updateBullets(deltaTime: number) {
-    const speed: number = Constants.BULLET_SPEED;
     let bullet: Bullet;
-    let newX: number;
-    let newY: number;
     let player: Player;
 
     for (let i: number = 0; i < this.bullets.length; i++) {
       bullet = this.bullets[i];
-
       if (!bullet.active) {
         continue;
       }
 
-      newX = bullet.x + Math.cos(bullet.rotation) * speed;
-      newY = bullet.y + Math.sin(bullet.rotation) * speed;
+      bullet.move(Constants.BULLET_SPEED);
 
-      if (!this.map.coordsInMap(newX, newY)) {
+      if (!this.map.coordsInMap(bullet.x, bullet.y)) {
         bullet.active = false;
         continue;
       }
-
-      bullet.x = newX;
-      bullet.y = newY;
 
       // Player collisions
       for (const playerKey of Object.keys(this.players)) {

@@ -22,11 +22,16 @@ export class Bullet extends Circle {
     this.playerId = playerId;
     this.rotation = rotation;
     this.active = true;
-    this.color = color;
+    this.color = '0xFFFFFF';
   }
 
 
   // Methods
+  move(speed: number) {
+    this.x = this.x + Math.cos(this.rotation) * speed;
+    this.y = this.y + Math.sin(this.rotation) * speed;
+  }
+
   reset(playerId: string, x: number, y: number, radius: number, rotation: number, color: string) {
     this.playerId = playerId;
     this.x = x;

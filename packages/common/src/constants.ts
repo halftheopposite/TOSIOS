@@ -34,5 +34,5 @@ export const FLASKS_COUNT = 3;
 
 // Bullet (circle)
 export const BULLET_SIZE = 4;
-export const BULLET_SPEED = 20;
+export const BULLET_SPEED = 15;
 export const BULLET_RATE = 300; // The bigger, the slower.
