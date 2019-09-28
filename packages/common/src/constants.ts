@@ -26,6 +26,7 @@ export const TILE_SIZE = 32;
 export const PLAYER_SIZE = 32;
 export const PLAYER_SPEED = 3;
 export const PLAYER_LIVES = 3;
+export const PLAYER_WEAPON_SIZE = 10;
 
 // Props (rectangle)
 export const FLASK_SIZE = 24;

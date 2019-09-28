@@ -1,9 +1,11 @@
+import { utils } from 'pixi.js';
 import { WeaponTextures } from '../images/textures';
 import { CircleSprite } from './CircleSprite';
 
 export default class Bullet extends CircleSprite {
 
   private _active: boolean = false;
+  private _color: string = '#FFFFFF';
 
   // Init
   constructor(
@@ -12,6 +14,7 @@ export default class Bullet extends CircleSprite {
     radius: number,
     active: boolean,
     rotation: number,
+    color: string,
   ) {
     super(
       x,
@@ -23,6 +26,7 @@ export default class Bullet extends CircleSprite {
     );
 
     this.active = active;
+    this.color = color;
   }
 
   // Methods
@@ -37,8 +41,17 @@ export default class Bullet extends CircleSprite {
     this.sprite.visible = active;
   }
 
+  set color(color: string) {
+    this._color = color;
+    this.sprite.tint = utils.string2hex(color);
+  }
+
   // Getters
   get active() {
     return this._active;
+  }
+
+  get color() {
+    return this._color;
   }
 }

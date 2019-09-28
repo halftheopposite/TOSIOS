@@ -444,7 +444,7 @@ export default class GameManager {
     this.ghostRemove();
   }
 
-  // EXTERNAL: Ghost
+  // Ghost
   private ghostAdd = (attributes: any) => {
     if (!Constants.SHOW_GHOST || this.ghost) {
       return;
@@ -562,6 +562,7 @@ export default class GameManager {
       attributes.radius,
       true,
       attributes.rotation,
+      attributes.color,
     ));
   }
 
@@ -577,6 +578,7 @@ export default class GameManager {
         y: attributes.y,
       };
       bullet.rotation = attributes.rotation;
+      bullet.color = attributes.color;
       bullet.active = true;
     } else if (bullet.active && !attributes.active) {
       bullet.active = false;

@@ -246,6 +246,15 @@ export class DMState extends Schema {
     this.actionsLog.push(action);
   }
 
+  private playerName(id: string, name: string) {
+    const player: Player = this.players[id];
+    if (!player) {
+      return;
+    }
+
+    player.setName(name);
+  }
+
   private playerMove(id: string, dir: Geometry.Vector) {
     const player: Player = this.players[id];
     if (!player || dir.empty) {
@@ -304,29 +313,22 @@ export class DMState extends Schema {
     player.setRotation(rotation);
   }
 
-  private playerName(id: string, name: string) {
-    const player: Player = this.players[id];
-    if (!player) {
-      return;
-    }
-
-    player.setName(name);
-  }
-
   private playerShoot(id: string, angle: number) {
     const player: Player = this.players[id];
     if (!player || !player.canShoot || this.game.state !== 'game') {
       return;
     }
 
+    // Make the bullet start at the staff
+    const bulletX = player.x + Math.cos(angle) * Constants.PLAYER_WEAPON_SIZE;
+    const bulletY = player.y + Math.sin(angle) * Constants.PLAYER_WEAPON_SIZE;
+
     // Recycle bullets if some are unused to prevent instantiating too many
-    const bulletX = player.x;
-    const bulletY = player.y;
     const index = this.bullets.findIndex(bullet => !bullet.active);
     if (index === -1) {
-      this.bullets.push(new Bullet(id, bulletX, bulletY, Constants.BULLET_SIZE, angle));
+      this.bullets.push(new Bullet(id, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color));
     } else {
-      this.bullets[index].reset(id, bulletX, bulletY, Constants.BULLET_SIZE, angle);
+      this.bullets[index].reset(id, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color);
     }
   }
 
