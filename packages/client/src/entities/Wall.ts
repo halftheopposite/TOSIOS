@@ -60,7 +60,6 @@ export default class Wall extends RectangleSprite {
       0,
       getTexture(type),
     );
-    console.log(type);
 
     this._type = type;
   }
