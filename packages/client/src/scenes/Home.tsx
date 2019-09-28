@@ -39,7 +39,7 @@ class Home extends Component<IProps, IState> {
     isNewRoom: false,
     rooms: [],
     timer: null,
-    roomName: '',
+    roomName: localStorage.getItem('roomName') || '',
     roomMap: Maps.List[0].value,
     roomMaxPlayers: Maps.Players[0].value,
   };
@@ -72,7 +72,7 @@ class Home extends Component<IProps, IState> {
 
 
   // HANDLERS
-  handleNameChange = (event: any) => {
+  handlePlayerNameChange = (event: any) => {
     this.setState({
       playerName: event.target.value,
       hasNameChanged: true,
@@ -84,6 +84,14 @@ class Home extends Component<IProps, IState> {
     localStorage.setItem('playerName', playerName);
     this.setState({
       hasNameChanged: false,
+    });
+  }
+
+  handleRoomNameChange = (event: any) => {
+    const roomName = event.target.value;
+    localStorage.setItem('roomName', roomName);
+    this.setState({
+      roomName,
     });
   }
 
@@ -171,7 +179,7 @@ class Home extends Component<IProps, IState> {
           value={this.state.playerName}
           placeholder="Name"
           maxLength={Constants.PLAYER_NAME_MAX}
-          onChange={this.handleNameChange}
+          onChange={this.handlePlayerNameChange}
         />
         {this.state.hasNameChanged && (
           <Fragment>
@@ -238,7 +246,7 @@ class Home extends Component<IProps, IState> {
               placeholder="Name"
               value={roomName}
               maxLength={Constants.ROOM_NAME_MAX}
-              onChange={(event: any) => this.setState({ roomName: event.target.value })}
+              onChange={this.handleRoomNameChange}
             />
             <Space size="s" />
 

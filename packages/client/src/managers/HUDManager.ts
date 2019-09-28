@@ -3,7 +3,7 @@ import { Container } from 'pixi.js';
 
 import { HUDLives, HUDText } from '../entities';
 
-const HUD_PADDING = 32;
+const HUD_PADDING = 24;
 const ANNOUNCE_LIFETIME = 3000;
 const ANNOUNCE_ANIM_TICK = 50;
 
@@ -178,17 +178,18 @@ export default class HUDManager extends Container {
 
   renderPlayers = () => {
     this.playersHUD.position.set(this._screenWidth - HUD_PADDING, HUD_PADDING);
-    this.playersHUD.text = `[${this._players}/${this._maxPlayers}]${this._mobile ? '' : ' players'}`;
+    this.playersHUD.text = `[${this._players}/${this._maxPlayers}]`;
   }
 
   renderLogs = () => {
     // Don't render on mobiles
-    if (this.mobile) {
+    if (this._mobile) {
       this.logsHUD.visible = false;
     } else {
       this.logsHUD.visible = true;
       this.logsHUD.alpha = 0.5;
       this.logsHUD.position.set(HUD_PADDING, this._screenHeight - HUD_PADDING);
+      this.logsHUD.text = this._logs.join('\n');
     }
   }
 
@@ -274,7 +275,7 @@ export default class HUDManager extends Container {
   set announce(announce: string) {
     this._announce = announce;
     this._announceStartedAt = Date.now();
-    this.announceHUD.setText(this._announce);
+    this.announceHUD.text = this._announce;
     this.announceHUD.alpha = 1;
 
     // Calculate how much we must take off each tick

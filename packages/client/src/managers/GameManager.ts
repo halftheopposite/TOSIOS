@@ -90,27 +90,30 @@ export default class GameManager {
     );
     this.app.stage.addChild(this.hudManager);
 
-    // Map
-    this.mapManager = new MapManager();
-    this.viewport.addChild(this.mapManager);
-
     // Ground
     this.groundManager = new GroundManager();
+    this.groundManager.zIndex = 0;
     this.viewport.addChild(this.groundManager);
-    this.groundManager.zIndex = -1;
 
-    // Players
-    this.playersManager = new PlayersManager();
-    this.playersManager.zIndex = 10;
-    this.viewport.addChild(this.playersManager);
-
-    // Bullets
-    this.bulletsManager = new BulletsManager();
-    this.viewport.addChild(this.bulletsManager);
+    // Map
+    this.mapManager = new MapManager();
+    this.mapManager.zIndex = 1;
+    this.viewport.addChild(this.mapManager);
 
     // Props
     this.propsManager = new PropsManager();
+    this.propsManager.zIndex = 2;
     this.viewport.addChild(this.propsManager);
+
+    // Bullets
+    this.bulletsManager = new BulletsManager();
+    this.bulletsManager.zIndex = 3;
+    this.viewport.addChild(this.bulletsManager);
+
+    // Players
+    this.playersManager = new PlayersManager();
+    this.playersManager.zIndex = 4;
+    this.viewport.addChild(this.playersManager);
 
     // Viewport
     this.viewport.sortChildren();
@@ -401,8 +404,8 @@ export default class GameManager {
       attributes.score,
     );
 
-    this.viewport.addChild(this.me.sprite);
     this.viewport.addChild(this.me.weaponSprite);
+    this.viewport.addChild(this.me.sprite);
     this.viewport.addChild(this.me.nameTextSprite);
     this.viewport.follow(this.me.sprite);
     this.ghostAdd(attributes);
@@ -434,14 +437,14 @@ export default class GameManager {
       return;
     }
 
-    this.viewport.removeChild(this.me.sprite);
     this.viewport.removeChild(this.me.weaponSprite);
+    this.viewport.removeChild(this.me.sprite);
     this.viewport.removeChild(this.me.nameTextSprite);
     delete this.me;
     this.ghostRemove();
   }
 
-  // EXTERNAL: Ghost
+  // Ghost
   private ghostAdd = (attributes: any) => {
     if (!Constants.SHOW_GHOST || this.ghost) {
       return;
@@ -559,6 +562,7 @@ export default class GameManager {
       attributes.radius,
       true,
       attributes.rotation,
+      attributes.color,
     ));
   }
 
@@ -574,6 +578,7 @@ export default class GameManager {
         y: attributes.y,
       };
       bullet.rotation = attributes.rotation;
+      bullet.color = attributes.color;
       bullet.active = true;
     } else if (bullet.active && !attributes.active) {
       bullet.active = false;
@@ -589,7 +594,7 @@ export default class GameManager {
     this.hudManager.addLog(`[${new Date().toLocaleTimeString()}] ${message}`);
   }
 
-  winnerAdd = (name: string) => {
-    this.hudManager.announce = `${name} wins!`;
+  announceAdd = (announce: string) => {
+    this.hudManager.announce = announce;
   }
 }

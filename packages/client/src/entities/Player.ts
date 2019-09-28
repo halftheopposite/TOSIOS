@@ -4,8 +4,9 @@ import { PlayerTextures, WeaponTextures } from '../images/textures';
 import { HUDText } from './';
 import { CircleSprite } from './CircleSprite';
 
+const HURT_COLOR = 0xEFEFEF;
+const HURT_TIME = 50;
 const NAME_OFFSET = 4;
-const STAFF_OFFSET = 10;
 
 type PlayerDirection = 'left' | 'right';
 
@@ -48,11 +49,9 @@ export default class Player extends CircleSprite {
 
     // Weapon
     this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
+    this._weaponSprite.zIndex = 4;
     this._weaponSprite.anchor.set(0, 0.5);
-    this._weaponSprite.position.set(
-      x,
-      y + STAFF_OFFSET,
-    );
+    this._weaponSprite.position.set(x, y);
 
     // Name
     this._nameTextSprite = new HUDText(name, 10, 0.5, 1);
@@ -78,10 +77,7 @@ export default class Player extends CircleSprite {
 
     this.x = this.x + speedX;
     this.y = this.y + speedY;
-    this._weaponSprite.position.set(
-      this.x,
-      this.y + STAFF_OFFSET,
-    );
+    this._weaponSprite.position.set(this.x, this.y);
     this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
   }
 
@@ -112,10 +108,7 @@ export default class Player extends CircleSprite {
   set position(position: { x: number; y: number }) {
     this.x = position.x;
     this.y = position.y;
-    this._weaponSprite.position.set(
-      this.x,
-      this.y + STAFF_OFFSET,
-    );
+    this._weaponSprite.position.set(this.x, this.y);
     this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
   }
 
@@ -140,8 +133,17 @@ export default class Player extends CircleSprite {
       return;
     }
 
+    const isHurt = lives < this._lives;
     this._lives = lives;
     this.updateTextures();
+
+    // When a player gets hit we change his color briefly
+    if (isHurt) {
+      this.sprite.tint = HURT_COLOR;
+      setTimeout(() => {
+        this.sprite.tint = utils.string2hex(this.color);
+      }, HURT_TIME);
+    }
   }
 
   set score(score: number) {
@@ -151,7 +153,7 @@ export default class Player extends CircleSprite {
   set rotation(rotation: number) {
     this._rotation = rotation;
 
-    if (rotation >= -1.57 && rotation <= 1.57) {
+    if (rotation >= -(Math.PI / 2) && rotation <= (Math.PI / 2)) {
       this.direction = 'right';
     } else {
       this.direction = 'left';

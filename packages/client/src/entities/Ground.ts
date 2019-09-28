@@ -11,12 +11,14 @@ const GROUNDS: { [key: number]: Texture } = {
   4: GroundTextures.ground4Texture,
 };
 
-const getTexture = (): Texture => {
+const getTexture = (): {
+  [key: string]: Texture | Texture[];
+} => {
   let type = Maths.getRandomInt(4);
   if (type === 0) {
     type = 1;
   }
-  return GROUNDS[type];
+  return { single: GROUNDS[type] };
 };
 
 export default class Ground extends RectangleSprite {
@@ -28,8 +30,7 @@ export default class Ground extends RectangleSprite {
       width,
       height,
       0,
-      false,
-      { single: getTexture() },
+      getTexture(),
     );
   }
 }

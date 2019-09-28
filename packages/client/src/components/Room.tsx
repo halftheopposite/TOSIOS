@@ -48,7 +48,9 @@ export default function (props: {
       onClick={() => onClick(id)}
     >
       <View>
-        <p><b>{`${roomName || `Unknown's room`} [${clients}/${maxClients}]`}</b></p>
+        <p><b>{`Name: ${roomName || `Unknown's room`}`}</b></p>
+        <Space size="xxs" />
+        <p><b>{`Players: [${clients}/${maxClients}]`}</b></p>
         <Space size="xxs" />
         <p><b>{`Map: ${roomMap}`}</b></p>
       </View>

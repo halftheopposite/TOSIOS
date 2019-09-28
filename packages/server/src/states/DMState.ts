@@ -125,11 +125,11 @@ export class DMState extends Schema {
 
         // Stop "game" when time is over (everyone loses)
         if (this.game.gameEndsAt < Date.now()) {
+          this.setPlayersActive(false);
           continueGame = false;
         }
 
         if (!continueGame) {
-          this.setPlayersActive(false);
           this.onMessage(new Message('stop'));
           this.game.setState('lobby');
         }
@@ -168,29 +168,21 @@ export class DMState extends Schema {
   }
 
   private updateBullets(deltaTime: number) {
-    const speed: number = Constants.BULLET_SPEED;
     let bullet: Bullet;
-    let newX: number;
-    let newY: number;
     let player: Player;
 
     for (let i: number = 0; i < this.bullets.length; i++) {
       bullet = this.bullets[i];
-
       if (!bullet.active) {
         continue;
       }
 
-      newX = bullet.x + Math.cos(bullet.rotation) * speed;
-      newY = bullet.y + Math.sin(bullet.rotation) * speed;
+      bullet.move(Constants.BULLET_SPEED);
 
-      if (!this.map.coordsInMap(newX, newY)) {
+      if (!this.map.coordsInMap(bullet.x, bullet.y)) {
         bullet.active = false;
         continue;
       }
-
-      bullet.x = newX;
-      bullet.y = newY;
 
       // Player collisions
       for (const playerKey of Object.keys(this.players)) {
@@ -244,6 +236,15 @@ export class DMState extends Schema {
 
   playerAddAction(action: Action) {
     this.actionsLog.push(action);
+  }
+
+  private playerName(id: string, name: string) {
+    const player: Player = this.players[id];
+    if (!player) {
+      return;
+    }
+
+    player.setName(name);
   }
 
   private playerMove(id: string, dir: Geometry.Vector) {
@@ -304,30 +305,22 @@ export class DMState extends Schema {
     player.setRotation(rotation);
   }
 
-  private playerName(id: string, name: string) {
-    const player: Player = this.players[id];
-    if (!player) {
-      return;
-    }
-
-    player.setName(name);
-  }
-
   private playerShoot(id: string, angle: number) {
-    // Can the player shoot?
     const player: Player = this.players[id];
-    if (!player || !player.canShoot) {
+    if (!player || !player.canShoot || this.game.state !== 'game') {
       return;
     }
 
-    // Recycle bullets if some are unused
-    const bulletX = player.x;
-    const bulletY = player.y;
+    // Make the bullet start at the staff
+    const bulletX = player.x + Math.cos(angle) * Constants.PLAYER_WEAPON_SIZE;
+    const bulletY = player.y + Math.sin(angle) * Constants.PLAYER_WEAPON_SIZE;
+
+    // Recycle bullets if some are unused to prevent instantiating too many
     const index = this.bullets.findIndex(bullet => !bullet.active);
     if (index === -1) {
-      this.bullets.push(new Bullet(id, bulletX, bulletY, Constants.BULLET_SIZE, angle));
+      this.bullets.push(new Bullet(id, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color));
     } else {
-      this.bullets[index].reset(id, bulletX, bulletY, Constants.BULLET_SIZE, angle);
+      this.bullets[index].reset(id, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color);
     }
   }
 

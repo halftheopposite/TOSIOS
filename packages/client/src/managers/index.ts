@@ -5,7 +5,6 @@ import HUDManager from './HUDManager';
 import MapManager from './MapManager';
 import PlayersManager from './PlayersManager';
 import PropsManager from './PropsManager';
-import ViewportManager from './ViewportManager';
 
 export {
   BulletsManager,
@@ -15,5 +14,4 @@ export {
   MapManager,
   PlayersManager,
   PropsManager,
-  ViewportManager,
 };

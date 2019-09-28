@@ -4,8 +4,7 @@ import { PropTextures } from '../images/textures';
 import { RectangleSprite } from './RectangleSprite';
 
 const getTexture = (type: Types.PropType): {
-  single?: Texture;
-  array?: Texture[];
+  [key: string]: Texture | Texture[];
 } => {
   switch (type) {
     case 'potion-red':
@@ -28,7 +27,6 @@ export default class Prop extends RectangleSprite {
       width,
       height,
       0,
-      true,
       getTexture(type),
     );
 
