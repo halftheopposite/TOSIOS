@@ -4,6 +4,8 @@ import { PlayerTextures, WeaponTextures } from '../images/textures';
 import { HUDText } from './';
 import { CircleSprite } from './CircleSprite';
 
+const HURT_COLOR = 0xEFEFEF;
+const HURT_TIME = 50;
 const NAME_OFFSET = 4;
 
 type PlayerDirection = 'left' | 'right';
@@ -131,8 +133,17 @@ export default class Player extends CircleSprite {
       return;
     }
 
+    const isHurt = lives < this._lives;
     this._lives = lives;
     this.updateTextures();
+
+    // When a player gets hit we change his color briefly
+    if (isHurt) {
+      this.sprite.tint = HURT_COLOR;
+      setTimeout(() => {
+        this.sprite.tint = utils.string2hex(this.color);
+      }, HURT_TIME);
+    }
   }
 
   set score(score: number) {
@@ -142,7 +153,7 @@ export default class Player extends CircleSprite {
   set rotation(rotation: number) {
     this._rotation = rotation;
 
-    if (rotation >= -1.57 && rotation <= 1.57) {
+    if (rotation >= -(Math.PI / 2) && rotation <= (Math.PI / 2)) {
       this.direction = 'right';
     } else {
       this.direction = 'left';
