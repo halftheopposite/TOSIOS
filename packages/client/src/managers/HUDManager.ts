@@ -178,7 +178,7 @@ export default class HUDManager extends Container {
 
   renderPlayers = () => {
     this.playersHUD.position.set(this._screenWidth - HUD_PADDING, HUD_PADDING);
-    this.playersHUD.text = `[${this._players}/${this._maxPlayers}]${this._mobile ? '' : ' players'}`;
+    this.playersHUD.text = `[${this._players}/${this._maxPlayers}]`;
   }
 
   renderLogs = () => {
