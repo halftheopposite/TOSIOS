@@ -125,11 +125,11 @@ export class DMState extends Schema {
 
         // Stop "game" when time is over (everyone loses)
         if (this.game.gameEndsAt < Date.now()) {
+          this.setPlayersActive(false);
           continueGame = false;
         }
 
         if (!continueGame) {
-          this.setPlayersActive(false);
           this.onMessage(new Message('stop'));
           this.game.setState('lobby');
         }
@@ -314,13 +314,12 @@ export class DMState extends Schema {
   }
 
   private playerShoot(id: string, angle: number) {
-    // Can the player shoot?
     const player: Player = this.players[id];
-    if (!player || !player.canShoot) {
+    if (!player || !player.canShoot || this.game.state !== 'game') {
       return;
     }
 
-    // Recycle bullets if some are unused
+    // Recycle bullets if some are unused to prevent instantiating too many
     const bulletX = player.x;
     const bulletY = player.y;
     const index = this.bullets.findIndex(bullet => !bullet.active);
