@@ -28,8 +28,8 @@ export const PLAYER_SPEED = 3;
 export const PLAYER_LIVES = 3;
 
 // Props (rectangle)
-export const FLASKS_COUNT = 3;
 export const FLASK_SIZE = 24;
+export const FLASKS_COUNT = 3;
 
 // Bullet (circle)
 export const BULLET_SIZE = 4;

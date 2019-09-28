@@ -1,7 +1,6 @@
 import { Geometry } from '@tosios/common';
 import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
 
-
 export class RectangleSprite {
   private _body: Geometry.RectangleBody;
   private _sprite: Sprite | AnimatedSprite;
@@ -12,20 +11,20 @@ export class RectangleSprite {
     width: number,
     height: number,
     rotation: number,
-    animated: boolean,
     texture: { single?: Texture; array?: Texture[] },
   ) {
     // Body
     this._body = new Geometry.RectangleBody(x, y, width, height);
 
-    // Sprite
-    if (animated) {
+    // Is it a still Sprite?
+    if (texture.single) {
+      this._sprite = new Sprite(texture.single);
+    } else {
       this._sprite = new AnimatedSprite(texture.array || [], true);
       (this._sprite as AnimatedSprite).animationSpeed = 0.1;
       (this._sprite as AnimatedSprite).play();
-    } else {
-      this._sprite = new Sprite(texture.single);
     }
+
     this._sprite.position.set(x, y);
     this._sprite.width = width;
     this._sprite.height = height;

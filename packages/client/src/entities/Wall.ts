@@ -1,9 +1,8 @@
 import { Texture } from 'pixi.js';
-
 import { WallTextures } from '../images/textures';
 import { RectangleSprite } from './RectangleSprite';
 
-const WALLS: { [key: string]: Texture } = {
+const WALLS: { [key: string]: Texture | Texture[] } = {
   left: WallTextures.left1Texture,
   top: WallTextures.top1Texture,
   right: WallTextures.right1Texture,
@@ -12,28 +11,39 @@ const WALLS: { [key: string]: Texture } = {
   bottomRight: WallTextures.bottomRight1Texture,
   centerTopLeft: WallTextures.centerTopLeft1Texture,
   centerTopRight: WallTextures.centerTopRight1Texture,
+  doorLeft: WallTextures.doorLeft1Texture,
+  doorRight: WallTextures.doorRight1Texture,
+  candleStick: WallTextures.candleStickTextures,
 };
 
-const getTexture = (type: number): Texture => {
+const getTexture = (type: number): {
+  [key: string]: Texture | Texture[],
+} => {
   switch (type) {
     case 1:
-      return WALLS.left;
+      return { single: WALLS.left };
     case 2:
-      return WALLS.top;
+      return { single: WALLS.top };
     case 3:
-      return WALLS.right;
+      return { single: WALLS.right };
     case 4:
-      return WALLS.bottom;
+      return { single: WALLS.bottom };
     case 5:
-      return WALLS.bottomLeft;
+      return { single: WALLS.bottomLeft };
     case 6:
-      return WALLS.bottomRight;
+      return { single: WALLS.bottomRight };
     case 7:
-      return WALLS.centerTopLeft;
+      return { single: WALLS.centerTopLeft };
     case 8:
-      return WALLS.centerTopRight;
+      return { single: WALLS.centerTopRight };
+    case 9:
+      return { single: WALLS.doorLeft };
+    case 10:
+      return { single: WALLS.doorRight };
+    case 11:
+      return { array: WALLS.candleStick };
     default:
-      return WALLS.bottom;
+      return { single: WALLS.bottom };
   }
 };
 
@@ -48,17 +58,11 @@ export default class Wall extends RectangleSprite {
       width,
       height,
       0,
-      false,
-      { single: getTexture(type) },
+      getTexture(type),
     );
+    console.log(type);
 
-    this.type = type;
-  }
-
-  // Setters
-  set type(type: number) {
     this._type = type;
-    this.sprite.texture = getTexture(type);
   }
 
   // Getters
