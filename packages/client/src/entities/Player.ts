@@ -12,6 +12,7 @@ type PlayerDirection = 'left' | 'right';
 
 export default class Player extends CircleSprite {
 
+  private _playerId: string = '';
   private _toX: number = 0;
   private _toY: number = 0;
   private _name: string = '';
@@ -25,6 +26,7 @@ export default class Player extends CircleSprite {
 
   // Init
   constructor(
+    playerId: string,
     x: number,
     y: number,
     radius: number,
@@ -57,6 +59,7 @@ export default class Player extends CircleSprite {
     this._nameTextSprite = new HUDText(name, 10, 0.5, 1);
     this._nameTextSprite.position.set(x, this.body.top);
 
+    this.playerId = playerId;
     this.toX = x;
     this.toY = y;
     this.rotation = rotation;
@@ -97,6 +100,10 @@ export default class Player extends CircleSprite {
   }
 
   // Setters
+  set playerId(playerId: string) {
+    this._playerId = playerId;
+  }
+
   set toX(toX: number) {
     this._toX = toX;
   }
@@ -176,6 +183,10 @@ export default class Player extends CircleSprite {
   }
 
   // Getters
+  get playerId() {
+    return this._playerId;
+  }
+
   get toX() {
     return this._toX;
   }

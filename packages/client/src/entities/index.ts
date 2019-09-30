@@ -1,5 +1,6 @@
 import Bullet from './Bullet';
 import Ground from './Ground';
+import HUDLeaderboard from './HUDLeaderboard';
 import HUDLives from './HUDLives';
 import HUDText from './HUDText';
 import Player from './Player';
@@ -9,6 +10,7 @@ import Wall from './Wall';
 export {
   Bullet,
   Ground,
+  HUDLeaderboard,
   HUDLives,
   HUDText,
   Player,

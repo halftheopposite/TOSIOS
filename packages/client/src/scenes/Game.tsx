@@ -26,7 +26,14 @@ class Game extends Component<IProps, IState> {
   gameManager: GameManager;
   client?: Client;
   room?: Room;
-  pressedKeys = { up: false, down: false, left: false, right: false, shoot: false };
+  pressedKeys = {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    shoot: false,
+    leaderboard: false,
+  };
 
   state: IState = {
     playerId: '',
@@ -164,7 +171,7 @@ class Game extends Component<IProps, IState> {
     const isMe = playerId === this.state.playerId;
 
     if (isMe) {
-      this.gameManager.meAdd(player);
+      this.gameManager.meAdd(playerId, player);
     } else {
       this.gameManager.playerAdd(playerId, player);
     }
@@ -265,30 +272,40 @@ class Game extends Component<IProps, IState> {
 
   handleKeyDown = (event: any) => {
     switch (event.code) {
+      // Up
       case Keys.KEY_W:
       case Keys.KEY_Z:
       case Keys.KEY_ARROW_UP:
         this.pressedKeys.up = true;
         event.preventDefault();
         break;
+      // Down
       case Keys.KEY_S:
       case Keys.KEY_ARROW_DOWN:
         this.pressedKeys.down = true;
         event.preventDefault();
         break;
+      // Left
       case Keys.KEY_A:
       case Keys.KEY_Q:
       case Keys.KEY_ARROW_LEFT:
         this.pressedKeys.left = true;
         event.preventDefault();
         break;
+      // Right
       case Keys.KEY_D:
       case Keys.KEY_ARROW_RIGHT:
         this.pressedKeys.right = true;
         event.preventDefault();
         break;
+      // Shoot
       case Keys.KEY_SPACE:
         this.pressedKeys.shoot = true;
+        event.preventDefault();
+        break;
+      // Leaderboard
+      case Keys.KEY_TAB:
+        this.pressedKeys.leaderboard = true;
         event.preventDefault();
         break;
       default:
@@ -298,32 +315,43 @@ class Game extends Component<IProps, IState> {
 
   handleKeyUp = (event: any) => {
     switch (event.code) {
+      // Up
       case Keys.KEY_W:
       case Keys.KEY_Z:
       case Keys.KEY_ARROW_UP:
         this.pressedKeys.up = false;
         event.preventDefault();
         break;
+      // Down
       case Keys.KEY_S:
       case Keys.KEY_ARROW_DOWN:
         this.pressedKeys.down = false;
         event.preventDefault();
         break;
+      // Left
       case Keys.KEY_A:
       case Keys.KEY_Q:
       case Keys.KEY_ARROW_LEFT:
         this.pressedKeys.left = false;
         event.preventDefault();
         break;
+      // Right
       case Keys.KEY_D:
       case Keys.KEY_ARROW_RIGHT:
         this.pressedKeys.right = false;
         event.preventDefault();
         break;
+      // Shoot
       case Keys.KEY_SPACE:
         this.pressedKeys.shoot = false;
         event.preventDefault();
         break;
+      // Leaderboard
+      case Keys.KEY_TAB:
+        this.pressedKeys.leaderboard = false;
+        event.preventDefault();
+        break;
+
       default:
         break;
     }
@@ -386,10 +414,6 @@ class Game extends Component<IProps, IState> {
 
   // UPDATES
   handleUpdate = () => {
-    this.updateInputs();
-  }
-
-  updateInputs = () => {
     // Move
     const dir = { x: 0, y: 0 };
     if (this.pressedKeys.up || this.pressedKeys.down || this.pressedKeys.left || this.pressedKeys.right) {
@@ -421,6 +445,9 @@ class Game extends Component<IProps, IState> {
     if (this.pressedKeys.shoot) {
       this.sendPlayerShootMessage(this.gameManager.getMeRotation());
     }
+
+    // Leaderboard
+    this.gameManager.setLeaderboard(this.pressedKeys.leaderboard);
   }
 
 

@@ -1,11 +1,17 @@
 import { Constants } from '@tosios/common';
 import { Container } from 'pixi.js';
 
-import { HUDLives, HUDText } from '../entities';
+import { HUDLeaderboard, HUDLives, HUDText } from '../entities';
 
 const HUD_PADDING = 24;
 const ANNOUNCE_LIFETIME = 3000;
 const ANNOUNCE_ANIM_TICK = 50;
+
+interface IPlayerItem {
+  score: number;
+  name: string;
+  color: string;
+}
 
 export default class HUDManager extends Container {
 
@@ -13,28 +19,35 @@ export default class HUDManager extends Container {
   private _screenWidth: number;
   private _screenHeight: number;
   private _mobile: boolean;
+  private _leaderboard: boolean;
 
   // Data
   private _lives: number;
   private _maxLives: number;
   private _time: number;
-  private _players: number;
-  private _maxPlayers: number;
+  private _maxPlayersCount: number;
   private _fps: number;
   private _logs: string[];
   private _announce: string;
   private _announceStartedAt: number;
+  private _playersList: { [key: string]: IPlayerItem };
 
   // Sprites
-  private livesHUD: HUDLives;
-  private timeHUD: HUDText;
-  private playersHUD: HUDText;
-  private logsHUD: HUDText;
-  private fpsHUD: HUDText;
-  private announceHUD: HUDText;
+  private _livesHUD: HUDLives;
+  private _timeHUD: HUDText;
+  private _playersHUD: HUDText;
+  private _logsHUD: HUDText;
+  private _fpsHUD: HUDText;
+  private _announceHUD: HUDText;
+  private _leaderboardHUD: HUDLeaderboard;
 
   // Base
-  constructor(screenWidth: number, screenHeight: number, mobile: boolean) {
+  constructor(
+    screenWidth: number,
+    screenHeight: number,
+    mobile: boolean,
+    leaderboard: boolean,
+  ) {
     super();
     this.name = 'HUD';
 
@@ -42,64 +55,65 @@ export default class HUDManager extends Container {
     this._screenWidth = screenWidth;
     this._screenHeight = screenHeight;
     this._mobile = mobile;
+    this._leaderboard = leaderboard;
 
     // Data
     this._lives = 0;
     this._maxLives = 0;
     this._time = 0;
-    this._players = 0;
-    this._maxPlayers = 0;
+    this._maxPlayersCount = 0;
     this._fps = 0;
     this._logs = [];
     this._announce = '';
     this._announceStartedAt = 0;
+    this._playersList = {};
 
     // Lives
-    this.livesHUD = new HUDLives(
+    this._livesHUD = new HUDLives(
       Constants.PLAYER_LIVES,
       0,
     );
-    this.addChild(this.livesHUD);
+    this.addChild(this._livesHUD);
 
     // Time
-    this.timeHUD = new HUDText(
+    this._timeHUD = new HUDText(
       '',
       25,
       0.5,
       0,
       { textAlign: 'center' },
     );
-    this.addChild(this.timeHUD);
+    this.addChild(this._timeHUD);
 
     // Players
-    this.playersHUD = new HUDText(
+    this._playersHUD = new HUDText(
       '',
       25,
       1,
       0,
     );
-    this.addChild(this.playersHUD);
+    this.addChild(this._playersHUD);
 
     // Logs
-    this.logsHUD = new HUDText(
+    this._logsHUD = new HUDText(
       '',
       20,
       0,
       1,
     );
-    this.addChild(this.logsHUD);
+    this.addChild(this._logsHUD);
 
     // FPS
-    this.fpsHUD = new HUDText(
+    this._fpsHUD = new HUDText(
       '--',
       25,
       1,
       1,
     );
-    this.addChild(this.fpsHUD);
+    this.addChild(this._fpsHUD);
 
     // Announce
-    this.announceHUD = new HUDText(
+    this._announceHUD = new HUDText(
       '',
       40,
       0.5,
@@ -110,7 +124,14 @@ export default class HUDManager extends Container {
         wordWrapWidth: this._screenWidth,
       },
     );
-    this.addChild(this.announceHUD);
+    this.addChild(this._announceHUD);
+
+    // Leaderboard
+    this._leaderboardHUD = new HUDLeaderboard(
+      this._screenWidth,
+      this._screenHeight,
+    );
+    this.addChild(this._leaderboardHUD);
 
     // Render the HUD
     this.renderAll();
@@ -133,24 +154,53 @@ export default class HUDManager extends Container {
     this.renderLogs();
   }
 
-  renderAll = () => {
+  updatePlayer = (playerId: string, name: string, score: number, color: string) => {
+    const player = this._playersList[playerId];
+    if (
+      player &&
+      player.name === name &&
+      player.score === score &&
+      player.color === color
+    ) {
+      return;
+    }
+
+    this._playersList[playerId] = {
+      name,
+      score,
+      color,
+    };
+
+    this.renderPlayers();
+    this.renderLeaderboard();
+  }
+
+  removePlayer = (playerId: string) => {
+    delete this._playersList[playerId];
+
+    this.renderPlayers();
+    this.renderLeaderboard();
+  }
+
+  private renderAll = () => {
     this.renderLives();
     this.renderTime();
     this.renderPlayers();
     this.renderLogs();
     this.renderAnnounce();
     this.renderFPS();
+    this.renderLeaderboard();
   }
 
-  renderLives = () => {
-    this.livesHUD.position.set(HUD_PADDING, HUD_PADDING);
-    this.livesHUD.mobile = this._mobile;
-    this.livesHUD.lives = this._lives;
-    this.livesHUD.maxLives = this._maxLives;
+  private renderLives = () => {
+    this._livesHUD.position.set(HUD_PADDING, HUD_PADDING);
+    this._livesHUD.mobile = this._mobile;
+    this._livesHUD.lives = this._lives;
+    this._livesHUD.maxLives = this._maxLives;
   }
 
-  renderTime = () => {
-    this.timeHUD.position.set(this._screenWidth / 2, HUD_PADDING);
+  private renderTime = () => {
+    this._timeHUD.position.set(this._screenWidth / 2, HUD_PADDING);
 
     const getMinutes = (seconds: number) => {
       return Math.floor(seconds / 60);
@@ -166,47 +216,79 @@ export default class HUDManager extends Container {
     };
 
     if (this._time <= 0) {
-      this.timeHUD.text = '00:00';
+      this._timeHUD.text = '00:00';
       return;
     }
 
     const minutesLeft: number = getMinutes(this._time / 1000);
     const secondsLeft: number = getSeconds(this._time / 1000);
 
-    this.timeHUD.text = `${getPadded(minutesLeft)}:${getPadded(secondsLeft)}`;
+    this._timeHUD.text = `${getPadded(minutesLeft)}:${getPadded(secondsLeft)}`;
   }
 
-  renderPlayers = () => {
-    this.playersHUD.position.set(this._screenWidth - HUD_PADDING, HUD_PADDING);
-    this.playersHUD.text = `[${this._players}/${this._maxPlayers}]`;
+  private renderPlayers = () => {
+    this._playersHUD.position.set(this._screenWidth - HUD_PADDING, HUD_PADDING);
+    this._playersHUD.text = `[${Object.keys(this._playersList).length}/${this._maxPlayersCount}]`;
   }
 
-  renderLogs = () => {
+  private renderLogs = () => {
     // Don't render on mobiles
     if (this._mobile) {
-      this.logsHUD.visible = false;
+      this._logsHUD.visible = false;
     } else {
-      this.logsHUD.visible = true;
-      this.logsHUD.alpha = 0.5;
-      this.logsHUD.position.set(HUD_PADDING, this._screenHeight - HUD_PADDING);
-      this.logsHUD.text = this._logs.join('\n');
+      this._logsHUD.visible = true;
+      this._logsHUD.alpha = 0.5;
+      this._logsHUD.position.set(HUD_PADDING, this._screenHeight - HUD_PADDING);
+      this._logsHUD.text = this._logs.join('\n');
     }
   }
 
-  renderAnnounce = () => {
-    this.announceHUD.position.set(this._screenWidth / 2, this._screenHeight / 2);
-    this.announceHUD.style = {
-      ...this.announceHUD.style,
+  private renderAnnounce = () => {
+    this._announceHUD.position.set(this._screenWidth / 2, this._screenHeight / 2);
+    this._announceHUD.style = {
+      ...this._announceHUD.style,
       wordWrapWidth: this._screenWidth,
       textAlign: 'center',
     };
   }
 
-  renderFPS = () => {
-    this.fpsHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
-    this.fpsHUD.alpha = Constants.SHOW_FPS ? 0.2 : 0;
-    this.fpsHUD.text = `${this._fps}`;
+  private renderFPS = () => {
+    this._fpsHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
+    this._fpsHUD.alpha = Constants.SHOW_FPS ? 0.2 : 0;
+    this._fpsHUD.text = `${this._fps}`;
   }
+
+  private renderLeaderboard = () => {
+    console.log(this._playersList);
+
+    if (this._leaderboard) {
+      this._leaderboardHUD.position.set(0, 0);
+      this._leaderboardHUD.visible = true;
+
+      const list: IPlayerItem[] = [];
+      for (const playerId in this._playersList) {
+        const item = this._playersList[playerId];
+        list.push(item);
+      }
+      list.sort((a, b) => {
+        if (a.score > b.score) {
+          return 1;
+        }
+
+        if (a.score > b.score) {
+          return -1;
+        }
+
+        return 0;
+      });
+      const array = list.map((item, index) => `[${item.score}] ${item.name}`)
+
+      this._leaderboardHUD.text = array;
+    } else {
+      this._leaderboardHUD.visible = false;
+    }
+  }
+
 
   // Setters
   set mobile(mobile: boolean) {
@@ -216,6 +298,15 @@ export default class HUDManager extends Container {
 
     this._mobile = mobile;
     this.renderAll();
+  }
+
+  set leaderboard(leaderboard: boolean) {
+    if (this._leaderboard === leaderboard) {
+      return;
+    }
+
+    this._leaderboard = leaderboard;
+    this.renderLeaderboard();
   }
 
   set lives(lives: number) {
@@ -245,21 +336,12 @@ export default class HUDManager extends Container {
     this.renderTime();
   }
 
-  set players(players: number) {
-    if (this._players === players) {
+  set maxPlayersCount(maxPlayersCount: number) {
+    if (this._maxPlayersCount === maxPlayersCount) {
       return;
     }
 
-    this._players = players;
-    this.renderPlayers();
-  }
-
-  set maxPlayers(maxPlayers: number) {
-    if (this._maxPlayers === maxPlayers) {
-      return;
-    }
-
-    this._maxPlayers = maxPlayers;
+    this._maxPlayersCount = maxPlayersCount;
     this.renderPlayers();
   }
 
@@ -275,19 +357,19 @@ export default class HUDManager extends Container {
   set announce(announce: string) {
     this._announce = announce;
     this._announceStartedAt = Date.now();
-    this.announceHUD.text = this._announce;
-    this.announceHUD.alpha = 1;
+    this._announceHUD.text = this._announce;
+    this._announceHUD.alpha = 1;
 
     // Calculate how much we must take off each tick
     const tick = (ANNOUNCE_ANIM_TICK / ANNOUNCE_LIFETIME);
     const intervalId = setInterval(() => {
       if (Date.now() - this._announceStartedAt > ANNOUNCE_LIFETIME) {
-        this.announceHUD.alpha = 0;
+        this._announceHUD.alpha = 0;
         clearInterval(intervalId);
         return;
       }
 
-      this.announceHUD.alpha -= tick;
+      this._announceHUD.alpha -= tick;
     }, ANNOUNCE_ANIM_TICK);
 
     this.renderAnnounce();
