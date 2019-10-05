@@ -22,4 +22,12 @@ export default class HUDText extends Text {
     this.anchor.set(anchorX, anchorY);
     this.text = text;
   }
+
+  get bottom() {
+    return this.y + this.height;
+  }
+
+  get right() {
+    return this.x + this.width;
+  }
 }

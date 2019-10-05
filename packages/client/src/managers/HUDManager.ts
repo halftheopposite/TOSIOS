@@ -294,16 +294,13 @@ export default class HUDManager extends Container {
 
         return 0;
       });
-      const array = list.map((item, index) => `[${item.score}] ${item.name}`)
+      const array = list.map((item, index) => `[${item.score}] ${item.name}`);
 
       this._leaderboardHUD.text = array;
     } else {
       this._leaderboardHUD.visible = false;
     }
   }
-
-
-
 
   // Setters
   set mobile(mobile: boolean) {
