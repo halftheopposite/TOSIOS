@@ -21,3 +21,11 @@ export interface IRoomOptions {
 export interface IPlayerOptions {
   playerName?: string;
 }
+
+export interface IWall {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  type: number;
+}

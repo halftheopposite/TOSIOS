@@ -1,9 +1,12 @@
-import { Geometry, Maths } from '@tosios/common';
 import { Schema, type } from '@colyseus/schema';
+import { Geometry, Maths } from '@tosios/common';
 import { Circle } from './Circle';
 import { Rectangle } from './Rectangle';
 
 export class Map extends Schema {
+
+  @type('string')
+  name: string;
 
   @type('number')
   width: number;
@@ -13,8 +16,9 @@ export class Map extends Schema {
 
 
   // Init
-  constructor(width: number, height: number) {
+  constructor(name: string, width: number, height: number) {
     super();
+    this.name = name;
     this.width = width;
     this.height = height;
   }

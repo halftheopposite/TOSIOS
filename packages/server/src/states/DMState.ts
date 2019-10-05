@@ -21,7 +21,6 @@ import { Message } from '../entities/Message';
 import { Player } from '../entities/Player';
 import { Prop } from '../entities/Prop';
 import { Wall } from '../entities/Wall';
-import { parseByName } from '../maps';
 
 export class DMState extends Schema {
 
@@ -49,7 +48,7 @@ export class DMState extends Schema {
 
   // Init
   constructor(
-    map: Types.MapNameType,
+    mapName: Types.MapNameType,
     maxPlayers: number,
     onMessage: any,
   ) {
@@ -63,9 +62,11 @@ export class DMState extends Schema {
     );
 
     // Map
-    const { width, height, walls } = parseByName(map);
-    this.map = new Map(width, height);
-    this.walls.push(...walls);
+    const { width, height, walls } = Maps.parseByName(mapName);
+    this.map = new Map(mapName, width, height);
+    for (const wall of walls) {
+      this.walls.push(new Wall(wall.x, wall.y, wall.width, wall.height, wall.type));
+    }
 
     // Callback
     this.onMessage = onMessage;

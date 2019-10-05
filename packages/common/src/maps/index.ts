@@ -1,6 +1,4 @@
-import { ArraySchema } from '@colyseus/schema';
-import { Constants, Types } from '@tosios/common';
-import { Wall } from '../entities/Wall';
+import { Constants, Types } from '../';
 import bigMap from './big';
 import longMap from './long';
 import smallMap from './small';
@@ -11,6 +9,21 @@ const MAPS = {
   big: bigMap,
 };
 
+
+export const List: Types.IListItem[] = [
+  { value: 'small', title: 'Small' },
+  { value: 'long', title: 'Long' },
+  { value: 'big', title: 'Big' },
+];
+
+export const Players: Types.IListItem[] = [
+  { value: 2, title: '2 players' },
+  { value: 4, title: '4 players' },
+  { value: 8, title: '8 players' },
+  { value: 16, title: '16 players' },
+];
+
+
 /**
  * Parse a map by its name
  * @param name The map's name
@@ -18,9 +31,9 @@ const MAPS = {
 export const parseByName = (name: Types.MapNameType): {
   width: number;
   height: number;
-  walls: ArraySchema<Wall>;
+  walls: Types.IWall[];
 } => {
-  const walls = new ArraySchema<Wall>();
+  const walls: Types.IWall[] = [];
   const rows = MAPS[name];
 
   let width = 0;
@@ -37,7 +50,13 @@ export const parseByName = (name: Types.MapNameType): {
     // Columns
     for (const col of row) {
       if (col > 0) {
-        walls.push(new Wall(x, y, Constants.TILE_SIZE, Constants.TILE_SIZE, col));
+        walls.push({
+          x,
+          y,
+          width: Constants.TILE_SIZE,
+          height: Constants.TILE_SIZE,
+          type: col,
+        });
       }
       x += Constants.TILE_SIZE;
     }
