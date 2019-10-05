@@ -1,6 +1,6 @@
 import { utils } from 'pixi.js';
 import { WeaponTextures } from '../images/textures';
-import { CircleSprite } from './CircleSprite';
+import { CircleSprite } from '../sprites';
 
 export default class Bullet extends CircleSprite {
 

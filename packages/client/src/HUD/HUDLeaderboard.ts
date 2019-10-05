@@ -23,7 +23,6 @@ export default class HUDLeaderboard extends Container {
     this._backgroundSprite.alpha = 0.8;
     this.addChild(this._backgroundSprite);
 
-
     // Text
     this._text = new HUDText(
       '',
@@ -64,8 +63,12 @@ export default class HUDLeaderboard extends Container {
       this._text.x + BOX_PADDING / 2,
       this._text.y + BOX_PADDING / 2,
     );
-
-    // Draw keyboard sprites
-
+    this._box.lineStyle(1, 0xFFFFFF);
+    this._box.drawRect(
+      -this._text.width / 2 - BOX_PADDING,
+      -this._text.height / 2 - BOX_PADDING + 50,
+      this._text.width + BOX_PADDING,
+      1,
+    );
   }
 }

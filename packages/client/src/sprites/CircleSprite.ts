@@ -1,7 +1,7 @@
 import { Geometry } from '@tosios/common';
 import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
 
-export class CircleSprite {
+export default class CircleSprite {
   private _body: Geometry.CircleBody;
   private _sprite: Sprite | AnimatedSprite;
 

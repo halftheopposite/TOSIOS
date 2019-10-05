@@ -1,8 +1,8 @@
 import { Maths } from '@tosios/common';
 import { AnimatedSprite, Sprite, utils } from 'pixi.js';
+import { HUDText } from '../HUD';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
-import { HUDText } from './';
-import { CircleSprite } from './CircleSprite';
+import { CircleSprite } from '../sprites';
 
 const HURT_COLOR = 0xEFEFEF;
 const HURT_TIME = 50;

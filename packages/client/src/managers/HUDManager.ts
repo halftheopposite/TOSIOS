@@ -1,7 +1,7 @@
 import { Constants } from '@tosios/common';
 import { Container } from 'pixi.js';
 
-import { HUDLeaderboard, HUDLives, HUDText } from '../entities';
+import { HUDInputTab, HUDLeaderboard, HUDLives, HUDText } from '../HUD';
 
 const HUD_PADDING = 24;
 const ANNOUNCE_LIFETIME = 3000;
@@ -39,6 +39,7 @@ export default class HUDManager extends Container {
   private _logsHUD: HUDText;
   private _fpsHUD: HUDText;
   private _announceHUD: HUDText;
+  private _tabHUD: HUDInputTab;
   private _leaderboardHUD: HUDLeaderboard;
 
   // Base
@@ -126,6 +127,10 @@ export default class HUDManager extends Container {
     );
     this.addChild(this._announceHUD);
 
+    // Inputs: Tab
+    this._tabHUD = new HUDInputTab();
+    this.addChild(this._tabHUD);
+
     // Leaderboard
     this._leaderboardHUD = new HUDLeaderboard(
       this._screenWidth,
@@ -190,6 +195,7 @@ export default class HUDManager extends Container {
     this.renderAnnounce();
     this.renderFPS();
     this.renderLeaderboard();
+    this.renderTabSprite();
   }
 
   private renderLives = () => {
@@ -258,9 +264,16 @@ export default class HUDManager extends Container {
     this._fpsHUD.text = `${this._fps}`;
   }
 
-  private renderLeaderboard = () => {
-    console.log(this._playersList);
+  private renderTabSprite = () => {
+    if (this._leaderboard) {
+      this._tabHUD.visible = false;
+    } else {
+      this._tabHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
+      this._tabHUD.visible = true;
+    }
+  }
 
+  private renderLeaderboard = () => {
     if (this._leaderboard) {
       this._leaderboardHUD.position.set(0, 0);
       this._leaderboardHUD.visible = true;
@@ -290,6 +303,8 @@ export default class HUDManager extends Container {
   }
 
 
+
+
   // Setters
   set mobile(mobile: boolean) {
     if (this._mobile === mobile) {
@@ -306,7 +321,7 @@ export default class HUDManager extends Container {
     }
 
     this._leaderboard = leaderboard;
-    this.renderLeaderboard();
+    this.renderAll();
   }
 
   set lives(lives: number) {

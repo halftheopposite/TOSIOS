@@ -1,11 +1,9 @@
 import { Container } from 'pixi.js';
-import { CircleSprite } from '../entities/CircleSprite';
-import { RectangleSprite } from '../entities/RectangleSprite';
+import { CircleSprite, RectangleSprite } from '../sprites';
 
 export class ManagerContainer<T> extends Container {
 
   protected entities: { [key: string]: T & (CircleSprite | RectangleSprite) };
-
 
   // CTOR
   constructor(name: string) {
