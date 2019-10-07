@@ -1,8 +1,8 @@
 import { Maths } from '@tosios/common';
 import { AnimatedSprite, Sprite, utils } from 'pixi.js';
+import { HUDText } from '../HUD';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
-import { HUDText } from './';
-import { CircleSprite } from './CircleSprite';
+import { CircleSprite } from '../sprites';
 
 const HURT_COLOR = 0xEFEFEF;
 const HURT_TIME = 50;
@@ -12,12 +12,13 @@ type PlayerDirection = 'left' | 'right';
 
 export default class Player extends CircleSprite {
 
+  private _playerId: string = '';
   private _toX: number = 0;
   private _toY: number = 0;
   private _name: string = '';
   private _color: string = '#FFFFFF';
   private _lives: number = 0;
-  private _score: number = 0;
+  private _kills: number = 0;
   private _rotation: number = 0;
   private _direction: PlayerDirection = 'right';
   private _weaponSprite: Sprite;
@@ -25,6 +26,7 @@ export default class Player extends CircleSprite {
 
   // Init
   constructor(
+    playerId: string,
     x: number,
     y: number,
     radius: number,
@@ -32,7 +34,7 @@ export default class Player extends CircleSprite {
     name: string,
     color: string,
     lives: number,
-    score: number,
+    kills: number,
   ) {
     super(
       x,
@@ -57,13 +59,14 @@ export default class Player extends CircleSprite {
     this._nameTextSprite = new HUDText(name, 10, 0.5, 1);
     this._nameTextSprite.position.set(x, this.body.top);
 
+    this.playerId = playerId;
     this.toX = x;
     this.toY = y;
     this.rotation = rotation;
     this.name = name;
     this.color = color;
     this.lives = lives;
-    this.score = score;
+    this.kills = kills;
 
     this.updateTextures();
   }
@@ -97,6 +100,10 @@ export default class Player extends CircleSprite {
   }
 
   // Setters
+  set playerId(playerId: string) {
+    this._playerId = playerId;
+  }
+
   set toX(toX: number) {
     this._toX = toX;
   }
@@ -146,8 +153,8 @@ export default class Player extends CircleSprite {
     }
   }
 
-  set score(score: number) {
-    this._score = score;
+  set kills(kills: number) {
+    this._kills = kills;
   }
 
   set rotation(rotation: number) {
@@ -176,6 +183,10 @@ export default class Player extends CircleSprite {
   }
 
   // Getters
+  get playerId() {
+    return this._playerId;
+  }
+
   get toX() {
     return this._toX;
   }
@@ -196,8 +207,8 @@ export default class Player extends CircleSprite {
     return this._lives;
   }
 
-  get score() {
-    return this._score;
+  get kills() {
+    return this._kills;
   }
 
   get rotation() {

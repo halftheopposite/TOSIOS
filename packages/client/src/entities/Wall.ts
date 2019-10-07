@@ -1,6 +1,6 @@
 import { Texture } from 'pixi.js';
 import { WallTextures } from '../images/textures';
-import { RectangleSprite } from './RectangleSprite';
+import { RectangleSprite } from '../sprites';
 
 const WALLS: { [key: string]: Texture | Texture[] } = {
   left: WallTextures.left1Texture,

@@ -55,6 +55,7 @@ export default class GameManager {
 
   // Me (the one playing the game on his computer)
   private dir: Geometry.Vector = new Geometry.Vector();
+  private showLeaderBoard: boolean = false;
   private me: Player | null = null;
   private ghost: Player | null = null;
 
@@ -87,6 +88,7 @@ export default class GameManager {
       screenWidth,
       screenHeight,
       utils.isMobile.any,
+      this.showLeaderBoard,
     );
     this.app.stage.addChild(this.hudManager);
 
@@ -285,11 +287,13 @@ export default class GameManager {
     }
 
     // Players
-    this.hudManager.players = this.playersManager.getAll().length + 1;
-    this.hudManager.maxPlayers = this.maxPlayers;
+    this.hudManager.maxPlayersCount = this.maxPlayers;
 
     // FPS
     this.hudManager.fps = Math.floor(this.app.ticker.FPS);
+
+    // Leaderboard
+    this.hudManager.isLeaderboard = this.showLeaderBoard;
   }
 
 
@@ -342,6 +346,10 @@ export default class GameManager {
     };
   }
 
+  setLeaderboard = (show: boolean) => {
+    this.showLeaderBoard = show;
+  }
+
 
   // GETTERS
   getMeRotation = () => {
@@ -392,8 +400,9 @@ export default class GameManager {
   }
 
   // EXTERNAL: Me
-  meAdd = (attributes: any) => {
+  meAdd = (playerId: string, attributes: any) => {
     this.me = new Player(
+      playerId,
       attributes.x,
       attributes.y,
       attributes.radius,
@@ -401,14 +410,24 @@ export default class GameManager {
       attributes.name,
       attributes.color,
       attributes.lives,
-      attributes.score,
+      attributes.kills,
     );
 
     this.viewport.addChild(this.me.weaponSprite);
     this.viewport.addChild(this.me.sprite);
     this.viewport.addChild(this.me.nameTextSprite);
     this.viewport.follow(this.me.sprite);
+
+    // Create Ghost (server computed position)
     this.ghostAdd(attributes);
+
+    // Add in HUD for leaderboard
+    this.hudManager.updatePlayer(
+      this.me.playerId,
+      this.me.name,
+      this.me.kills,
+      this.me.color,
+    );
   }
 
   meUpdateDir = (dirX: number, dirY: number) => {
@@ -429,7 +448,18 @@ export default class GameManager {
     }
 
     this.me.lives = attributes.lives;
+    this.me.kills = attributes.kills;
+
+    // Update Ghost (server computed position)
     this.ghostUpdate(attributes);
+
+    // Update in HUD for leaderboard
+    this.hudManager.updatePlayer(
+      this.me.playerId,
+      this.me.name,
+      this.me.kills,
+      this.me.color,
+    );
   }
 
   meRemove = () => {
@@ -440,8 +470,14 @@ export default class GameManager {
     this.viewport.removeChild(this.me.weaponSprite);
     this.viewport.removeChild(this.me.sprite);
     this.viewport.removeChild(this.me.nameTextSprite);
-    delete this.me;
+
+    // Remove Ghost
     this.ghostRemove();
+
+    // Remove from HUD leaderboard
+    this.hudManager.removePlayer(this.me.playerId);
+
+    delete this.me;
   }
 
   // Ghost
@@ -451,6 +487,7 @@ export default class GameManager {
     }
 
     this.ghost = new Player(
+      '',
       attributes.x,
       attributes.y,
       attributes.radius,
@@ -469,6 +506,7 @@ export default class GameManager {
       return;
     }
 
+    this.ghost.rotation = attributes.rotation;
     this.ghost.position = {
       x: this.ghost.toX,
       y: this.ghost.toY,
@@ -477,7 +515,6 @@ export default class GameManager {
       toX: attributes.x,
       toY: attributes.y,
     };
-    this.ghost.rotation = attributes.rotation;
   }
 
   private ghostRemove = () => {
@@ -491,7 +528,8 @@ export default class GameManager {
 
   // EXTERNAL: Players
   playerAdd = (playerId: string, attributes: any) => {
-    this.playersManager.add(playerId, new Player(
+    const player = new Player(
+      playerId,
       attributes.x,
       attributes.y,
       attributes.radius,
@@ -499,8 +537,17 @@ export default class GameManager {
       attributes.name,
       attributes.color,
       attributes.lives,
-      attributes.score,
-    ));
+      attributes.kills,
+    );
+    this.playersManager.add(playerId, player);
+
+    // Add in HUD for leaderboard
+    this.hudManager.updatePlayer(
+      playerId,
+      player.name,
+      player.kills,
+      player.color,
+    );
   }
 
   playerUpdate = (playerId: string, attributes: any) => {
@@ -509,6 +556,11 @@ export default class GameManager {
       return;
     }
 
+    player.lives = attributes.lives;
+    player.rotation = attributes.rotation;
+    player.kills = attributes.kills;
+
+    // Set new interpolation values
     player.position = {
       x: player.toX,
       y: player.toY,
@@ -517,12 +569,21 @@ export default class GameManager {
       toX: attributes.x,
       toY: attributes.y,
     };
-    player.lives = attributes.lives;
-    player.rotation = attributes.rotation;
+
+    // Update in HUD for leaderboard
+    this.hudManager.updatePlayer(
+      playerId,
+      player.name,
+      player.kills,
+      player.color,
+    );
   }
 
   playerRemove = (playerId: string) => {
     this.playersManager.remove(playerId);
+
+    // Remove from HUD leaderboard
+    this.hudManager.removePlayer(playerId);
   }
 
   // EXTERNAL: Props

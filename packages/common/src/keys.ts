@@ -19,3 +19,6 @@ export const KEY_ARROW_RIGHT = 'ArrowRight';
 
 // Shoot
 export const KEY_SPACE = 'Space';
+
+// Leaderbaord
+export const KEY_TAB = 'Tab';

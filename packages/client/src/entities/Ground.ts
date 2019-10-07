@@ -1,8 +1,7 @@
 import { Maths } from '@tosios/common';
 import { Texture } from 'pixi.js';
-
 import { GroundTextures } from '../images/textures';
-import { RectangleSprite } from './RectangleSprite';
+import { RectangleSprite } from '../sprites';
 
 const GROUNDS: { [key: number]: Texture } = {
   1: GroundTextures.ground1Texture,

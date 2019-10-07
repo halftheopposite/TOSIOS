@@ -1,7 +1,7 @@
 import { Types } from '@tosios/common';
 import { Texture } from 'pixi.js';
 import { PropTextures } from '../images/textures';
-import { RectangleSprite } from './RectangleSprite';
+import { RectangleSprite } from '../sprites';
 
 const getTexture = (type: Types.PropType): {
   [key: string]: Texture | Texture[];
