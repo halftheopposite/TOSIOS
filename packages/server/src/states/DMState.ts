@@ -199,7 +199,7 @@ export class DMState extends Schema {
                 killerName: this.players[bullet.playerId].name,
                 killedName: player.name,
               }));
-              this.setPlayerScore(bullet.playerId);
+              this.setPlayerKills(bullet.playerId);
             }
           }
         }
@@ -417,13 +417,13 @@ export class DMState extends Schema {
     ));
   }
 
-  private setPlayerScore(playerId: string) {
+  private setPlayerKills(playerId: string) {
     const player: Player = this.players[playerId];
     if (!player) {
       return;
     }
 
-    player.setScore(player.score + 1);
+    player.setKills(player.kills + 1);
   }
 
   private setPlayersActive(active: boolean) {

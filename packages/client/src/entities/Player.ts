@@ -18,7 +18,7 @@ export default class Player extends CircleSprite {
   private _name: string = '';
   private _color: string = '#FFFFFF';
   private _lives: number = 0;
-  private _score: number = 0;
+  private _kills: number = 0;
   private _rotation: number = 0;
   private _direction: PlayerDirection = 'right';
   private _weaponSprite: Sprite;
@@ -34,7 +34,7 @@ export default class Player extends CircleSprite {
     name: string,
     color: string,
     lives: number,
-    score: number,
+    kills: number,
   ) {
     super(
       x,
@@ -66,7 +66,7 @@ export default class Player extends CircleSprite {
     this.name = name;
     this.color = color;
     this.lives = lives;
-    this.score = score;
+    this.kills = kills;
 
     this.updateTextures();
   }
@@ -153,8 +153,8 @@ export default class Player extends CircleSprite {
     }
   }
 
-  set score(score: number) {
-    this._score = score;
+  set kills(kills: number) {
+    this._kills = kills;
   }
 
   set rotation(rotation: number) {
@@ -207,8 +207,8 @@ export default class Player extends CircleSprite {
     return this._lives;
   }
 
-  get score() {
-    return this._score;
+  get kills() {
+    return this._kills;
   }
 
   get rotation() {

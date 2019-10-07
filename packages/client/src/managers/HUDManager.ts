@@ -1,4 +1,4 @@
-import { Constants } from '@tosios/common';
+import { Constants, Sorts } from '@tosios/common';
 import { Container } from 'pixi.js';
 
 import { HUDInputTab, HUDLeaderboard, HUDLives, HUDText } from '../HUD';
@@ -8,8 +8,8 @@ const ANNOUNCE_LIFETIME = 3000;
 const ANNOUNCE_ANIM_TICK = 50;
 
 interface IPlayerItem {
-  score: number;
   name: string;
+  kills: number;
   color: string;
 }
 
@@ -18,8 +18,8 @@ export default class HUDManager extends Container {
   // Config
   private _screenWidth: number;
   private _screenHeight: number;
-  private _mobile: boolean;
-  private _leaderboard: boolean;
+  private _isMobile: boolean;
+  private _isLeaderboard: boolean;
 
   // Data
   private _lives: number;
@@ -55,8 +55,8 @@ export default class HUDManager extends Container {
     // Config
     this._screenWidth = screenWidth;
     this._screenHeight = screenHeight;
-    this._mobile = mobile;
-    this._leaderboard = leaderboard;
+    this._isMobile = mobile;
+    this._isLeaderboard = leaderboard;
 
     // Data
     this._lives = 0;
@@ -159,20 +159,15 @@ export default class HUDManager extends Container {
     this.renderLogs();
   }
 
-  updatePlayer = (playerId: string, name: string, score: number, color: string) => {
+  updatePlayer = (playerId: string, name: string, kills: number, color: string) => {
     const player = this._playersList[playerId];
-    if (
-      player &&
-      player.name === name &&
-      player.score === score &&
-      player.color === color
-    ) {
+    if (player && player.kills === kills) {
       return;
     }
 
     this._playersList[playerId] = {
       name,
-      score,
+      kills,
       color,
     };
 
@@ -200,7 +195,7 @@ export default class HUDManager extends Container {
 
   private renderLives = () => {
     this._livesHUD.position.set(HUD_PADDING, HUD_PADDING);
-    this._livesHUD.mobile = this._mobile;
+    this._livesHUD.mobile = this._isMobile;
     this._livesHUD.lives = this._lives;
     this._livesHUD.maxLives = this._maxLives;
   }
@@ -238,8 +233,7 @@ export default class HUDManager extends Container {
   }
 
   private renderLogs = () => {
-    // Don't render on mobiles
-    if (this._mobile) {
+    if (this._isMobile) {
       this._logsHUD.visible = false;
     } else {
       this._logsHUD.visible = true;
@@ -265,7 +259,7 @@ export default class HUDManager extends Container {
   }
 
   private renderTabSprite = () => {
-    if (this._leaderboard) {
+    if (this._isLeaderboard || this._isMobile) {
       this._tabHUD.visible = false;
     } else {
       this._tabHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
@@ -274,51 +268,44 @@ export default class HUDManager extends Container {
   }
 
   private renderLeaderboard = () => {
-    if (this._leaderboard) {
-      this._leaderboardHUD.position.set(0, 0);
+    if (this._isLeaderboard) {
       this._leaderboardHUD.visible = true;
+      this._leaderboardHUD.resize(this._screenWidth, this._screenHeight);
 
-      const list: IPlayerItem[] = [];
+      // Concat list of players and their rank
+      const list = [];
       for (const playerId in this._playersList) {
         const item = this._playersList[playerId];
         list.push(item);
       }
-      list.sort((a, b) => {
-        if (a.score > b.score) {
-          return 1;
-        }
 
-        if (a.score > b.score) {
-          return -1;
-        }
-
-        return 0;
-      });
-      const array = list.map((item, index) => `[${item.score}] ${item.name}`);
-
-      this._leaderboardHUD.text = array;
+      this._leaderboardHUD.content = list
+        .sort((a, b) => Sorts.sortNumberDesc(a.kills, b.kills))
+        .map((item, index) => `${index} - ${item.name} ⚔ ${item.kills}`)
+        .join('\n');
     } else {
       this._leaderboardHUD.visible = false;
     }
   }
 
   // Setters
-  set mobile(mobile: boolean) {
-    if (this._mobile === mobile) {
+  set isMobile(mobile: boolean) {
+    if (this._isMobile === mobile) {
       return;
     }
 
-    this._mobile = mobile;
+    this._isMobile = mobile;
     this.renderAll();
   }
 
-  set leaderboard(leaderboard: boolean) {
-    if (this._leaderboard === leaderboard) {
+  set isLeaderboard(leaderboard: boolean) {
+    if (this._isLeaderboard === leaderboard) {
       return;
     }
 
-    this._leaderboard = leaderboard;
-    this.renderAll();
+    this._isLeaderboard = leaderboard;
+    this.renderLeaderboard();
+    this.renderTabSprite();
   }
 
   set lives(lives: number) {

@@ -21,7 +21,7 @@ export class Player extends Circle {
   color: string;
 
   @type('number')
-  score: number;
+  kills: number;
 
   @type('number')
   rotation: number;
@@ -36,7 +36,7 @@ export class Player extends Circle {
     this.lives = lives;
     this.name = validateName(name);
     this.color = generateColor();
-    this.score = 0;
+    this.kills = 0;
     this.rotation = 0;
     this.lastMoveAt = undefined;
     this.lastShootAt = undefined;
@@ -88,7 +88,7 @@ export class Player extends Circle {
   setLives(lives: number) {
     if (lives) {
       this.lives = lives;
-      this.score = 0;
+      this.kills = 0;
     } else {
       this.lives = 0;
     }
@@ -107,7 +107,7 @@ export class Player extends Circle {
     this.name = validateName(name);
   }
 
-  setScore(score: number) {
-    this.score = score;
+  setKills(kills: number) {
+    this.kills = kills;
   }
 }

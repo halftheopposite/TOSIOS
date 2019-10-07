@@ -293,7 +293,7 @@ export default class GameManager {
     this.hudManager.fps = Math.floor(this.app.ticker.FPS);
 
     // Leaderboard
-    this.hudManager.leaderboard = this.showLeaderBoard;
+    this.hudManager.isLeaderboard = this.showLeaderBoard;
   }
 
 
@@ -410,7 +410,7 @@ export default class GameManager {
       attributes.name,
       attributes.color,
       attributes.lives,
-      attributes.score,
+      attributes.kills,
     );
 
     this.viewport.addChild(this.me.weaponSprite);
@@ -425,7 +425,7 @@ export default class GameManager {
     this.hudManager.updatePlayer(
       this.me.playerId,
       this.me.name,
-      this.me.score,
+      this.me.kills,
       this.me.color,
     );
   }
@@ -448,7 +448,7 @@ export default class GameManager {
     }
 
     this.me.lives = attributes.lives;
-    this.me.score = attributes.score;
+    this.me.kills = attributes.kills;
 
     // Update Ghost (server computed position)
     this.ghostUpdate(attributes);
@@ -457,7 +457,7 @@ export default class GameManager {
     this.hudManager.updatePlayer(
       this.me.playerId,
       this.me.name,
-      this.me.score,
+      this.me.kills,
       this.me.color,
     );
   }
@@ -537,7 +537,7 @@ export default class GameManager {
       attributes.name,
       attributes.color,
       attributes.lives,
-      attributes.score,
+      attributes.kills,
     );
     this.playersManager.add(playerId, player);
 
@@ -545,7 +545,7 @@ export default class GameManager {
     this.hudManager.updatePlayer(
       playerId,
       player.name,
-      player.score,
+      player.kills,
       player.color,
     );
   }
@@ -558,6 +558,7 @@ export default class GameManager {
 
     player.lives = attributes.lives;
     player.rotation = attributes.rotation;
+    player.kills = attributes.kills;
 
     // Set new interpolation values
     player.position = {
@@ -573,7 +574,7 @@ export default class GameManager {
     this.hudManager.updatePlayer(
       playerId,
       player.name,
-      player.score,
+      player.kills,
       player.color,
     );
   }
