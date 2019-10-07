@@ -21,12 +21,22 @@ export default class HUDLeaderboard extends Container {
     this.addChild(this._backgroundSprite);
 
     // Table
-    this._table = new HUDTable('', '');
-    this._table.position.set(screenWidth / 2, screenHeight / 2);
+    this._table = new HUDTable('TOP PLAYERS (by kills)', '', 0xFFFFFF);
     this.addChild(this._table);
   }
 
-  set text(list: string[]) {
-    this._table.texts = { title: 'TOP PLAYERS (by kills)', content: list.join('\n') };
+  // Methods
+  resize(
+    screenWidth: number,
+    screenHeight: number,
+  ) {
+    this._backgroundSprite.width = screenWidth;
+    this._backgroundSprite.height = screenHeight;
+    this._table.position.set(screenWidth / 2, screenHeight / 2);
+  }
+
+  // Setters
+  set content(content: string) {
+    this._table.content = content;
   }
 }

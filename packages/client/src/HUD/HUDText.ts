@@ -11,7 +11,7 @@ export default class HUDText extends Text {
   ) {
     super('', new TextStyle({
       fontSize: fontSize,
-      fill: ['#ffffff'],
+      fill: '#ffffff',
       fontFamily: 'Press Start 2P',
       align: 'left',
       fontWeight: 'bold',

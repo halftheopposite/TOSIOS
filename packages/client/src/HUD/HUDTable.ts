@@ -8,6 +8,7 @@ export default class HUDTable extends AnchorContainer {
 
   private _title: string;
   private _content: string;
+  private _color: number;
   private _titleHUD: HUDText;
   private _contentHUD: HUDText;
   private _box: Graphics;
@@ -16,11 +17,13 @@ export default class HUDTable extends AnchorContainer {
   constructor(
     title: string,
     content: string,
+    color: number,
   ) {
     super(0.5, 0.5);
 
     this._title = title;
     this._content = content;
+    this._color = color;
 
     // Title
     this._titleHUD = new HUDText(
@@ -28,6 +31,9 @@ export default class HUDTable extends AnchorContainer {
       18,
       0,
       0,
+      {
+        fill: this._color,
+      },
     );
     this.addChild(this._titleHUD);
 
@@ -50,14 +56,10 @@ export default class HUDTable extends AnchorContainer {
     this.addChild(this._separator);
   }
 
-  set texts(texts: {
-    title: string;
-    content: string;
-  }) {
-    const { title, content } = texts;
-
-    this._titleHUD.text = title;
-    this._contentHUD.text = content;
+  // Methods
+  private renderTable() {
+    this._titleHUD.text = this._title;
+    this._contentHUD.text = this._content;
 
     const finalWidth =
       ((this._titleHUD.width > this._contentHUD.width)
@@ -83,6 +85,7 @@ export default class HUDTable extends AnchorContainer {
       BOX_PADDING,
     );
 
+    // Separator
     this._separator.from = {
       x: 0,
       y: this._titleHUD.bottom + BOX_PADDING,
@@ -100,5 +103,16 @@ export default class HUDTable extends AnchorContainer {
 
     this.anchorX = 0.5;
     this.anchorY = 0.5;
+  }
+
+  // Setters
+  set title(title: string) {
+    this._title = title;
+    this.renderTable();
+  }
+
+  set content(content: string) {
+    this._content = content;
+    this.renderTable();
   }
 }

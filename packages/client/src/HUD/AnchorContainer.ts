@@ -1,4 +1,4 @@
-import { Container } from "pixi.js";
+import { Container } from 'pixi.js';
 
 export default class AnchorContainer extends Container {
 
