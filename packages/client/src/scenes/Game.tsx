@@ -20,26 +20,19 @@ interface IState {
   maxPlayersCount: number;
 }
 
-class Game extends Component<IProps, IState> {
-
-  gameCanvas: RefObject<HTMLDivElement>;
-  gameManager: GameManager;
-  client?: Client;
-  room?: Room;
-  pressedKeys = {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-    shoot: false,
-    leaderboard: false,
-  };
+export default class Game extends Component<IProps, IState> {
 
   state: IState = {
     playerId: '',
     playersCount: 0,
     maxPlayersCount: 0,
   };
+
+  private gameCanvas: RefObject<HTMLDivElement>;
+  private gameManager: GameManager;
+  private client?: Client;
+  private room?: Room;
+
 
   // BASE
   constructor(props: IProps) {
@@ -49,8 +42,7 @@ class Game extends Component<IProps, IState> {
     this.gameManager = new GameManager(
       window.innerWidth,
       window.innerHeight,
-      this.handleUpdate,
-      this.sendPlayerRotationMessage,
+      this.handleActionSend,
     );
   }
 
@@ -63,7 +55,7 @@ class Game extends Component<IProps, IState> {
   }
 
 
-  // START
+  // LIFECYCLE
   start = async () => {
     const {
       roomId = '',
@@ -139,6 +131,23 @@ class Game extends Component<IProps, IState> {
     window.document.addEventListener('keydown', this.handleKeyDown);
     window.document.addEventListener('keyup', this.handleKeyUp);
     window.addEventListener('resize', this.handleWindowResize);
+  }
+
+  stop = () => {
+    // Colyseus
+    if (this.room) {
+      this.room.leave();
+    }
+
+    // Game
+    this.gameManager.stop();
+
+    // Inputs
+    window.document.removeEventListener('mousedown', this.handleMouseDown);
+    window.document.removeEventListener('mouseup', this.handleMouseUp);
+    window.document.removeEventListener('keydown', this.handleKeyDown);
+    window.document.removeEventListener('keyup', this.handleKeyUp);
+    window.removeEventListener('resize', this.handleWindowResize);
   }
 
 
@@ -257,216 +266,93 @@ class Game extends Component<IProps, IState> {
   }
 
 
+  // HANDLERS: GameManager
+  handleActionSend = (action: Types.IAction) => {
+    if (!this.room) {
+      return;
+    }
+
+    this.room.send(action);
+  }
+
+
   // HANDLERS: Inputs
   handleMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    this.pressedKeys.shoot = true;
+    this.gameManager.inputs.shoot = true;
   }
 
   handleMouseUp = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    this.pressedKeys.shoot = false;
+    this.gameManager.inputs.shoot = false;
   }
 
   handleKeyDown = (event: any) => {
-    switch (event.code) {
-      // Up
-      case Keys.KEY_W:
-      case Keys.KEY_Z:
-      case Keys.KEY_ARROW_UP:
-        this.pressedKeys.up = true;
-        event.preventDefault();
-        break;
-      // Down
-      case Keys.KEY_S:
-      case Keys.KEY_ARROW_DOWN:
-        this.pressedKeys.down = true;
-        event.preventDefault();
-        break;
-      // Left
-      case Keys.KEY_A:
-      case Keys.KEY_Q:
-      case Keys.KEY_ARROW_LEFT:
-        this.pressedKeys.left = true;
-        event.preventDefault();
-        break;
-      // Right
-      case Keys.KEY_D:
-      case Keys.KEY_ARROW_RIGHT:
-        this.pressedKeys.right = true;
-        event.preventDefault();
-        break;
-      // Shoot
-      case Keys.KEY_SPACE:
-        this.pressedKeys.shoot = true;
-        event.preventDefault();
-        break;
-      // Leaderboard
-      case Keys.KEY_TAB:
-        this.pressedKeys.leaderboard = true;
-        event.preventDefault();
-        break;
-      default:
-        break;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const key = event.code;
+
+    if (Keys.LEFT.includes(key)) {
+      this.gameManager.inputs.left = true;
+    }
+
+    if (Keys.UP.includes(key)) {
+      this.gameManager.inputs.up = true;
+    }
+
+    if (Keys.RIGHT.includes(key)) {
+      this.gameManager.inputs.right = true;
+    }
+
+    if (Keys.DOWN.includes(key)) {
+      this.gameManager.inputs.down = true;
+    }
+
+    if (Keys.SHOOT.includes(key)) {
+      this.gameManager.inputs.shoot = true;
+    }
+
+    if (Keys.MENU.includes(key)) {
+      this.gameManager.inputs.menu = true;
     }
   }
 
   handleKeyUp = (event: any) => {
-    switch (event.code) {
-      // Up
-      case Keys.KEY_W:
-      case Keys.KEY_Z:
-      case Keys.KEY_ARROW_UP:
-        this.pressedKeys.up = false;
-        event.preventDefault();
-        break;
-      // Down
-      case Keys.KEY_S:
-      case Keys.KEY_ARROW_DOWN:
-        this.pressedKeys.down = false;
-        event.preventDefault();
-        break;
-      // Left
-      case Keys.KEY_A:
-      case Keys.KEY_Q:
-      case Keys.KEY_ARROW_LEFT:
-        this.pressedKeys.left = false;
-        event.preventDefault();
-        break;
-      // Right
-      case Keys.KEY_D:
-      case Keys.KEY_ARROW_RIGHT:
-        this.pressedKeys.right = false;
-        event.preventDefault();
-        break;
-      // Shoot
-      case Keys.KEY_SPACE:
-        this.pressedKeys.shoot = false;
-        event.preventDefault();
-        break;
-      // Leaderboard
-      case Keys.KEY_TAB:
-        this.pressedKeys.leaderboard = false;
-        event.preventDefault();
-        break;
+    event.preventDefault();
+    event.stopPropagation();
 
-      default:
-        break;
+    const key = event.code;
+
+    if (Keys.LEFT.includes(key)) {
+      this.gameManager.inputs.left = false;
+    }
+
+    if (Keys.UP.includes(key)) {
+      this.gameManager.inputs.up = false;
+    }
+
+    if (Keys.RIGHT.includes(key)) {
+      this.gameManager.inputs.right = false;
+    }
+
+    if (Keys.DOWN.includes(key)) {
+      this.gameManager.inputs.down = false;
+    }
+
+    if (Keys.SHOOT.includes(key)) {
+      this.gameManager.inputs.shoot = false;
+    }
+
+    if (Keys.MENU.includes(key)) {
+      this.gameManager.inputs.menu = false;
     }
   }
 
   handleWindowResize = () => {
     this.gameManager.setScreenSize(window.innerWidth, window.innerHeight);
-  }
-
-
-  // MESSAGES: Colyseus
-  sendPlayerMoveMessage = (dirX: number, dirY: number) => {
-    if (!this.room) {
-      return;
-    }
-
-    const action = {
-      type: 'move',
-      value: {
-        x: dirX,
-        y: dirY,
-      },
-      ts: Date.now(),
-    };
-
-    this.gameManager.meUpdateDir(dirX, dirY);
-    this.room.send(action);
-  }
-
-  sendPlayerShootMessage = (angle: number) => {
-    if (!this.room) {
-      return;
-    }
-
-    const action = {
-      type: 'shoot',
-      value: {
-        angle,
-      },
-    };
-
-    this.room.send(action);
-  }
-
-  sendPlayerRotationMessage = (rotation: number) => {
-    if (!this.room) {
-      return;
-    }
-
-    const action = {
-      type: 'rotate',
-      value: {
-        rotation,
-      },
-    };
-
-    this.room.send(action);
-  }
-
-
-  // UPDATES
-  handleUpdate = () => {
-    // Move
-    const dir = { x: 0, y: 0 };
-    if (this.pressedKeys.up || this.pressedKeys.down || this.pressedKeys.left || this.pressedKeys.right) {
-      dir.x = 0;
-      dir.y = 0;
-
-      if (this.pressedKeys.up) {
-        dir.y -= 1;
-      }
-
-      if (this.pressedKeys.down) {
-        dir.y += 1;
-      }
-
-      if (this.pressedKeys.left) {
-        dir.x -= 1;
-      }
-
-      if (this.pressedKeys.right) {
-        dir.x += 1;
-      }
-
-      if (dir.x !== 0 || dir.y !== 0) {
-        this.sendPlayerMoveMessage(dir.x, dir.y);
-      }
-    }
-
-    // Shoot
-    if (this.pressedKeys.shoot) {
-      this.sendPlayerShootMessage(this.gameManager.getMeRotation());
-    }
-
-    // Leaderboard
-    this.gameManager.setLeaderboard(this.pressedKeys.leaderboard);
-  }
-
-
-  // STOP
-  stop = () => {
-    // Colyseus
-    if (this.room) {
-      this.room.leave();
-    }
-
-    // Game
-    this.gameManager.stop();
-
-    // Inputs
-    window.document.removeEventListener('mousedown', this.handleMouseDown);
-    window.document.removeEventListener('mouseup', this.handleMouseUp);
-    window.document.removeEventListener('keydown', this.handleKeyDown);
-    window.document.removeEventListener('keyup', this.handleKeyUp);
-    window.removeEventListener('resize', this.handleWindowResize);
   }
 
 
@@ -511,17 +397,17 @@ class Game extends Component<IProps, IState> {
         <ReactNipple
           options={{ mode: 'static', position: { bottom: '20%', left: '20%' } }}
           onEnd={() => {
-            this.pressedKeys.up = false;
-            this.pressedKeys.down = false;
-            this.pressedKeys.left = false;
-            this.pressedKeys.right = false;
+            this.gameManager.inputs.up = false;
+            this.gameManager.inputs.down = false;
+            this.gameManager.inputs.left = false;
+            this.gameManager.inputs.right = false;
           }}
           onMove={(event: any, data: any) => {
             const cardinal = Maths.degreeToCardinal(data.angle.degree);
-            this.pressedKeys.up = cardinal === 'NW' || cardinal === 'N' || cardinal === 'NE';
-            this.pressedKeys.right = cardinal === 'NE' || cardinal === 'E' || cardinal === 'SE';
-            this.pressedKeys.down = cardinal === 'SE' || cardinal === 'S' || cardinal === 'SW';
-            this.pressedKeys.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
+            this.gameManager.inputs.up = cardinal === 'NW' || cardinal === 'N' || cardinal === 'NE';
+            this.gameManager.inputs.right = cardinal === 'NE' || cardinal === 'E' || cardinal === 'SE';
+            this.gameManager.inputs.down = cardinal === 'SE' || cardinal === 'S' || cardinal === 'SW';
+            this.gameManager.inputs.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
           }}
         />
 
@@ -537,17 +423,14 @@ class Game extends Component<IProps, IState> {
               rotation = Maths.reverseNumber(radians, 0, Math.PI);
             }
 
-            this.sendPlayerRotationMessage(rotation);
-            this.pressedKeys.shoot = true;
-            this.gameManager.meUpdateRotation(rotation);
+            this.gameManager.forcedRotation = rotation;
+            this.gameManager.inputs.shoot = true;
           }}
           onEnd={() => {
-            this.pressedKeys.shoot = false;
+            this.gameManager.inputs.shoot = false;
           }}
         />
       </View>
     );
   }
 }
-
-export default Game;

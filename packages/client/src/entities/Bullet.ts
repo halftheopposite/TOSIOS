@@ -4,6 +4,7 @@ import { CircleSprite } from '../sprites';
 
 export default class Bullet extends CircleSprite {
 
+  private _playerId: string = '';
   private _active: boolean = false;
   private _color: string = '#FFFFFF';
 
@@ -13,6 +14,7 @@ export default class Bullet extends CircleSprite {
     y: number,
     radius: number,
     active: boolean,
+    playerId: string,
     rotation: number,
     color: string,
   ) {
@@ -25,6 +27,7 @@ export default class Bullet extends CircleSprite {
       { single: WeaponTextures.bulletTexture },
     );
 
+    this.playerId = playerId;
     this.active = active;
     this.color = color;
   }
@@ -36,6 +39,10 @@ export default class Bullet extends CircleSprite {
   }
 
   // Setters
+  set playerId(playerId: string) {
+    this._playerId = playerId;
+  }
+
   set active(active: boolean) {
     this._active = active;
     this.sprite.visible = active;
@@ -47,6 +54,10 @@ export default class Bullet extends CircleSprite {
   }
 
   // Getters
+  get playerId() {
+    return this._playerId;
+  }
+
   get active() {
     return this._active;
   }

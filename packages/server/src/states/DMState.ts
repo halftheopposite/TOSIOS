@@ -13,14 +13,15 @@ import {
   Types,
 } from '@tosios/common';
 
-import { Action } from '../entities/Action';
-import { Bullet } from '../entities/Bullet';
-import { Game } from '../entities/Game';
-import { Map } from '../entities/Map';
-import { Message } from '../entities/Message';
-import { Player } from '../entities/Player';
-import { Prop } from '../entities/Prop';
-import { Wall } from '../entities/Wall';
+import {
+  Bullet,
+  Game,
+  Map,
+  Message,
+  Player,
+  Prop,
+  Wall,
+} from '../entities';
 import { parseByName } from '../maps';
 
 export class DMState extends Schema {
@@ -43,7 +44,7 @@ export class DMState extends Schema {
   @type([Bullet])
   bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
 
-  private actionsLog: Action[] = [];
+  private actionsLog: Types.IAction[] = [];
   private onMessage: (message: Message) => void;
 
 
@@ -140,7 +141,7 @@ export class DMState extends Schema {
   }
 
   private updatePlayers(deltaTime: number) {
-    let action: Action;
+    let action: Types.IAction;
     let player: Player;
 
     while (this.actionsLog.length > 0) {
@@ -234,7 +235,7 @@ export class DMState extends Schema {
     }));
   }
 
-  playerAddAction(action: Action) {
+  playerAddAction(action: Types.IAction) {
     this.actionsLog.push(action);
   }
 
