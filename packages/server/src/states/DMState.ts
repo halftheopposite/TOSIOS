@@ -319,9 +319,25 @@ export class DMState extends Schema {
     // Recycle bullets if some are unused to prevent instantiating too many
     const index = this.bullets.findIndex(bullet => !bullet.active);
     if (index === -1) {
-      this.bullets.push(new Bullet(id, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color));
+      this.bullets.push(new Bullet(
+        id,
+        bulletX,
+        bulletY,
+        Constants.BULLET_SIZE,
+        angle,
+        player.color,
+        Date.now(),
+      ));
     } else {
-      this.bullets[index].reset(id, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color);
+      this.bullets[index].reset(
+        id,
+        bulletX,
+        bulletY,
+        Constants.BULLET_SIZE,
+        angle,
+        player.color,
+        Date.now(),
+      );
     }
   }
 

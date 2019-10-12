@@ -1,4 +1,4 @@
-import { Maths } from '@tosios/common';
+import { Constants, Maths } from '@tosios/common';
 import { AnimatedSprite, Sprite, utils } from 'pixi.js';
 import { HUDText } from '../HUD';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
@@ -21,6 +21,7 @@ export default class Player extends CircleSprite {
   private _kills: number = 0;
   private _rotation: number = 0;
   private _direction: PlayerDirection = 'right';
+  private _lastShootAt: number = 0;
   private _weaponSprite: Sprite;
   private _nameTextSprite: HUDText;
 
@@ -41,7 +42,6 @@ export default class Player extends CircleSprite {
       y,
       radius,
       0,
-      true,
       {
         array: lives > 0
           ? PlayerTextures.playerIdleTextures
@@ -51,14 +51,17 @@ export default class Player extends CircleSprite {
 
     // Weapon
     this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
-    this._weaponSprite.zIndex = 4;
     this._weaponSprite.anchor.set(0, 0.5);
     this._weaponSprite.position.set(x, y);
+    this._weaponSprite.zIndex = 0;
 
     // Name
     this._nameTextSprite = new HUDText(name, 10, 0.5, 1);
     this._nameTextSprite.position.set(x, this.body.top);
+    this._nameTextSprite.zIndex = 2;
 
+    // Player
+    this.sprite.zIndex = 1;
     this.playerId = playerId;
     this.toX = x;
     this.toY = y;
@@ -182,6 +185,10 @@ export default class Player extends CircleSprite {
     }
   }
 
+  set lastShootAt(lastShootAt: number) {
+    this._lastShootAt = lastShootAt;
+  }
+
   // Getters
   get playerId() {
     return this._playerId;
@@ -219,11 +226,25 @@ export default class Player extends CircleSprite {
     return this._direction;
   }
 
+  get lastShootAt() {
+    return this._lastShootAt;
+  }
+
   get weaponSprite() {
     return this._weaponSprite;
   }
 
   get nameTextSprite() {
     return this._nameTextSprite;
+  }
+
+  get canShoot(): boolean {
+    const now: number = Date.now();
+    if ((now - this.lastShootAt) < Constants.BULLET_RATE) {
+      return false;
+    }
+
+    this.lastShootAt = now;
+    return true;
   }
 }

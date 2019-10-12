@@ -10,7 +10,6 @@ import { Viewport } from 'pixi-viewport';
 import { Application, utils } from 'pixi.js';
 
 import {
-  Bullet,
   Player,
   Prop,
   Wall,
@@ -123,19 +122,19 @@ export default class GameManager {
     this.propsManager.zIndex = 2;
     this.viewport.addChild(this.propsManager);
 
-    // Bullets
-    this.bulletsManager = new BulletsManager();
-    this.bulletsManager.zIndex = 3;
-    this.viewport.addChild(this.bulletsManager);
-
     // Players
     this.playersManager = new PlayersManager();
-    this.playersManager.zIndex = 4;
+    this.playersManager.zIndex = 3;
     this.viewport.addChild(this.playersManager);
 
+    // Bullets
+    this.bulletsManager = new BulletsManager();
+    this.bulletsManager.zIndex = 4;
+    this.viewport.addChild(this.bulletsManager);
+
     // Viewport
-    this.viewport.sortChildren();
     this.viewport.zoomPercent(1);
+    this.viewport.sortableChildren = true;
 
     // Callbacks
     this.onActionSend = onActionSend;
@@ -161,6 +160,8 @@ export default class GameManager {
     this.updatePlayers(deltaTime);
     this.updateBullets(deltaTime);
     this.updateHUD();
+
+    this.playersManager.sortChildren();
   }
 
   private updateInputs = () => {
@@ -185,13 +186,6 @@ export default class GameManager {
 
       if (!dir.empty) {
         this.move(dir);
-        this.onActionSend({
-          type: 'move',
-          value: {
-            x: dir.x,
-            y: dir.y,
-          },
-        });
       }
     }
 
@@ -210,6 +204,13 @@ export default class GameManager {
     }
 
     this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
+    this.onActionSend({
+      type: 'move',
+      value: {
+        x: dir.x,
+        y: dir.y,
+      },
+    });
 
     // Clamp in map
     const clampedPosition = this.mapManager.clampCircle(this.me.body);
@@ -272,10 +273,23 @@ export default class GameManager {
   }
 
   private shoot = () => {
-    if (!this.me) {
+    if (!this.me || this.state !== 'game' || !this.me.canShoot) {
       return;
     }
 
+    const bulletX = this.me.x + Math.cos(this.me.rotation) * Constants.PLAYER_WEAPON_SIZE;
+    const bulletY = this.me.y + Math.sin(this.me.rotation) * Constants.PLAYER_WEAPON_SIZE;
+
+    this.me.lastShootAt = Date.now();
+    this.bulletsManager.addOrCreate(
+      bulletX,
+      bulletY,
+      Constants.BULLET_SIZE,
+      this.me.playerId,
+      this.me.rotation,
+      this.me.color,
+      this.me.lastShootAt,
+    );
     this.onActionSend({
       type: 'shoot',
       value: {
@@ -480,9 +494,12 @@ export default class GameManager {
       attributes.kills,
     );
 
-    this.viewport.addChild(this.me.weaponSprite);
-    this.viewport.addChild(this.me.sprite);
-    this.viewport.addChild(this.me.nameTextSprite);
+    // this.viewport.addChild(this.me.weaponSprite);
+    // this.viewport.addChild(this.me.sprite);
+    // this.viewport.addChild(this.me.nameTextSprite);
+    this.playersManager.addChild(this.me.weaponSprite);
+    this.playersManager.addChild(this.me.sprite);
+    this.playersManager.addChild(this.me.nameTextSprite);
     this.viewport.follow(this.me.sprite);
 
     // Create Ghost (server computed position)
@@ -522,9 +539,12 @@ export default class GameManager {
       return;
     }
 
-    this.viewport.removeChild(this.me.weaponSprite);
-    this.viewport.removeChild(this.me.sprite);
-    this.viewport.removeChild(this.me.nameTextSprite);
+    this.playersManager.removeChild(this.me.weaponSprite);
+    this.playersManager.removeChild(this.me.sprite);
+    this.playersManager.removeChild(this.me.nameTextSprite);
+    // this.viewport.removeChild(this.me.weaponSprite);
+    // this.viewport.removeChild(this.me.sprite);
+    // this.viewport.removeChild(this.me.nameTextSprite);
 
     // Remove Ghost
     this.ghostRemove();
@@ -670,35 +690,20 @@ export default class GameManager {
   }
 
   // EXTERNAL: Bullets
-  bulletAdd = (bulletId: string, attributes: any) => {
-    this.bulletsManager.add(bulletId, new Bullet(
-      attributes.x,
-      attributes.y,
+  bulletAdd = (attributes: any) => {
+    if (this.me && this.me.playerId === attributes.playerId || !attributes.active) {
+      return;
+    }
+
+    this.bulletsManager.addOrCreate(
+      attributes.fromX,
+      attributes.fromY,
       attributes.radius,
-      true,
       attributes.playerId,
       attributes.rotation,
       attributes.color,
-    ));
-  }
-
-  bulletUpdate = (bulletId: string, attributes: any) => {
-    // const bullet = this.bulletsManager.get(bulletId);
-    // if (!bullet) {
-    //   return;
-    // }
-
-    // if (!bullet.active && attributes.active) {
-    //   bullet.position = {
-    //     x: attributes.x,
-    //     y: attributes.y,
-    //   };
-    //   bullet.rotation = attributes.rotation;
-    //   bullet.color = attributes.color;
-    //   bullet.active = true;
-    // } else if (bullet.active && !attributes.active) {
-    //   bullet.active = false;
-    // }
+      attributes.shotAt,
+    );
   }
 
   bulletRemove = (bulletId: string) => {

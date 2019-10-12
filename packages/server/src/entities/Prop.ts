@@ -1,5 +1,5 @@
-import { Types } from '@tosios/common';
 import { type } from '@colyseus/schema';
+import { Types } from '@tosios/common';
 import { Rectangle } from './Rectangle';
 
 export class Prop extends Rectangle {

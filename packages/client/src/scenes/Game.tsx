@@ -113,7 +113,7 @@ export default class Game extends Component<IProps, IState> {
     this.room.state.players.onChange = this.handlePlayerChange;
     this.room.state.players.onRemove = this.handlePlayerRemove;
     this.room.state.bullets.onAdd = this.handleBulletAdd;
-    this.room.state.bullets.onChange = this.handleBulletChange;
+    this.room.state.bullets.onChange = this.handleBulletAdd;
     this.room.state.bullets.onRemove = this.handleBulletRemove;
     this.room.state.props.onAdd = this.handlePropAdd;
     this.room.state.props.onChange = this.handlePropUpdate;
@@ -210,12 +210,8 @@ export default class Game extends Component<IProps, IState> {
     this.setPlayersCount();
   }
 
-  handleBulletAdd = (bullet: any, bulletId: string) => {
-    this.gameManager.bulletAdd(bulletId, bullet);
-  }
-
-  handleBulletChange = (bullet: any, bulletId: string) => {
-    this.gameManager.bulletUpdate(bulletId, bullet);
+  handleBulletAdd = (bullet: any) => {
+    this.gameManager.bulletAdd(bullet);
   }
 
   handleBulletRemove = (bulletId: string) => {
