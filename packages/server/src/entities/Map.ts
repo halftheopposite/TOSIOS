@@ -1,5 +1,5 @@
-import { Geometry, Maths } from '@tosios/common';
 import { Schema, type } from '@colyseus/schema';
+import { Geometry, Maths } from '@tosios/common';
 import { Circle } from './Circle';
 import { Rectangle } from './Rectangle';
 

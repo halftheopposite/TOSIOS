@@ -29,7 +29,7 @@ interface IState {
   timer: any;
 }
 
-class Home extends Component<IProps, IState> {
+export default class Home extends Component<IProps, IState> {
 
   client?: Client;
 
@@ -328,5 +328,3 @@ class Home extends Component<IProps, IState> {
     ));
   }
 }
-
-export default Home;

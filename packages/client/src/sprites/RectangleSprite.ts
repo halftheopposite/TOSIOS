@@ -16,7 +16,7 @@ export default class RectangleSprite {
     // Body
     this._body = new Geometry.RectangleBody(x, y, width, height);
 
-    // Is it a still Sprite?
+    // Sprite
     if (texture.single) {
       this._sprite = new Sprite(texture.single);
     } else {
