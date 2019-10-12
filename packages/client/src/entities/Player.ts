@@ -87,6 +87,13 @@ export default class Player extends CircleSprite {
     this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
   }
 
+  hurt() {
+    this.sprite.tint = HURT_COLOR;
+    setTimeout(() => {
+      this.sprite.tint = utils.string2hex(this.color);
+    }, HURT_TIME);
+  }
+
   updateTextures() {
     const isAlive = this.lives > 0;
 
@@ -143,17 +150,8 @@ export default class Player extends CircleSprite {
       return;
     }
 
-    const isHurt = lives < this._lives;
     this._lives = lives;
     this.updateTextures();
-
-    // When a player gets hit we change his color briefly
-    if (isHurt) {
-      this.sprite.tint = HURT_COLOR;
-      setTimeout(() => {
-        this.sprite.tint = utils.string2hex(this.color);
-      }, HURT_TIME);
-    }
   }
 
   set kills(kills: number) {

@@ -336,6 +336,7 @@ export default class GameManager {
       for (const player of this.playersManager.getAll()) {
         if (player.lives && Collisions.circleToCircle(bullet.body, player.body)) {
           bullet.active = false;
+          player.hurt();
           this.spawnImpact(
             bullet.x,
             bullet.y,
