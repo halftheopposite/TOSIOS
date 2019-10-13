@@ -4,26 +4,25 @@ import { Circle } from './Circle';
 export class Bullet extends Circle {
 
   @type('string')
-  playerId: string;
+  public playerId: string;
 
   @type('number')
-  rotation: number;
+  public rotation: number;
 
   @type('number')
-  fromX: number;
+  public fromX: number;
 
   @type('number')
-  fromY: number;
+  public fromY: number;
 
   @type('boolean')
-  active: boolean;
+  public active: boolean;
 
   @type('string')
-  color: string;
+  public color: string;
 
   @type('number')
-  shotAt: number;
-
+  public shotAt: number;
 
   // Init
   constructor(
@@ -44,7 +43,6 @@ export class Bullet extends Circle {
     this.color = color;
     this.shotAt = shotAt;
   }
-
 
   // Methods
   move(speed: number) {

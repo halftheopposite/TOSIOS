@@ -4,14 +4,13 @@ import { Geometry } from '@tosios/common';
 export class Circle extends Schema {
 
   @type('number')
-  x: number;
+  public x: number;
 
   @type('number')
-  y: number;
+  public y: number;
 
   @type('number')
-  radius: number;
-
+  public radius: number;
 
   // Init
   constructor(x: number, y: number, radius: number) {
@@ -21,6 +20,7 @@ export class Circle extends Schema {
     this.radius = radius;
   }
 
+  // Getters
   get body(): Geometry.CircleBody {
     return new Geometry.CircleBody(this.x, this.y, this.radius);
   }

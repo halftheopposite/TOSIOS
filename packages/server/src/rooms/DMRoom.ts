@@ -6,6 +6,7 @@ import { DMState } from '../states/DMState';
 
 export class DMRoom extends Room<DMState> {
 
+  // Lifecycle
   onCreate(options: Types.IRoomOptions) {
     this.maxClients = Maths.clamp(
       options.roomMaxPlayers || 0,
@@ -28,7 +29,7 @@ export class DMRoom extends Room<DMState> {
       this.handleMessage,
     ));
 
-    this.setSimulationInterval((deltaTime) => this.handleTick(deltaTime));
+    this.setSimulationInterval(() => this.handleTick());
 
     console.log('Room created', options);
   }
@@ -68,8 +69,8 @@ export class DMRoom extends Room<DMState> {
   }
 
   // Handlers
-  handleTick = (deltaTime: number) => {
-    this.state.update(deltaTime);
+  handleTick = () => {
+    this.state.update();
   }
 
   handleMessage = (message: Message) => {

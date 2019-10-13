@@ -26,23 +26,19 @@ import {
 export class DMState extends Schema {
 
   @type(Game)
-  game: Game;
-
-  @type(Map)
-  map: Map;
-
-  @type([Wall])
-  walls: ArraySchema<Wall> = new ArraySchema<Wall>();
+  public game: Game;
 
   @type({ map: Player })
-  players: MapSchema<Player> = new MapSchema<Player>();
+  public players: MapSchema<Player> = new MapSchema<Player>();
 
   @type([Prop])
-  props: ArraySchema<Prop> = new ArraySchema<Prop>();
+  public props: ArraySchema<Prop> = new ArraySchema<Prop>();
 
   @type([Bullet])
-  bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
+  public bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
 
+  private map: Map;
+  private walls: Wall[] = [];
   private actionsLog: Types.IAction[] = [];
   private onMessage: (message: Message) => void;
 
@@ -57,6 +53,7 @@ export class DMState extends Schema {
 
     // Game
     this.game = new Game(
+      mapName,
       Constants.LOBBY_DURATION,
       Constants.GAME_DURATION,
       maxPlayers,
@@ -73,15 +70,14 @@ export class DMState extends Schema {
     this.onMessage = onMessage;
   }
 
-
   // Updates
-  update(deltaTime: number) {
-    this.updateGame(deltaTime);
-    this.updatePlayers(deltaTime);
-    this.updateBullets(deltaTime);
+  update() {
+    this.updateGame();
+    this.updatePlayers();
+    this.updateBullets();
   }
 
-  private updateGame(deltaTime: number) {
+  private updateGame() {
     const gameState = this.game.state;
 
     // Waiting for other players
@@ -141,7 +137,7 @@ export class DMState extends Schema {
     }
   }
 
-  private updatePlayers(deltaTime: number) {
+  private updatePlayers() {
     let action: Types.IAction;
     let player: Player;
 
@@ -169,7 +165,7 @@ export class DMState extends Schema {
     }
   }
 
-  private updateBullets(deltaTime: number) {
+  private updateBullets() {
     let bullet: Bullet;
     let player: Player;
 
@@ -380,7 +376,7 @@ export class DMState extends Schema {
   }
 
 
-  // Setters
+  // Methods
   private generateProps = (type: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
     let prop: Prop;
     for (let i: number = 0; i < quantity; i++) {

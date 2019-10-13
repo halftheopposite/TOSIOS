@@ -2,6 +2,7 @@ import {
   Collisions,
   Constants,
   Geometry,
+  Maps,
   Maths,
   Types,
 } from '@tosios/common';
@@ -42,7 +43,7 @@ interface IInputs {
 
 export default class GameManager {
 
-  inputs: IInputs = {
+  public inputs: IInputs = {
     left: false,
     up: false,
     right: false,
@@ -50,7 +51,7 @@ export default class GameManager {
     menu: false,
     shoot: false,
   };
-  forcedRotation: number = 0;
+  public forcedRotation: number = 0; // Used on mobile only
 
   // Callbacks
   private onActionSend: (action: Types.IAction) => void;
@@ -66,6 +67,7 @@ export default class GameManager {
   private playersManager: PlayersManager;
 
   // Game
+  private mapName?: Types.MapNameType;
   private maxPlayers: number = 0;
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
@@ -149,6 +151,32 @@ export default class GameManager {
   stop = () => {
     this.app.ticker.stop();
     this.app.stop();
+  }
+
+  // METHODS
+  initializeMap = (mapName: Types.MapNameType) => {
+    this.mapName = mapName;
+
+    // Parse the selected map
+    const { walls, width, height } = Maps.parseByName(mapName);
+
+    // Initialize ground
+    this.groundManager.dimensions = {
+      width,
+      height,
+    };
+
+    // Walls
+    this.mapManager.setDimensions(width, height);
+    walls.forEach((wall, index) => {
+      this.mapManager.add(`${index}`, new Wall(
+        wall.x,
+        wall.y,
+        wall.width,
+        wall.height,
+        wall.type,
+      ));
+    });
   }
 
 
@@ -425,24 +453,9 @@ export default class GameManager {
     this.hudManager.resize(screenWidth, screenHeight);
   }
 
-  setWorldSize = (screenWidth: number, screenHeight: number, worldWidth?: number, worldHeight?: number) => {
-    const newWidth = worldWidth || this.mapManager.width;
-    const newHeight = worldHeight || this.mapManager.height;
-    this.mapManager.setDimensions(newWidth, newHeight);
-
-    // Viewport
-    this.viewport.resize(screenWidth, screenHeight, newWidth, newHeight);
-
-    // Ground
-    this.groundManager.dimensions = {
-      width: newWidth,
-      height: newHeight,
-    };
-  }
-
 
   // GETTERS
-  getPlayersCount = () => {
+  get playersCount() {
     return this.playersManager.getAll().length + 1;
   }
 
@@ -450,9 +463,11 @@ export default class GameManager {
   // EXTERNAL: Game
   gameUpdate = (name: string, value: any) => {
     switch (name) {
+      case 'mapName':
+        this.initializeMap(value);
+        break;
       case 'state':
         this.state = value;
-
         // Hide props when outside a game
         this.state === 'game' ? this.propsManager.show() : this.propsManager.hide();
         break;
@@ -689,7 +704,7 @@ export default class GameManager {
 
   // EXTERNAL: Bullets
   bulletAdd = (attributes: any) => {
-    if (this.me && this.me.playerId === attributes.playerId || !attributes.active) {
+    if ((this.me && this.me.playerId === attributes.playerId) || !attributes.active) {
       return;
     }
 
@@ -709,11 +724,11 @@ export default class GameManager {
   }
 
   // EXTERNAL: HUD
-  logAdd = (message: string) => {
+  hudLogAdd = (message: string) => {
     this.hudManager.addLog(`[${new Date().toLocaleTimeString()}] ${message}`);
   }
 
-  announceAdd = (announce: string) => {
+  hudAnnounceAdd = (announce: string) => {
     this.hudManager.announce = announce;
   }
 }

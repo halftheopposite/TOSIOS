@@ -1,6 +1,7 @@
 import { Types } from '@tosios/common';
 
 export class Message {
+
   public type: Types.MessageType;
   public ts: number;
   public params: any;
