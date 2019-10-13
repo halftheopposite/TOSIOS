@@ -1,7 +1,6 @@
 import { Player } from '../entities';
 import { ManagerContainer } from './ManagerContainer';
 
-
 export default class PlayersManager extends ManagerContainer<Player> {
 
   constructor() {

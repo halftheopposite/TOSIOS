@@ -25,10 +25,10 @@ server.define(Constants.ROOM_NAME, DMRoom);
 
 // Routes on port 80
 app.use(express.static(join(__dirname, 'public')));
+app.use('/colyseus', monitor(server));
 app.get('*', (req: any, res: any) => {
   res.sendFile(join(__dirname, 'public', 'index.html'));
 });
-app.use('/colyseus', monitor(server));
 
 server.onShutdown(() => {
   console.log(`Shutting down...`);

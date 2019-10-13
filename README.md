@@ -114,7 +114,8 @@ When creating a map each number represents a specific wall sprite that will be d
 Examples:
 ```js
   [
-    [1, 2, 2, 2, 2, 3],
+    [1, 2, 9, 10, 2, 3],
+    [1, 11, 0, 0, 11, 3],
     [1, 0, 0, 0, 0, 3],
     [1, 0, 7, 8, 0, 3],
     [1, 0, 4, 4, 0, 3],
@@ -132,8 +133,9 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 * ~Add a playable demo website for anyone to test and play the game.~
 * ~Add mobile mode (updated GUI and virtual joysticks).~
 * ~Add visual feedback when a player gets hit.~
+* ~Add smoother bullets.~
+* Implement a R-Tree for performances.
 * Add a Team Death Match mode.
-* Implement a quadtree for performances.
 * Add some monsters that attack all players.
 
 ## Special thanks

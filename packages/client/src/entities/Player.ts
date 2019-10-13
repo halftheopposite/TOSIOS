@@ -1,8 +1,8 @@
-import { Maths } from '@tosios/common';
+import { Constants, Maths } from '@tosios/common';
 import { AnimatedSprite, Sprite, utils } from 'pixi.js';
+import { HUDText } from '../HUD';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
-import { HUDText } from './';
-import { CircleSprite } from './CircleSprite';
+import { CircleSprite } from '../sprites';
 
 const HURT_COLOR = 0xEFEFEF;
 const HURT_TIME = 50;
@@ -18,9 +18,10 @@ export default class Player extends CircleSprite {
   private _name: string = '';
   private _color: string = '#FFFFFF';
   private _lives: number = 0;
-  private _score: number = 0;
+  private _kills: number = 0;
   private _rotation: number = 0;
   private _direction: PlayerDirection = 'right';
+  private _lastShootAt: number = 0;
   private _weaponSprite: Sprite;
   private _nameTextSprite: HUDText;
 
@@ -34,14 +35,13 @@ export default class Player extends CircleSprite {
     name: string,
     color: string,
     lives: number,
-    score: number,
+    kills: number,
   ) {
     super(
       x,
       y,
       radius,
       0,
-      true,
       {
         array: lives > 0
           ? PlayerTextures.playerIdleTextures
@@ -51,14 +51,17 @@ export default class Player extends CircleSprite {
 
     // Weapon
     this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
-    this._weaponSprite.zIndex = 4;
     this._weaponSprite.anchor.set(0, 0.5);
     this._weaponSprite.position.set(x, y);
+    this._weaponSprite.zIndex = 0;
 
     // Name
     this._nameTextSprite = new HUDText(name, 10, 0.5, 1);
     this._nameTextSprite.position.set(x, this.body.top);
+    this._nameTextSprite.zIndex = 2;
 
+    // Player
+    this.sprite.zIndex = 1;
     this.playerId = playerId;
     this.toX = x;
     this.toY = y;
@@ -66,7 +69,7 @@ export default class Player extends CircleSprite {
     this.name = name;
     this.color = color;
     this.lives = lives;
-    this.score = score;
+    this.kills = kills;
 
     this.updateTextures();
   }
@@ -82,6 +85,13 @@ export default class Player extends CircleSprite {
     this.y = this.y + speedY;
     this._weaponSprite.position.set(this.x, this.y);
     this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
+  }
+
+  hurt() {
+    this.sprite.tint = HURT_COLOR;
+    setTimeout(() => {
+      this.sprite.tint = utils.string2hex(this.color);
+    }, HURT_TIME);
   }
 
   updateTextures() {
@@ -140,21 +150,12 @@ export default class Player extends CircleSprite {
       return;
     }
 
-    const isHurt = lives < this._lives;
     this._lives = lives;
     this.updateTextures();
-
-    // When a player gets hit we change his color briefly
-    if (isHurt) {
-      this.sprite.tint = HURT_COLOR;
-      setTimeout(() => {
-        this.sprite.tint = utils.string2hex(this.color);
-      }, HURT_TIME);
-    }
   }
 
-  set score(score: number) {
-    this._score = score;
+  set kills(kills: number) {
+    this._kills = kills;
   }
 
   set rotation(rotation: number) {
@@ -182,6 +183,10 @@ export default class Player extends CircleSprite {
     }
   }
 
+  set lastShootAt(lastShootAt: number) {
+    this._lastShootAt = lastShootAt;
+  }
+
   // Getters
   get playerId() {
     return this._playerId;
@@ -207,8 +212,8 @@ export default class Player extends CircleSprite {
     return this._lives;
   }
 
-  get score() {
-    return this._score;
+  get kills() {
+    return this._kills;
   }
 
   get rotation() {
@@ -219,11 +224,25 @@ export default class Player extends CircleSprite {
     return this._direction;
   }
 
+  get lastShootAt() {
+    return this._lastShootAt;
+  }
+
   get weaponSprite() {
     return this._weaponSprite;
   }
 
   get nameTextSprite() {
     return this._nameTextSprite;
+  }
+
+  get canShoot(): boolean {
+    const now: number = Date.now();
+    if ((now - this.lastShootAt) < Constants.BULLET_RATE) {
+      return false;
+    }
+
+    this.lastShootAt = now;
+    return true;
   }
 }

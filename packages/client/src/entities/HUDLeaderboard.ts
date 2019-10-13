@@ -1,5 +1,5 @@
 import { Container, Graphics, Sprite, Texture } from 'pixi.js';
-import { HUDText } from '.';
+import { HUDText } from '../HUD';
 
 const BOX_PADDING = 32;
 

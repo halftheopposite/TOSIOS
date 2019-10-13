@@ -1,7 +1,7 @@
 import { Geometry } from '@tosios/common';
 import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
 
-export class RectangleSprite {
+export default class RectangleSprite {
   private _body: Geometry.RectangleBody;
   private _sprite: Sprite | AnimatedSprite;
 
@@ -16,7 +16,7 @@ export class RectangleSprite {
     // Body
     this._body = new Geometry.RectangleBody(x, y, width, height);
 
-    // Is it a still Sprite?
+    // Sprite
     if (texture.single) {
       this._sprite = new Sprite(texture.single);
     } else {

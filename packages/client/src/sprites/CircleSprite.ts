@@ -1,7 +1,7 @@
 import { Geometry } from '@tosios/common';
 import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
 
-export class CircleSprite {
+export default class CircleSprite {
   private _body: Geometry.CircleBody;
   private _sprite: Sprite | AnimatedSprite;
 
@@ -10,19 +10,18 @@ export class CircleSprite {
     y: number,
     radius: number,
     rotation: number = 0,
-    animated: boolean,
     texture: { single?: Texture; array?: Texture[] },
   ) {
     // Body
     this._body = new Geometry.CircleBody(x, y, radius);
 
     // Sprite
-    if (animated) {
+    if (texture.single) {
+      this._sprite = new Sprite(texture.single);
+    } else {
       this._sprite = new AnimatedSprite(texture.array || [], true);
       (this._sprite as AnimatedSprite).animationSpeed = 0.1;
       (this._sprite as AnimatedSprite).play();
-    } else {
-      this._sprite = new Sprite(texture.single);
     }
     this._sprite.anchor.set(0.5);
     this._sprite.position.set(x, y);

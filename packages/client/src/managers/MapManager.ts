@@ -1,11 +1,11 @@
 import { Geometry, Maths } from '@tosios/common';
-import Wall from '../entities/Wall';
+import { Wall } from '../entities';
 import { ManagerContainer } from './ManagerContainer';
 
 export default class MapManager extends ManagerContainer<Wall> {
 
-  width: number;
-  height: number;
+  public width: number;
+  public height: number;
 
   constructor(width: number = 0, height: number = 0) {
     super('MAP');

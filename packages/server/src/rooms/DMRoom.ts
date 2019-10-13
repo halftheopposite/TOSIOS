@@ -42,35 +42,19 @@ export class DMRoom extends Room<DMState> {
     const playerId = client.sessionId;
     const type: Types.ActionType = data.type;
 
+    // Validate which type of message is accepted
     switch (type) {
-      case 'name': {
+      case 'name':
+      case 'move':
+      case 'rotate':
+      case 'shoot':
         this.state.playerAddAction({
           playerId,
-          type,
           ...data,
         });
-      } break;
-      case 'move': {
-        this.state.playerAddAction({
-          playerId,
-          type,
-          ...data,
-        });
-      } break;
-      case 'rotate': {
-        this.state.playerAddAction({
-          playerId,
-          type,
-          ...data,
-        });
-      } break;
-      case 'shoot': {
-        this.state.playerAddAction({
-          playerId,
-          type,
-          ...data,
-        });
-      } break;
+        break;
+      default:
+        break;
     }
   }
 
