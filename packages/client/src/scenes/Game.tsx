@@ -286,63 +286,81 @@ export default class Game extends Component<IProps, IState> {
   }
 
   handleKeyDown = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-
     const key = event.code;
 
     if (Keys.LEFT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.left = true;
     }
 
     if (Keys.UP.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.up = true;
     }
 
     if (Keys.RIGHT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.right = true;
     }
 
     if (Keys.DOWN.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.down = true;
     }
 
     if (Keys.SHOOT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.shoot = true;
     }
 
     if (Keys.MENU.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.menu = true;
     }
   }
 
   handleKeyUp = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-
     const key = event.code;
 
     if (Keys.LEFT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.left = false;
     }
 
     if (Keys.UP.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.up = false;
     }
 
     if (Keys.RIGHT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.right = false;
     }
 
     if (Keys.DOWN.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.down = false;
     }
 
     if (Keys.SHOOT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.shoot = false;
     }
 
     if (Keys.MENU.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.menu = false;
     }
   }
