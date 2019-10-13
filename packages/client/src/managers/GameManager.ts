@@ -133,7 +133,7 @@ export default class GameManager {
     this.viewport.addChild(this.bulletsManager);
 
     // Viewport
-    this.viewport.zoomPercent(1);
+    this.viewport.zoomPercent(utils.isMobile.any ? 0.25 : 1.0);
     this.viewport.sortableChildren = true;
 
     // Callbacks
