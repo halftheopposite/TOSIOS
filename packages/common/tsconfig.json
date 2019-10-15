@@ -3,6 +3,7 @@
     "rootDir": "src",
     "outDir": "build",
     "module": "commonjs",
+    "esModuleInterop": true,
     "lib": [
       "dom",
       "dom.iterable",
