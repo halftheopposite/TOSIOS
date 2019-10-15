@@ -1,5 +1,6 @@
 import { CircleBody, RectangleBody } from './geometry';
 import { getDistance } from './maths';
+const RBush = require('rbush');
 
 /**
  * Return which side of the second Rectangle the first collides with
@@ -162,3 +163,118 @@ export const circleToRectangles = (circle: CircleBody, rectangles: RectangleBody
 
   return colliding ? corrected : null;
 };
+
+/**
+ * A R-Tree implementation handling Rectangle and Circle bodies
+ */
+export class TreeCollider extends RBush {
+
+  // Collisions
+  collidesWithRectangle(body: RectangleBody): boolean {
+    return this.collides({
+      minX: body.left,
+      minY: body.top,
+      maxX: body.right,
+      maxY: body.bottom,
+    });
+  }
+
+  collidesWithCircle(body: CircleBody): boolean {
+    return this.collides({
+      minX: body.left,
+      minY: body.top,
+      maxX: body.right,
+      maxY: body.bottom,
+    });
+  }
+
+  // Searches
+  searchWithRectangle(body: RectangleBody) {
+    return this.search({
+      minX: body.left,
+      minY: body.top,
+      maxX: body.right,
+      maxY: body.bottom,
+    });
+  }
+
+  searchWithCircle(body: CircleBody) {
+    return this.search({
+      minX: body.left,
+      minY: body.top,
+      maxX: body.right,
+      maxY: body.bottom,
+    });
+  }
+
+  // Corrects
+  correctWithRectangle(body: RectangleBody): RectangleBody {
+    const leaves = this.searchWithRectangle(body);
+
+    if (!leaves || !leaves.length) {
+      return body;
+    }
+
+    const updatedBody: RectangleBody = body.copy();
+    const leafBody = new RectangleBody(0, 0, 0, 0);
+    for (const wall of leaves) {
+      leafBody.x = wall.minX;
+      leafBody.y = wall.minY;
+      leafBody.width = wall.maxX - wall.minX;
+      leafBody.height = wall.maxY - wall.minY;
+
+      const side = rectangleToRectangleSide(updatedBody, leafBody);
+      switch (side) {
+        case 'left': {
+          updatedBody.right = leafBody.left;
+        } break;
+        case 'top': {
+          updatedBody.bottom = leafBody.top;
+        } break;
+        case 'right': {
+          updatedBody.left = leafBody.right;
+        } break;
+        case 'bottom': {
+          updatedBody.top = leafBody.bottom;
+        } break;
+      }
+    }
+
+    return updatedBody;
+  }
+
+  correctWithCircle(body: CircleBody) {
+    const leaves = this.searchWithCircle(body);
+
+    if (!leaves || !leaves.length) {
+      return body;
+    }
+
+    const updatedBody: CircleBody = body.copy();
+    const leafBody = new RectangleBody(0, 0, 0, 0);
+    for (const wall of leaves) {
+      leafBody.x = wall.minX;
+      leafBody.y = wall.minY;
+      leafBody.width = wall.maxX - wall.minX;
+      leafBody.height = wall.maxY - wall.minY;
+
+      const side = circleToRectangleSide(body, leafBody);
+      switch (side) {
+        case 'left': {
+          updatedBody.right = leafBody.left;
+        } break;
+        case 'top': {
+          updatedBody.bottom = leafBody.top;
+        } break;
+        case 'right': {
+          updatedBody.left = leafBody.right;
+        } break;
+        case 'bottom': {
+          updatedBody.top = leafBody.bottom;
+        } break;
+      }
+    }
+
+    return updatedBody;
+  }
+}
