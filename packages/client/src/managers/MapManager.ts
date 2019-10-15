@@ -43,7 +43,8 @@ export default class MapManager extends ManagerContainer<Wall> {
 
 
   // Setters
-  setDimensions = (width: number, height: number) => {
+  set dimensions(dimensions: { width: number, height: number }) {
+    const { width, height } = dimensions;
     this.width = width;
     this.height = height;
   }
