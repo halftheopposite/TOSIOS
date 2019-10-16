@@ -5,20 +5,17 @@ import { Rectangle } from './Rectangle';
 
 export class Map extends Schema {
 
-  @type('number')
-  width: number;
-
-  @type('number')
-  height: number;
-
+  public name: string;
+  public width: number;
+  public height: number;
 
   // Init
-  constructor(width: number, height: number) {
+  constructor(name: string, width: number, height: number) {
     super();
+    this.name = name;
     this.width = width;
     this.height = height;
   }
-
 
   // Methods
   coordsInMap(x: number, y: number): boolean {

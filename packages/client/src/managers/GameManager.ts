@@ -2,6 +2,7 @@ import {
   Collisions,
   Constants,
   Geometry,
+  Maps,
   Maths,
   Types,
 } from '@tosios/common';
@@ -42,7 +43,8 @@ interface IInputs {
 
 export default class GameManager {
 
-  inputs: IInputs = {
+  // Inputs
+  public inputs: IInputs = {
     left: false,
     up: false,
     right: false,
@@ -50,7 +52,7 @@ export default class GameManager {
     menu: false,
     shoot: false,
   };
-  forcedRotation: number = 0;
+  public forcedRotation: number = 0; // Used on mobile only
 
   // Callbacks
   private onActionSend: (action: Types.IAction) => void;
@@ -65,7 +67,11 @@ export default class GameManager {
   private propsManager: PropsManager;
   private playersManager: PlayersManager;
 
+  // Collisions
+  private wallsTree: Collisions.TreeCollider;
+
   // Game
+  private mapName?: Types.MapNameType;
   private maxPlayers: number = 0;
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
@@ -97,6 +103,9 @@ export default class GameManager {
       screenHeight,
     });
     this.app.stage.addChild(this.viewport);
+
+    // Walls R-Tree
+    this.wallsTree = new Collisions.TreeCollider();
 
     // HUD
     this.hudManager = new HUDManager(
@@ -133,7 +142,7 @@ export default class GameManager {
     this.viewport.addChild(this.bulletsManager);
 
     // Viewport
-    this.viewport.zoomPercent(1);
+    this.viewport.zoomPercent(utils.isMobile.any ? 0.25 : 1.0);
     this.viewport.sortableChildren = true;
 
     // Callbacks
@@ -152,13 +161,46 @@ export default class GameManager {
   }
 
 
-  // UPDATE
+  // METHODS
+  private initializeMap = (mapName: Types.MapNameType) => {
+    this.mapName = mapName;
+
+    // Parse the selected map
+    const { walls, width, height } = Maps.parseByName(mapName);
+
+    // Dimensions
+    this.groundManager.dimensions = { width, height };
+    this.mapManager.dimensions = { width, height };
+
+    // Walls
+    walls.forEach((wall, index) => {
+      // Sprite
+      this.mapManager.add(`${index}`, new Wall(
+        wall.x,
+        wall.y,
+        wall.width,
+        wall.height,
+        wall.type,
+      ));
+
+      // Collision
+      this.wallsTree.insert({
+        minX: wall.x,
+        minY: wall.y,
+        maxX: wall.x + wall.width,
+        maxY: wall.y + wall.height,
+        type: wall.type,
+      });
+    });
+  }
+
   private update = () => {
-    const deltaTime: number = this.app.ticker.elapsedMS;
+    // Uncomment if you need to use time for animations
+    // const deltaTime: number = this.app.ticker.elapsedMS;
     this.updateInputs();
-    this.updateGhost(deltaTime);
-    this.updatePlayers(deltaTime);
-    this.updateBullets(deltaTime);
+    this.updateGhost();
+    this.updatePlayers();
+    this.updateBullets();
     this.updateHUD();
 
     this.playersManager.sortChildren();
@@ -203,7 +245,6 @@ export default class GameManager {
       return;
     }
 
-    this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
     this.onActionSend({
       type: 'move',
       value: {
@@ -212,25 +253,21 @@ export default class GameManager {
       },
     });
 
-    // Clamp in map
+    this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
+
+    // Collisions: Map
     const clampedPosition = this.mapManager.clampCircle(this.me.body);
     this.me.position = {
       x: clampedPosition.x,
       y: clampedPosition.y,
     };
 
-    // Collisions: walls
-    const correctedPosition = Collisions.circleToRectangles(
-      this.me.body,
-      this.mapManager.getAll().map(wall => wall.body),
-    );
-
-    if (correctedPosition) {
-      this.me.position = {
-        x: correctedPosition.x,
-        y: correctedPosition.y,
-      };
-    }
+    // Collisions: Walls
+    const correctedPosition = this.wallsTree.correctWithCircle(this.me.body);
+    this.me.position = {
+      x: correctedPosition.x,
+      y: correctedPosition.y,
+    };
   }
 
   private rotate = () => {
@@ -298,7 +335,7 @@ export default class GameManager {
     });
   }
 
-  private updateGhost = (deltaTime: number) => {
+  private updateGhost = () => {
     if (!Constants.SHOW_GHOST || !this.ghost) {
       return;
     }
@@ -310,7 +347,7 @@ export default class GameManager {
     }
   }
 
-  private updatePlayers = (deltaTime: number) => {
+  private updatePlayers = () => {
     let distance;
 
     for (const player of this.playersManager.getAll()) {
@@ -324,7 +361,7 @@ export default class GameManager {
     }
   }
 
-  private updateBullets = (deltaTime: number) => {
+  private updateBullets = () => {
     for (const bullet of this.bulletsManager.getAll()) {
       if (!bullet.active) {
         continue;
@@ -332,7 +369,7 @@ export default class GameManager {
 
       bullet.move(Constants.BULLET_SPEED);
 
-      // Collides with players?
+      // Collisions: Players
       for (const player of this.playersManager.getAll()) {
         if (player.lives && Collisions.circleToCircle(bullet.body, player.body)) {
           bullet.active = false;
@@ -345,19 +382,25 @@ export default class GameManager {
         }
       }
 
-      // Collides with walls?
-      for (const wall of this.mapManager.getAll()) {
-        if (Collisions.circleToRectangle(bullet.body, wall.body)) {
-          bullet.active = false;
-          this.spawnImpact(
-            bullet.x,
-            bullet.y,
-          );
-          continue;
-        }
+      // Collisions: Me
+      if (this.me && this.me.lives && Collisions.circleToCircle(bullet.body, this.me.body)) {
+        bullet.active = false;
+        this.me.hurt();
+        this.spawnImpact(
+          bullet.x,
+          bullet.y,
+        );
+        continue;
       }
 
-      // Collides with map boundaries?
+      // Collisions: Walls
+      if (this.wallsTree.collidesWithCircle(bullet.body)) {
+        bullet.active = false;
+        this.spawnImpact(bullet.x, bullet.y);
+        continue;
+      }
+
+      // Collisions: Map
       if (this.mapManager.isCircleOutside(bullet.body)) {
         bullet.active = false;
         this.spawnImpact(
@@ -401,7 +444,7 @@ export default class GameManager {
   // SPAWNERS
   private spawnImpact = (x: number, y: number, color = '#ffffff') => {
     new Emitter(
-      this.viewport,
+      this.playersManager,
       [ParticleTextures.particleTexture],
       {
         ...particleConfig,
@@ -425,36 +468,25 @@ export default class GameManager {
     this.hudManager.resize(screenWidth, screenHeight);
   }
 
-  setWorldSize = (screenWidth: number, screenHeight: number, worldWidth?: number, worldHeight?: number) => {
-    const newWidth = worldWidth || this.mapManager.width;
-    const newHeight = worldHeight || this.mapManager.height;
-    this.mapManager.setDimensions(newWidth, newHeight);
-
-    // Viewport
-    this.viewport.resize(screenWidth, screenHeight, newWidth, newHeight);
-
-    // Ground
-    this.groundManager.dimensions = {
-      width: newWidth,
-      height: newHeight,
-    };
-  }
-
 
   // GETTERS
-  getPlayersCount = () => {
+  get playersCount() {
     return this.playersManager.getAll().length + 1;
   }
 
 
-  // EXTERNAL: Game
+  // COLYSEUS: Game
   gameUpdate = (name: string, value: any) => {
     switch (name) {
+      case 'mapName':
+        this.initializeMap(value);
+        break;
       case 'state':
         this.state = value;
-
-        // Hide props when outside a game
-        this.state === 'game' ? this.propsManager.show() : this.propsManager.hide();
+        // Hide props when not in "game" state
+        this.state === 'game'
+          ? this.propsManager.show()
+          : this.propsManager.hide();
         break;
       case 'maxPlayers':
         this.maxPlayers = value;
@@ -470,18 +502,7 @@ export default class GameManager {
     }
   }
 
-  // EXTERNAL: Walls
-  wallAdd = (wallId: string, attributes: any) => {
-    this.mapManager.add(wallId, new Wall(
-      attributes.x,
-      attributes.y,
-      attributes.width,
-      attributes.height,
-      attributes.type,
-    ));
-  }
-
-  // EXTERNAL: Me + server pos
+  // COLYSEUS: Me (local position)
   meAdd = (playerId: string, attributes: any) => {
     this.me = new Player(
       playerId,
@@ -543,9 +564,6 @@ export default class GameManager {
     this.playersManager.removeChild(this.me.weaponSprite);
     this.playersManager.removeChild(this.me.sprite);
     this.playersManager.removeChild(this.me.nameTextSprite);
-    // this.viewport.removeChild(this.me.weaponSprite);
-    // this.viewport.removeChild(this.me.sprite);
-    // this.viewport.removeChild(this.me.nameTextSprite);
 
     // Remove Ghost
     this.ghostRemove();
@@ -556,6 +574,7 @@ export default class GameManager {
     delete this.me;
   }
 
+  // COLYSEUS: Me (server position)
   private ghostAdd = (attributes: any) => {
     if (!Constants.SHOW_GHOST || this.ghost) {
       return;
@@ -581,6 +600,7 @@ export default class GameManager {
       return;
     }
 
+    this.ghost.lives = attributes.lives;
     this.ghost.rotation = attributes.rotation;
     this.ghost.position = {
       x: this.ghost.toX,
@@ -601,7 +621,7 @@ export default class GameManager {
     delete this.ghost;
   }
 
-  // EXTERNAL: Players
+  // COLYSEUS: Players (others)
   playerAdd = (playerId: string, attributes: any) => {
     const player = new Player(
       playerId,
@@ -661,7 +681,7 @@ export default class GameManager {
     this.hudManager.removePlayer(playerId);
   }
 
-  // EXTERNAL: Props
+  // COLYSEUS: Props
   propAdd = (propId: string, attributes: any) => {
     this.propsManager.add(propId, new Prop(
       attributes.type,
@@ -690,9 +710,9 @@ export default class GameManager {
     this.propsManager.remove(propId);
   }
 
-  // EXTERNAL: Bullets
+  // COLYSEUS: Bullets
   bulletAdd = (attributes: any) => {
-    if (this.me && this.me.playerId === attributes.playerId || !attributes.active) {
+    if ((this.me && this.me.playerId === attributes.playerId) || !attributes.active) {
       return;
     }
 
@@ -711,12 +731,12 @@ export default class GameManager {
     this.bulletsManager.remove(bulletId);
   }
 
-  // EXTERNAL: HUD
-  logAdd = (message: string) => {
+  // COLYSEUS: HUD
+  hudLogAdd = (message: string) => {
     this.hudManager.addLog(`[${new Date().toLocaleTimeString()}] ${message}`);
   }
 
-  announceAdd = (announce: string) => {
+  hudAnnounceAdd = (announce: string) => {
     this.hudManager.announce = announce;
   }
 }

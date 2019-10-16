@@ -6,7 +6,6 @@ import { Message } from './Message';
 import { Player } from './Player';
 import { Prop } from './Prop';
 import { Rectangle } from './Rectangle';
-import { Wall } from './Wall';
 
 export {
   Bullet,
@@ -17,5 +16,4 @@ export {
   Player,
   Prop,
   Rectangle,
-  Wall,
 };

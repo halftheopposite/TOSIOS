@@ -105,10 +105,7 @@ export default class Game extends Component<IProps, IState> {
     });
 
     // Listen for state changes
-    this.room.state.walls.onAdd = this.handleWallAdd;
     this.room.state.game.onChange = this.handleGameChange;
-    this.room.state.map.onChange = this.handleMapChange;
-    this.room.state.walls.onAdd = this.handleWallAdd;
     this.room.state.players.onAdd = this.handlePlayerAdd;
     this.room.state.players.onChange = this.handlePlayerChange;
     this.room.state.players.onRemove = this.handlePlayerRemove;
@@ -156,24 +153,6 @@ export default class Game extends Component<IProps, IState> {
     for (const row of attributes) {
       this.gameManager.gameUpdate(row.field, row.value);
     }
-  }
-
-  handleMapChange = (attributes: any) => {
-    for (const row of attributes) {
-      const width = row.field === 'width' ? row.value : null;
-      const height = row.field === 'height' ? row.value : null;
-
-      this.gameManager.setWorldSize(
-        window.innerWidth,
-        window.innerHeight,
-        width,
-        height,
-      );
-    }
-  }
-
-  handleWallAdd = (wall: any, wallId: string) => {
-    this.gameManager.wallAdd(wallId, wall);
   }
 
   handlePlayerAdd = (player: any, playerId: string) => {
@@ -233,28 +212,28 @@ export default class Game extends Component<IProps, IState> {
   handleMessage = (message: any) => {
     switch (message.type) {
       case 'waiting':
-        this.gameManager.logAdd(`Waiting for other players...`);
-        this.gameManager.announceAdd(`Waiting for others to join...`);
+        this.gameManager.hudLogAdd(`Waiting for other players...`);
+        this.gameManager.hudAnnounceAdd(`Waiting for others to join...`);
         break;
       case 'start':
-        this.gameManager.logAdd(`[GAME STARTS]`);
-        this.gameManager.announceAdd(`Game starts!`);
+        this.gameManager.hudLogAdd(`[GAME STARTS]`);
+        this.gameManager.hudAnnounceAdd(`Game starts!`);
         break;
       case 'stop':
-        this.gameManager.logAdd(`[GAME ENDS]`);
+        this.gameManager.hudLogAdd(`[GAME ENDS]`);
         break;
       case 'joined':
-        this.gameManager.logAdd(`"${message.params.name}" joined this room.`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" joined this room.`);
         break;
       case 'killed':
-        this.gameManager.logAdd(`"${message.params.killerName}" killed "${message.params.killedName}".`);
+        this.gameManager.hudLogAdd(`"${message.params.killerName}" killed "${message.params.killedName}".`);
         break;
       case 'won':
-        this.gameManager.logAdd(`"${message.params.name}" is the winner.`);
-        this.gameManager.announceAdd(`${message.params.name} wins!`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" is the winner.`);
+        this.gameManager.hudAnnounceAdd(`${message.params.name} wins!`);
         break;
       case 'left':
-        this.gameManager.logAdd(`"${message.params.name}" left this room.`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" left this room.`);
         break;
       default:
         break;
@@ -286,63 +265,81 @@ export default class Game extends Component<IProps, IState> {
   }
 
   handleKeyDown = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-
     const key = event.code;
 
     if (Keys.LEFT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.left = true;
     }
 
     if (Keys.UP.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.up = true;
     }
 
     if (Keys.RIGHT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.right = true;
     }
 
     if (Keys.DOWN.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.down = true;
     }
 
     if (Keys.SHOOT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.shoot = true;
     }
 
     if (Keys.MENU.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.menu = true;
     }
   }
 
   handleKeyUp = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-
     const key = event.code;
 
     if (Keys.LEFT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.left = false;
     }
 
     if (Keys.UP.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.up = false;
     }
 
     if (Keys.RIGHT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.right = false;
     }
 
     if (Keys.DOWN.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.down = false;
     }
 
     if (Keys.SHOOT.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.shoot = false;
     }
 
     if (Keys.MENU.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
       this.gameManager.inputs.menu = false;
     }
   }
@@ -355,7 +352,7 @@ export default class Game extends Component<IProps, IState> {
   // METHODS
   setPlayersCount = () => {
     this.setState({
-      playersCount: this.gameManager.getPlayersCount(),
+      playersCount: this.gameManager.playersCount,
     });
   }
 

@@ -4,28 +4,33 @@ import { Types } from '@tosios/common';
 export class Game extends Schema {
 
   @type('string')
-  state: Types.GameState;
+  public mapName: Types.MapNameType;
+
+  @type('string')
+  public state: Types.GameState;
 
   @type('number')
-  lobbyEndsAt: number;
+  public lobbyEndsAt: number;
 
   @type('number')
-  gameEndsAt: number;
+  public gameEndsAt: number;
 
   @type('number')
-  maxPlayers: number;
+  public maxPlayers: number;
 
-  lobbyDuration: number;
-  gameDuration: number;
+  private lobbyDuration: number;
+  private gameDuration: number;
 
   // Init
   constructor(
+    mapName: Types.MapNameType,
     lobbyDuration: number,
     gameDuration: number,
     maxPlayers: number,
     state: Types.GameState = 'waiting',
   ) {
     super();
+    this.mapName = mapName;
     this.lobbyDuration = lobbyDuration;
     this.gameDuration = gameDuration;
     this.maxPlayers = maxPlayers;

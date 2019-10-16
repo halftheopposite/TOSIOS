@@ -15,7 +15,6 @@ export class Rectangle extends Schema {
   @type('number')
   public height: number;
 
-
   // Init
   constructor(x: number, y: number, width: number, height: number) {
     super();
@@ -25,6 +24,7 @@ export class Rectangle extends Schema {
     this.height = height;
   }
 
+  // Getters
   get body(): Geometry.RectangleBody {
     return new Geometry.RectangleBody(this.x, this.y, this.width, this.height);
   }

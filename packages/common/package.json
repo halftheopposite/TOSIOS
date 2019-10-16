@@ -5,9 +5,11 @@
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "dependencies": {
+    "rbush": "^3.0.1",
     "react": "^16.8.6"
   },
   "devDependencies": {
+    "@types/rbush": "^2.0.2",
     "@types/react": "^16.8.25",
     "tslint-react": "^4.0.0",
     "typescript": "^3.5.3"

@@ -111,7 +111,8 @@ When creating a map each number represents a specific wall sprite that will be d
 * `10` for a right door
 * `11` for a torch
 
-Examples:
+Example:
+
 ```js
   [
     [1, 2, 9, 10, 2, 3],
@@ -124,19 +125,50 @@ Examples:
   ]
 ```
 
-## Roadmap (Q4 2019)
+will render into
+
+<img src="images/map.jpg" alt="drawing" width="200"/>
+
+**Creating your own map**
+
+If you want to add your own map to the game:
+
+1. Add a new file in `package/common/maps` containing your map template as shown in the example (e.g. `package/common/maps/gigantic.ts`).
+2. Open `package/common/maps/index.ts`, and add the following statements:
+```typescript
+///...
+import gigantic from './gigantic';
+//...
+const MAPS = {
+  //...
+  gigantic,
+};
+//...
+export const List: Types.IListItem[] = [
+  //...
+  { value: 'gigantic', title: 'Gigantic' }, // Used for the dropdown on the client
+];
+```
+3. Open `package/common/types.ts`, and add your map `value` key to `MapNameType`:
+```typescript
+export type MapNameType = 'small' | 'long' | 'big' | 'gigantic';
+```
+
+## Roadmap for 1.0.0 (Q4 2019)
 
 This is not an exhaustive, nor final, features list but it will give you a good indication on what I am working on:
 
-* ~Let users select the number of players in a room.~
-* ~Publish the docker image onto a registry and add a `docker-compose` file.~
-* ~Add a playable demo website for anyone to test and play the game.~
-* ~Add mobile mode (updated GUI and virtual joysticks).~
-* ~Add visual feedback when a player gets hit.~
-* ~Add smoother bullets.~
-* Implement a R-Tree for performances.
+* ~Let users select the number of players in a room.~ DONE
+* ~Publish the docker image onto a registry and add a `docker-compose` file.~ DONE
+* ~Add a playable demo website for anyone to test and play the game.~ DONE
+* ~Add mobile mode (updated GUI and virtual joysticks).~ DONE
+* ~Add visual feedback when a player gets hit.~ DONE
+* ~Add smoother bullets.~ DONE
+* ~Implement a R-Tree for performances.~ DONE
+* Add players spawner object instead of randomized points.
 * Add a Team Death Match mode.
 * Add some monsters that attack all players.
+* Add support for JSON TMX format (Tiled).
 
 ## Special thanks
 
@@ -148,11 +180,10 @@ Thanks to [@pixel_poem](https://twitter.com/pixel_poem) for the art package he p
 
 ## Licenses
 
-This project is under the MIT license.
+This project is under the [MIT](https://github.com/halftheopposite/tosios/blob/master/LICENSE) license.
 
 The major libraries and assets used in this project have the following licenses:
 
 * Colyseus: [MIT](https://github.com/colyseus/colyseus/blob/master/LICENSE)
 * PIXI.js: [MIT](https://github.com/pixijs/pixi.js/blob/dev/LICENSE)
 * Font "Press Start 2P": [Creative Common Zero](http://www.zone38.net/font/)
-* TOSIOS: [MIT](https://github.com/halftheopposite/tosios/blob/master/LICENSE)

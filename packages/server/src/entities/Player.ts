@@ -8,27 +8,25 @@ import { Circle } from './Circle';
 const validateName = (name: string) => name.trim().slice(0, 16);
 const generateColor = () => '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
 
-
 export class Player extends Circle {
 
   @type('number')
-  lives: number;
+  public lives: number;
 
   @type('string')
-  name: string;
+  public name: string;
 
   @type('string')
-  color: string;
+  public color: string;
 
   @type('number')
-  kills: number;
+  public kills: number;
 
   @type('number')
-  rotation: number;
+  public rotation: number;
 
   // These properties are needed to limit rates
-  lastMoveAt: number;
-  lastShootAt: number;
+  private lastShootAt: number;
 
   // Init
   constructor(x: number, y: number, radius: number, lives: number, name: string) {
@@ -38,7 +36,6 @@ export class Player extends Circle {
     this.color = generateColor();
     this.kills = 0;
     this.rotation = 0;
-    this.lastMoveAt = undefined;
     this.lastShootAt = undefined;
   }
 

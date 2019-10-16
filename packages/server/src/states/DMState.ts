@@ -20,37 +20,41 @@ import {
   Message,
   Player,
   Prop,
-  Wall,
 } from '../entities';
-import { parseByName } from '../maps';
+
+/**
+ * Snap a position on a grid with TILE_SIZE cells
+ */
+const snapPosition = (pos: number): number => {
+  const rest = pos % Constants.TILE_SIZE;
+  return rest < Constants.TILE_SIZE / 2
+    ? -rest
+    : Constants.TILE_SIZE - rest;
+};
 
 export class DMState extends Schema {
 
   @type(Game)
-  game: Game;
-
-  @type(Map)
-  map: Map;
-
-  @type([Wall])
-  walls: ArraySchema<Wall> = new ArraySchema<Wall>();
+  public game: Game;
 
   @type({ map: Player })
-  players: MapSchema<Player> = new MapSchema<Player>();
+  public players: MapSchema<Player> = new MapSchema<Player>();
 
   @type([Prop])
-  props: ArraySchema<Prop> = new ArraySchema<Prop>();
+  public props: ArraySchema<Prop> = new ArraySchema<Prop>();
 
   @type([Bullet])
-  bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
+  public bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
 
+  private map: Map;
+  private wallsTree: Collisions.TreeCollider;
   private actionsLog: Types.IAction[] = [];
   private onMessage: (message: Message) => void;
 
 
-  // Init
+  // INIT
   constructor(
-    map: Types.MapNameType,
+    mapName: Types.MapNameType,
     maxPlayers: number,
     onMessage: any,
   ) {
@@ -58,35 +62,47 @@ export class DMState extends Schema {
 
     // Game
     this.game = new Game(
+      mapName,
       Constants.LOBBY_DURATION,
       Constants.GAME_DURATION,
       maxPlayers,
     );
 
     // Map
-    const { width, height, walls } = parseByName(map);
-    this.map = new Map(width, height);
-    this.walls.push(...walls);
+    const { width, height, walls } = Maps.parseByName(mapName);
+    this.map = new Map(mapName, width, height);
+
+    // Create walls R-Tree
+    this.wallsTree = new Collisions.TreeCollider();
+    walls.forEach(wall => {
+      this.wallsTree.insert({
+        minX: wall.x,
+        minY: wall.y,
+        maxX: wall.x + wall.width,
+        maxY: wall.y + wall.height,
+        type: wall.type,
+      });
+    });
 
     // Callback
     this.onMessage = onMessage;
   }
 
 
-  // Updates
-  update(deltaTime: number) {
-    this.updateGame(deltaTime);
-    this.updatePlayers(deltaTime);
-    this.updateBullets(deltaTime);
+  // UPDATES
+  update() {
+    this.updateGame();
+    this.updatePlayers();
+    this.updateBullets();
   }
 
-  private updateGame(deltaTime: number) {
+  private updateGame() {
     const gameState = this.game.state;
 
     // Waiting for other players
     if (gameState === 'waiting') {
       if (this.playersCount > 1) {
-        this.setPlayersActive(false);
+        this.playersUpdateActive(false);
         this.game.setState('lobby');
       }
       return;
@@ -103,8 +119,8 @@ export class DMState extends Schema {
       case 'lobby':
         // Go on "game" when lobby time is over
         if (this.game.lobbyEndsAt < Date.now()) {
-          this.setPlayersActive(true);
-          this.setProps();
+          this.playersUpdateActive(true);
+          this.addProps();
           this.game.setState('game');
           this.onMessage(new Message('start'));
         }
@@ -113,8 +129,8 @@ export class DMState extends Schema {
         let continueGame = true;
 
         // Stop "game" when (all - 1) are dead
-        if (this.activePlayersCount === 1) {
-          const player = this.firstActivePlayer;
+        if (this.playersCountActive === 1) {
+          const player = this.playersGetFirstActive;
           if (player) {
             this.onMessage(new Message('won', {
               name: player.name,
@@ -126,7 +142,7 @@ export class DMState extends Schema {
 
         // Stop "game" when time is over (everyone loses)
         if (this.game.gameEndsAt < Date.now()) {
-          this.setPlayersActive(false);
+          this.playersUpdateActive(false);
           continueGame = false;
         }
 
@@ -140,7 +156,7 @@ export class DMState extends Schema {
     }
   }
 
-  private updatePlayers(deltaTime: number) {
+  private updatePlayers() {
     let action: Types.IAction;
     let player: Player;
 
@@ -168,7 +184,7 @@ export class DMState extends Schema {
     }
   }
 
-  private updateBullets(deltaTime: number) {
+  private updateBullets() {
     let bullet: Bullet;
     let player: Player;
 
@@ -180,12 +196,13 @@ export class DMState extends Schema {
 
       bullet.move(Constants.BULLET_SPEED);
 
+      // Collisions: Map
       if (!this.map.coordsInMap(bullet.x, bullet.y)) {
         bullet.active = false;
         continue;
       }
 
-      // Player collisions
+      // Collisions: Players
       for (const playerKey of Object.keys(this.players)) {
         // Only compute collision if the bullet doesn't belong to the Player
         if (bullet.playerId !== playerKey) {
@@ -200,21 +217,21 @@ export class DMState extends Schema {
                 killerName: this.players[bullet.playerId].name,
                 killedName: player.name,
               }));
-              this.setPlayerKills(bullet.playerId);
+              this.playerUpdateKills(bullet.playerId);
             }
           }
         }
       }
 
-      // Wall collisions
-      if (Collisions.circleToRectangles(bullet.body, this.walls.map(wall => wall.body))) {
+      // Collisions: Walls
+      if (this.wallsTree.collidesWithCircle(bullet.body)) {
         bullet.active = false;
       }
     }
   }
 
 
-  // Players
+  // PLAYERS: single
   playerAdd(id: string, name: string) {
     const player = new Player(
       Maths.getRandomInt(this.map.width - Constants.PLAYER_SIZE),
@@ -224,12 +241,18 @@ export class DMState extends Schema {
       name || id,
     );
 
-    while (Collisions.circleToRectangles(player.body, this.walls.map(wall => wall.body))) {
+    // Generate a random snapped position
+    while (this.wallsTree.collidesWithCircle(player.body)) {
       player.x = Maths.getRandomInt(this.map.width - Constants.PLAYER_SIZE);
       player.y = Maths.getRandomInt(this.map.height - Constants.PLAYER_SIZE);
     }
 
+    player.x += snapPosition(player.x);
+    player.y += snapPosition(player.y);
+
     this.players[id] = player;
+
+    // Broadcast message to other players
     this.onMessage(new Message('joined', {
       name: this.players[id].name,
     }));
@@ -258,19 +281,11 @@ export class DMState extends Schema {
 
     // Collisions: Map
     const clampedPosition = this.map.clampCircle(player);
-    player.x = clampedPosition.x;
-    player.y = clampedPosition.y;
+    player.setPosition(clampedPosition.x, clampedPosition.y);
 
     // Collisions: Walls
-    const correctedPosition = Collisions.circleToRectangles(
-      player.body,
-      this.walls.map(wall => wall.body),
-    );
-
-    if (correctedPosition) {
-      player.x = correctedPosition.x;
-      player.y = correctedPosition.y;
-    }
+    const correctedPosition = this.wallsTree.correctWithCircle(player.body);
+    player.setPosition(correctedPosition.x, correctedPosition.y);
 
     // Collisions: Props
     if (!player.isAlive) {
@@ -341,6 +356,15 @@ export class DMState extends Schema {
     }
   }
 
+  private playerUpdateKills(playerId: string) {
+    const player: Player = this.players[playerId];
+    if (!player) {
+      return;
+    }
+
+    player.setKills(player.kills + 1);
+  }
+
   playerRemove(id: string) {
     this.onMessage(new Message('left', {
       name: this.players[id].name,
@@ -349,7 +373,15 @@ export class DMState extends Schema {
   }
 
 
-  // Getters
+  // PLAYERS: multiple
+  private playersUpdateActive(active: boolean) {
+    let player: Player;
+    for (const playerId in this.players) {
+      player = this.players[playerId];
+      player.setLives(active ? Constants.PLAYER_LIVES : 0);
+    }
+  }
+
   private get playersCount() {
     let count = 0;
     for (const playerId in this.players) {
@@ -359,7 +391,7 @@ export class DMState extends Schema {
     return count;
   }
 
-  private get activePlayersCount() {
+  private get playersCountActive() {
     let count = 0;
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
@@ -370,7 +402,7 @@ export class DMState extends Schema {
     return count;
   }
 
-  private get firstActivePlayer() {
+  private get playersGetFirstActive() {
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
         return this.players[playerId];
@@ -379,7 +411,20 @@ export class DMState extends Schema {
   }
 
 
-  // Setters
+  // PROPS
+  private addProps() {
+    this.clearProps();
+
+    // Add random red flasks
+    const props = this.generateProps(
+      'potion-red',
+      Constants.FLASKS_COUNT,
+      Constants.FLASK_SIZE,
+      true,
+    );
+    this.props.push(...props);
+  }
+
   private generateProps = (type: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
     let prop: Prop;
     for (let i: number = 0; i < quantity; i++) {
@@ -392,22 +437,12 @@ export class DMState extends Schema {
       );
 
       // Update its position if it collides
-      while (Collisions.rectangleToRectangles(
-        prop.body,
-        this.walls.map(wall => wall.body),
-      )) {
+      while (this.wallsTree.collidesWithRectangle(prop.body)) {
         prop.x = Maths.getRandomInt(this.map.width);
         prop.y = Maths.getRandomInt(this.map.height);
       }
 
       // We want the items to snap to the grid
-      const snapPosition = (pos: number): number => {
-        const rest = pos % Constants.TILE_SIZE;
-        return rest < Constants.TILE_SIZE / 2
-          ? -rest
-          : Constants.TILE_SIZE - rest;
-      };
-
       if (snapToGrid) {
         prop.x += snapPosition(prop.x);
         prop.y += snapPosition(prop.y);
@@ -419,35 +454,13 @@ export class DMState extends Schema {
     return this.props;
   }
 
-  private setProps() {
-    // Clean remaining props
-    while (this.props.length > 0) {
-      this.props.pop();
-    }
-
-    // Add random red flasks
-    this.props.push(...this.generateProps(
-      'potion-red',
-      Constants.FLASKS_COUNT,
-      Constants.FLASK_SIZE,
-      true,
-    ));
-  }
-
-  private setPlayerKills(playerId: string) {
-    const player: Player = this.players[playerId];
-    if (!player) {
+  private clearProps() {
+    if (!this.props) {
       return;
     }
 
-    player.setKills(player.kills + 1);
-  }
-
-  private setPlayersActive(active: boolean) {
-    let player: Player;
-    for (const playerId in this.players) {
-      player = this.players[playerId];
-      player.setLives(active ? Constants.PLAYER_LIVES : 0);
+    while (this.props.length > 0) {
+      this.props.pop();
     }
   }
 }

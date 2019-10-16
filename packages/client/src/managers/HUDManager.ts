@@ -288,6 +288,7 @@ export default class HUDManager extends Container {
     }
   }
 
+
   // Setters
   set isMobile(mobile: boolean) {
     if (this._isMobile === mobile) {
