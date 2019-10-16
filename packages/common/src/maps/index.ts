@@ -1,14 +1,13 @@
 import { Constants, Types } from '../';
-import bigMap from './big';
-import longMap from './long';
-import smallMap from './small';
+import big from './big';
+import long from './long';
+import small from './small';
 
 const MAPS = {
-  small: smallMap,
-  long: longMap,
-  big: bigMap,
+  small,
+  long,
+  big,
 };
-
 
 export const List: Types.IListItem[] = [
   { value: 'small', title: 'Small' },
@@ -22,7 +21,6 @@ export const Players: Types.IListItem[] = [
   { value: 8, title: '8 players' },
   { value: 16, title: '16 players' },
 ];
-
 
 /**
  * Parse a map by its name

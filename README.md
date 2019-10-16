@@ -133,19 +133,25 @@ will render into
 
 If you want to add your own map to the game:
 
-1. Add a new file in `package/common/maps` containing your map template as shown in the example (e.g. `package/common/maps/myNewMap.ts`).
+1. Add a new file in `package/common/maps` containing your map template as shown in the example (e.g. `package/common/maps/gigantic.ts`).
 2. Open `package/common/maps/index.ts`, and add the following statements:
 ```typescript
-import myNewMap from './myNewMap';
+///...
+import gigantic from './gigantic';
+//...
+const MAPS = {
+  //...
+  gigantic,
+};
 //...
 export const List: Types.IListItem[] = [
   //...
-  { value: 'myNewMap', title: 'My New Map' },
+  { value: 'gigantic', title: 'Gigantic' }, // Used for the dropdown on the client
 ];
 ```
 3. Open `package/common/types.ts`, and add your map `value` key to `MapNameType`:
 ```typescript
-export type MapNameType = 'small' | 'long' | 'big' | 'myNewMap';
+export type MapNameType = 'small' | 'long' | 'big' | 'gigantic';
 ```
 
 ## Roadmap for 1.0.0 (Q4 2019)
