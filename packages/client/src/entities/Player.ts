@@ -2,12 +2,12 @@ import { Constants, Maths } from '@tosios/common';
 import { AnimatedSprite, Sprite, utils } from 'pixi.js';
 import { HUDLives, HUDText } from '../HUD';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
-import { CircleSprite } from '../sprites';
+import { CircleSprite, Effects } from '../sprites';
 
-const HURT_COLOR = 0xEFEFEF;
-const HURT_TIME = 50;
 const NAME_OFFSET = 4;
 const LIVES_OFFSET = 10;
+const HURT_COLOR = 0xEFEFEF;
+const HEAL_COLOR = 0xEFEFEF;
 
 type PlayerDirection = 'left' | 'right';
 
@@ -99,10 +99,11 @@ export default class Player extends CircleSprite {
   }
 
   hurt() {
-    this.sprite.tint = HURT_COLOR;
-    setTimeout(() => {
-      this.sprite.tint = utils.string2hex(this.color);
-    }, HURT_TIME);
+    Effects.flash(this.sprite, HURT_COLOR, utils.string2hex(this.color));
+  }
+
+  heal() {
+    Effects.flash(this.sprite, HEAL_COLOR, utils.string2hex(this.color));
   }
 
   updateTextures() {
@@ -125,8 +126,6 @@ export default class Player extends CircleSprite {
 
     // Lives
     this.livesSprite.alpha = isAlive ? 1.0 : 0.2;
-    this.livesSprite.lives = this._lives;
-    this.livesSprite.maxLives = this._maxLives;
   }
 
   // Setters
@@ -172,7 +171,12 @@ export default class Player extends CircleSprite {
       return;
     }
 
+    if (lives > this._lives) {
+      this.heal();
+    }
+
     this._lives = lives;
+    this.livesSprite.lives = this._lives;
     this.updateTextures();
   }
 
@@ -182,6 +186,7 @@ export default class Player extends CircleSprite {
     }
 
     this._maxLives = maxLives;
+    this.livesSprite.maxLives = this._maxLives;
     this.updateTextures();
   }
 
