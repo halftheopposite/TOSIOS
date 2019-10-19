@@ -9,6 +9,7 @@ import { Helmet } from 'react-helmet';
 import {
   Box,
   Button,
+  GitHub,
   Input,
   Room,
   Select,
@@ -155,10 +156,12 @@ export default class Home extends Component<IProps, IState> {
           <title>{Constants.APP_TITLE}</title>
         </Helmet>
 
-        <View flex={true} center={true}>
+        <View flex={true} center={true} column={true}>
           <h1 style={{ color: 'white' }}>
             {Constants.APP_TITLE}
           </h1>
+          <Space size="xxs" />
+          <GitHub />
         </View>
 
         <Space size="m" />
