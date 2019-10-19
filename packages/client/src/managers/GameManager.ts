@@ -520,6 +520,7 @@ export default class GameManager {
     this.playersManager.addChild(this.me.weaponSprite);
     this.playersManager.addChild(this.me.sprite);
     this.playersManager.addChild(this.me.nameTextSprite);
+    this.playersManager.addChild(this.me.livesSprite);
     this.viewport.follow(this.me.sprite);
 
     // Create Ghost (server computed position)
@@ -540,6 +541,7 @@ export default class GameManager {
     }
 
     this.me.lives = attributes.lives;
+    this.me.maxLives = attributes.maxLives;
     this.me.kills = attributes.kills;
 
     // Update Ghost (server computed position)
@@ -562,6 +564,7 @@ export default class GameManager {
     this.playersManager.removeChild(this.me.weaponSprite);
     this.playersManager.removeChild(this.me.sprite);
     this.playersManager.removeChild(this.me.nameTextSprite);
+    this.playersManager.removeChild(this.me.livesSprite);
 
     // Remove Ghost
     this.ghostRemove();

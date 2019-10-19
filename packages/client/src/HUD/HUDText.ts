@@ -10,7 +10,7 @@ export default class HUDText extends Text {
     style?: object,
   ) {
     super('', new TextStyle({
-      fontSize: fontSize,
+      fontSize,
       fill: '#ffffff',
       fontFamily: 'Press Start 2P',
       align: 'left',
@@ -23,11 +23,20 @@ export default class HUDText extends Text {
     this.text = text;
   }
 
-  get bottom() {
-    return this.y + this.height;
+  // Getters
+  get left() {
+    return this.x;
   }
 
   get right() {
     return this.x + this.width;
+  }
+
+  get top() {
+    return this.y;
+  }
+
+  get bottom() {
+    return this.y + this.height;
   }
 }

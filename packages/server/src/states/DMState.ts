@@ -188,7 +188,7 @@ export class DMState extends Schema {
       Maths.getRandomInt(this.map.height - Constants.PLAYER_SIZE),
       Constants.PLAYER_SIZE / 2,
       0,
-      Constants.PLAYER_LIVES,
+      Constants.PLAYER_MAX_LIVES,
       name || id,
     );
 
