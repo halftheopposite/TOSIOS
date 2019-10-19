@@ -1,22 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 const SEPARATOR = {
   backgroundColor: '#efefef',
-  height: 1,
-  minHeight: 1,
+  height: 2,
+  minHeight: 2,
 };
 
-class Separator extends Component {
+export default function (props: {
 
-  render() {
-    return (
-      <div
-        style={{
-          ...SEPARATOR,
-        }}
-      />
-    );
-  }
+}): React.ReactElement {
+  return (
+    <div
+      style={{
+        ...SEPARATOR,
+      }}
+    />
+  );
 }
-
-export default Separator;

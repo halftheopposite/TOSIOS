@@ -1,4 +1,4 @@
-import React, { Component, CSSProperties, SyntheticEvent } from 'react';
+import React, { CSSProperties, SyntheticEvent } from 'react';
 
 const INPUT: CSSProperties = {
   fontSize: 16,
@@ -13,37 +13,32 @@ const INPUT: CSSProperties = {
   maxWidth: '100%',
 };
 
-interface IProps {
+export default function (props: {
   value?: string;
   placeholder?: string;
   maxLength?: number;
   style?: CSSProperties;
   onChange?: (event: SyntheticEvent) => void;
-}
+}): React.ReactElement {
+  const {
+    value,
+    placeholder,
+    style,
+    maxLength,
+    onChange,
+  } = props;
 
-export default class Input extends Component<IProps> {
-
-  render() {
-    const {
-      value,
-      placeholder,
-      style,
-      maxLength,
-      onChange,
-    } = this.props;
-
-    return (
-      <input
-        type="text"
-        value={value}
-        style={{
-          ...INPUT,
-          ...style,
-        }}
-        maxLength={maxLength}
-        placeholder={placeholder}
-        onChange={onChange}
-      />
-    );
-  }
+  return (
+    <input
+      type="text"
+      value={value}
+      style={{
+        ...INPUT,
+        ...style,
+      }}
+      maxLength={maxLength}
+      placeholder={placeholder}
+      onChange={onChange}
+    />
+  );
 }

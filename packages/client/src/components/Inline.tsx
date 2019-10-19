@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 const SIZES = {
   thin: 4,
@@ -14,21 +14,14 @@ const SIZES = {
 
 type SizeNames = 'thin' | 'xxs' | 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl' | 'giant';
 
-interface IProps {
+export default function (props: {
   size: SizeNames;
+}): React.ReactElement {
+  const {
+    size,
+  } = props;
+
+  return (
+    <span style={{ width: SIZES[size], minWidth: SIZES[size] }} />
+  );
 }
-
-class Inline extends Component<IProps> {
-
-  render() {
-    const {
-      size,
-    } = this.props;
-
-    return (
-      <span style={{ width: SIZES[size], minWidth: SIZES[size] }} />
-    );
-  }
-}
-
-export default Inline;

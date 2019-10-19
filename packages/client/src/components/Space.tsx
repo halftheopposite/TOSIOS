@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 const SIZES = {
   thin: 4,
@@ -14,21 +14,14 @@ const SIZES = {
 
 type SizeNames = 'thin' | 'xxs' | 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl' | 'giant';
 
-interface IProps {
+export default function (props: {
   size: SizeNames;
+}): React.ReactElement {
+  const {
+    size,
+  } = props;
+
+  return (
+    <div style={{ height: SIZES[size], minHeight: SIZES[size] }} />
+  );
 }
-
-class Space extends Component<IProps> {
-
-  render() {
-    const {
-      size,
-    } = this.props;
-
-    return (
-      <div style={{ height: SIZES[size], minHeight: SIZES[size] }} />
-    );
-  }
-}
-
-export default Space;
