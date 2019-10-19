@@ -71,7 +71,7 @@ export default class HUDManager extends Container {
 
     // Lives
     this._livesHUD = new HUDLives(
-      Constants.PLAYER_LIVES,
+      0,
       0,
     );
     this.addChild(this._livesHUD);
@@ -254,7 +254,7 @@ export default class HUDManager extends Container {
 
   private renderFPS = () => {
     this._fpsHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
-    this._fpsHUD.alpha = Constants.SHOW_FPS ? 0.2 : 0;
+    this._fpsHUD.alpha = Constants.DEBUG ? 0.2 : 0;
     this._fpsHUD.text = `${this._fps}`;
   }
 

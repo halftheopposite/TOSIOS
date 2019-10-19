@@ -6,14 +6,16 @@ import qs from 'querystringify';
 import React, { Component, Fragment } from 'react';
 import { Helmet } from 'react-helmet';
 
-import Box from '../components/Box';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import Room from '../components/Room';
-import Select from '../components/Select';
-import Separator from '../components/Separator';
-import Space from '../components/Space';
-import View from '../components/View';
+import {
+  Box,
+  Button,
+  Input,
+  Room,
+  Select,
+  Separator,
+  Space,
+  View,
+} from '../components';
 
 interface IProps extends RouteComponentProps {
 }
@@ -31,9 +33,7 @@ interface IState {
 
 export default class Home extends Component<IProps, IState> {
 
-  client?: Client;
-
-  state: IState = {
+  public state: IState = {
     playerName: localStorage.getItem('playerName') || '',
     hasNameChanged: false,
     isNewRoom: false,
@@ -43,6 +43,9 @@ export default class Home extends Component<IProps, IState> {
     roomMap: Maps.List[0].value,
     roomMaxPlayers: Maps.Players[0].value,
   };
+
+  private client?: Client;
+
 
   // BASE
   componentDidMount() {
@@ -122,6 +125,7 @@ export default class Home extends Component<IProps, IState> {
       isNewRoom: false,
     });
   }
+
 
   // METHODS
   updateRooms = async () => {
@@ -313,18 +317,23 @@ export default class Home extends Component<IProps, IState> {
       );
     }
 
-    return rooms.map(({ roomId, metadata, clients, maxClients }, index) => (
-      <Fragment key={roomId}>
-        <Room
-          id={roomId}
-          roomName={metadata.roomName}
-          roomMap={metadata.roomMap}
-          clients={clients}
-          maxClients={maxClients}
-          onClick={this.handleRoomClick}
-        />
-        {(index !== rooms.length - 1) && <Space size="xxs" />}
-      </Fragment>
-    ));
+    return rooms.map(({ roomId, metadata, clients, maxClients }, index) => {
+      const map = Maps.List.find(item => item.value === metadata.roomMap);
+      const mapName = map ? map.title : metadata.roomMap;
+
+      return (
+        <Fragment key={roomId}>
+          <Room
+            id={roomId}
+            roomName={metadata.roomName}
+            roomMap={mapName}
+            clients={clients}
+            maxClients={maxClients}
+            onClick={this.handleRoomClick}
+          />
+          {(index !== rooms.length - 1) && <Space size="xxs" />}
+        </Fragment>
+      );
+    });
   }
 }

@@ -22,7 +22,7 @@ interface IState {
 
 export default class Game extends Component<IProps, IState> {
 
-  state: IState = {
+  public state: IState = {
     playerId: '',
     playersCount: 0,
     maxPlayersCount: 0,
@@ -164,7 +164,7 @@ export default class Game extends Component<IProps, IState> {
       this.gameManager.playerAdd(playerId, player);
     }
 
-    this.setPlayersCount();
+    this.updatePlayersCount();
   }
 
   handlePlayerChange = (player: any, playerId: string) => {
@@ -186,7 +186,7 @@ export default class Game extends Component<IProps, IState> {
       this.gameManager.playerRemove(playerId);
     }
 
-    this.setPlayersCount();
+    this.updatePlayersCount();
   }
 
   handleBulletAdd = (bullet: any) => {
@@ -350,7 +350,7 @@ export default class Game extends Component<IProps, IState> {
 
 
   // METHODS
-  setPlayersCount = () => {
+  updatePlayersCount = () => {
     this.setState({
       playersCount: this.gameManager.playersCount,
     });

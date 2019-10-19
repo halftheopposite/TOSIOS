@@ -4,8 +4,7 @@ export const APP_TITLE = 'TOSIOS';
 export const WS_PORT = 3001;
 export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name (no need to change)
 export const ROOM_REFRESH = 5000;
-export const SHOW_GHOST = false;
-export const SHOW_FPS = false;
+export const DEBUG = false;
 
 // Game
 export const ROOM_PLAYERS_MIN = 2;

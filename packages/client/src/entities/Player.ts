@@ -18,6 +18,7 @@ export default class Player extends CircleSprite {
   private _name: string = '';
   private _color: string = '#FFFFFF';
   private _lives: number = 0;
+  private _maxLives: number = 0;
   private _kills: number = 0;
   private _rotation: number = 0;
   private _direction: PlayerDirection = 'right';
@@ -35,6 +36,7 @@ export default class Player extends CircleSprite {
     name: string,
     color: string,
     lives: number,
+    maxLives: number,
     kills: number,
   ) {
     super(
@@ -69,6 +71,7 @@ export default class Player extends CircleSprite {
     this.name = name;
     this.color = color;
     this.lives = lives;
+    this.maxLives = maxLives;
     this.kills = kills;
 
     this.updateTextures();
@@ -154,6 +157,15 @@ export default class Player extends CircleSprite {
     this.updateTextures();
   }
 
+  set maxLives(maxLives: number) {
+    if (this._maxLives === maxLives) {
+      return;
+    }
+
+    this._maxLives = maxLives;
+    this.updateTextures();
+  }
+
   set kills(kills: number) {
     this._kills = kills;
   }
@@ -198,6 +210,14 @@ export default class Player extends CircleSprite {
 
   get toY() {
     return this._toY;
+  }
+
+  get position() {
+    return { x: this.x, y: this.y };
+  }
+
+  get toPosition() {
+    return { toX: this.toX, toY: this.toY };
   }
 
   get name() {

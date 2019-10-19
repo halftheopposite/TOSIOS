@@ -336,7 +336,7 @@ export default class GameManager {
   }
 
   private updateGhost = () => {
-    if (!Constants.SHOW_GHOST || !this.ghost) {
+    if (!Constants.DEBUG || !this.ghost) {
       return;
     }
 
@@ -415,7 +415,7 @@ export default class GameManager {
   private updateHUD = () => {
     // Lives
     this.hudManager.lives = this.me ? this.me.lives : 0;
-    this.hudManager.maxLives = Constants.PLAYER_LIVES; // TODO: This should be on the Player model
+    this.hudManager.maxLives = this.me ? this.me.maxLives : 0;
 
     // Time
     switch (this.state) {
@@ -513,12 +513,10 @@ export default class GameManager {
       attributes.name,
       attributes.color,
       attributes.lives,
+      attributes.maxLives,
       attributes.kills,
     );
 
-    // this.viewport.addChild(this.me.weaponSprite);
-    // this.viewport.addChild(this.me.sprite);
-    // this.viewport.addChild(this.me.nameTextSprite);
     this.playersManager.addChild(this.me.weaponSprite);
     this.playersManager.addChild(this.me.sprite);
     this.playersManager.addChild(this.me.nameTextSprite);
@@ -576,7 +574,7 @@ export default class GameManager {
 
   // COLYSEUS: Me (server position)
   private ghostAdd = (attributes: any) => {
-    if (!Constants.SHOW_GHOST || this.ghost) {
+    if (!Constants.DEBUG || this.ghost) {
       return;
     }
 
@@ -590,13 +588,14 @@ export default class GameManager {
       '',
       0,
       0,
+      0,
     );
     this.ghost.sprite.alpha = 0.2;
     this.viewport.addChild(this.ghost.sprite);
   }
 
   private ghostUpdate = (attributes: any) => {
-    if (!Constants.SHOW_GHOST || !this.ghost) {
+    if (!Constants.DEBUG || !this.ghost) {
       return;
     }
 
@@ -613,7 +612,7 @@ export default class GameManager {
   }
 
   private ghostRemove = () => {
-    if (!Constants.SHOW_GHOST || !this.ghost) {
+    if (!Constants.DEBUG || !this.ghost) {
       return;
     }
 
@@ -632,6 +631,7 @@ export default class GameManager {
       attributes.name,
       attributes.color,
       attributes.lives,
+      attributes.maxLives,
       attributes.kills,
     );
     this.playersManager.add(playerId, player);
