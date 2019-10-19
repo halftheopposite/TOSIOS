@@ -6,8 +6,9 @@ import { DMState } from '../states/DMState';
 
 export class DMRoom extends Room<DMState> {
 
-  // Lifecycle
+  // LIFECYCLE
   onCreate(options: Types.IRoomOptions) {
+    // Set max number of clients for this room
     this.maxClients = Maths.clamp(
       options.roomMaxPlayers || 0,
       Constants.ROOM_PLAYERS_MIN,
@@ -68,7 +69,8 @@ export class DMRoom extends Room<DMState> {
     console.log('Room deleted');
   }
 
-  // Handlers
+
+  // HANDLERS
   handleTick = () => {
     this.state.update();
   }

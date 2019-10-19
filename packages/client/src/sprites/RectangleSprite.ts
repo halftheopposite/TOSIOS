@@ -10,7 +10,7 @@ export default class RectangleSprite {
     y: number,
     width: number,
     height: number,
-    rotation: number,
+    rotation: number = 0,
     texture: { single?: Texture; array?: Texture[] },
   ) {
     // Body

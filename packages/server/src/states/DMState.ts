@@ -22,16 +22,6 @@ import {
   Prop,
 } from '../entities';
 
-/**
- * Snap a position on a grid with TILE_SIZE cells
- */
-const snapPosition = (pos: number): number => {
-  const rest = pos % Constants.TILE_SIZE;
-  return rest < Constants.TILE_SIZE / 2
-    ? -rest
-    : Constants.TILE_SIZE - rest;
-};
-
 export class DMState extends Schema {
 
   @type(Game)
@@ -47,7 +37,7 @@ export class DMState extends Schema {
   public bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
 
   private map: Map;
-  private wallsTree: Collisions.TreeCollider;
+  private walls: Collisions.TreeCollider;
   private actionsLog: Types.IAction[] = [];
   private onMessage: (message: Message) => void;
 
@@ -70,12 +60,12 @@ export class DMState extends Schema {
 
     // Map
     const { width, height, walls } = Maps.parseByName(mapName);
-    this.map = new Map(mapName, width, height);
+    this.map = new Map(width, height);
 
-    // Create walls R-Tree
-    this.wallsTree = new Collisions.TreeCollider();
+    // Create a R-Tree for walls
+    this.walls = new Collisions.TreeCollider();
     walls.forEach(wall => {
-      this.wallsTree.insert({
+      this.walls.insert({
         minX: wall.x,
         minY: wall.y,
         maxX: wall.x + wall.width,
@@ -102,7 +92,7 @@ export class DMState extends Schema {
     // Waiting for other players
     if (gameState === 'waiting') {
       if (this.playersCount > 1) {
-        this.playersUpdateActive(false);
+        this.playersUpdateActive = false;
         this.game.setState('lobby');
       }
       return;
@@ -119,8 +109,8 @@ export class DMState extends Schema {
       case 'lobby':
         // Go on "game" when lobby time is over
         if (this.game.lobbyEndsAt < Date.now()) {
-          this.playersUpdateActive(true);
-          this.addProps();
+          this.playersUpdateActive = true;
+          this.propsAdd();
           this.game.setState('game');
           this.onMessage(new Message('start'));
         }
@@ -142,7 +132,7 @@ export class DMState extends Schema {
 
         // Stop "game" when time is over (everyone loses)
         if (this.game.gameEndsAt < Date.now()) {
-          this.playersUpdateActive(false);
+          this.playersUpdateActive = false;
           continueGame = false;
         }
 
@@ -185,48 +175,8 @@ export class DMState extends Schema {
   }
 
   private updateBullets() {
-    let bullet: Bullet;
-    let player: Player;
-
     for (let i: number = 0; i < this.bullets.length; i++) {
-      bullet = this.bullets[i];
-      if (!bullet.active) {
-        continue;
-      }
-
-      bullet.move(Constants.BULLET_SPEED);
-
-      // Collisions: Map
-      if (!this.map.coordsInMap(bullet.x, bullet.y)) {
-        bullet.active = false;
-        continue;
-      }
-
-      // Collisions: Players
-      for (const playerKey of Object.keys(this.players)) {
-        // Only compute collision if the bullet doesn't belong to the Player
-        if (bullet.playerId !== playerKey) {
-          player = this.players[playerKey];
-
-          if (player.isAlive && Collisions.circleToCircle(bullet.body, player.body)) {
-            bullet.active = false;
-            player.hurt();
-
-            if (!player.isAlive) {
-              this.onMessage(new Message('killed', {
-                killerName: this.players[bullet.playerId].name,
-                killedName: player.name,
-              }));
-              this.playerUpdateKills(bullet.playerId);
-            }
-          }
-        }
-      }
-
-      // Collisions: Walls
-      if (this.wallsTree.collidesWithCircle(bullet.body)) {
-        bullet.active = false;
-      }
+      this.bulletMove(i);
     }
   }
 
@@ -238,17 +188,18 @@ export class DMState extends Schema {
       Maths.getRandomInt(this.map.height - Constants.PLAYER_SIZE),
       Constants.PLAYER_SIZE / 2,
       0,
+      Constants.PLAYER_MAX_LIVES,
       name || id,
     );
 
     // Generate a random snapped position
-    while (this.wallsTree.collidesWithCircle(player.body)) {
+    while (this.walls.collidesWithCircle(player.body)) {
       player.x = Maths.getRandomInt(this.map.width - Constants.PLAYER_SIZE);
       player.y = Maths.getRandomInt(this.map.height - Constants.PLAYER_SIZE);
     }
 
-    player.x += snapPosition(player.x);
-    player.y += snapPosition(player.y);
+    player.x += Maths.snapPosition(player.body.left, Constants.TILE_SIZE);
+    player.y += Maths.snapPosition(player.body.top, Constants.TILE_SIZE);
 
     this.players[id] = player;
 
@@ -284,7 +235,7 @@ export class DMState extends Schema {
     player.setPosition(clampedPosition.x, clampedPosition.y);
 
     // Collisions: Walls
-    const correctedPosition = this.wallsTree.correctWithCircle(player.body);
+    const correctedPosition = this.walls.correctWithCircle(player.body);
     player.setPosition(correctedPosition.x, correctedPosition.y);
 
     // Collisions: Props
@@ -374,11 +325,11 @@ export class DMState extends Schema {
 
 
   // PLAYERS: multiple
-  private playersUpdateActive(active: boolean) {
+  private set playersUpdateActive(active: boolean) {
     let player: Player;
     for (const playerId in this.players) {
       player = this.players[playerId];
-      player.setLives(active ? Constants.PLAYER_LIVES : 0);
+      player.setLives(active ? player.maxLives : 0);
     }
   }
 
@@ -411,12 +362,55 @@ export class DMState extends Schema {
   }
 
 
+  // BULLETS
+  private bulletMove(bulletId: number) {
+    const bullet = this.bullets[bulletId];
+    if (!bullet || !bullet.active) {
+      return;
+    }
+
+    bullet.move(Constants.BULLET_SPEED);
+
+    // Collisions: Map
+    if (!this.map.coordsInMap(bullet.x, bullet.y)) {
+      bullet.active = false;
+      return;
+    }
+
+    // Collisions: Players
+    for (const playerKey of Object.keys(this.players)) {
+      // Only compute collision if the bullet doesn't belong to the Player
+      if (bullet.playerId !== playerKey) {
+        const player = this.players[playerKey];
+
+        if (player.isAlive && Collisions.circleToCircle(bullet.body, player.body)) {
+          bullet.active = false;
+          player.hurt();
+
+          if (!player.isAlive) {
+            this.onMessage(new Message('killed', {
+              killerName: this.players[bullet.playerId].name,
+              killedName: player.name,
+            }));
+            this.playerUpdateKills(bullet.playerId);
+          }
+        }
+      }
+    }
+
+    // Collisions: Walls
+    if (this.walls.collidesWithCircle(bullet.body)) {
+      bullet.active = false;
+    }
+  }
+
+
   // PROPS
-  private addProps() {
-    this.clearProps();
+  private propsAdd() {
+    this.propsClear();
 
     // Add random red flasks
-    const props = this.generateProps(
+    const props = this.propsGenerate(
       'potion-red',
       Constants.FLASKS_COUNT,
       Constants.FLASK_SIZE,
@@ -425,7 +419,7 @@ export class DMState extends Schema {
     this.props.push(...props);
   }
 
-  private generateProps = (type: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
+  private propsGenerate = (type: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
     let prop: Prop;
     for (let i: number = 0; i < quantity; i++) {
       prop = new Prop(
@@ -437,15 +431,15 @@ export class DMState extends Schema {
       );
 
       // Update its position if it collides
-      while (this.wallsTree.collidesWithRectangle(prop.body)) {
+      while (this.walls.collidesWithRectangle(prop.body)) {
         prop.x = Maths.getRandomInt(this.map.width);
         prop.y = Maths.getRandomInt(this.map.height);
       }
 
       // We want the items to snap to the grid
       if (snapToGrid) {
-        prop.x += snapPosition(prop.x);
-        prop.y += snapPosition(prop.y);
+        prop.x += Maths.snapPosition(prop.x, Constants.TILE_SIZE);
+        prop.y += Maths.snapPosition(prop.y, Constants.TILE_SIZE);
       }
 
       this.props.push(prop);
@@ -454,7 +448,7 @@ export class DMState extends Schema {
     return this.props;
   }
 
-  private clearProps() {
+  private propsClear() {
     if (!this.props) {
       return;
     }

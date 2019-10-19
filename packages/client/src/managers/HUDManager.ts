@@ -4,6 +4,13 @@ import { Container } from 'pixi.js';
 import { HUDInputTab, HUDLeaderboard, HUDLives, HUDText } from '../HUD';
 
 const HUD_PADDING = 24;
+const FONTSIZE_TIME = 25;
+const FONTSIZE_PLAYERS = 25;
+const FONTSIZE_LOGS = 20;
+const FONTSIZE_ANNOUNCE = 40;
+const FONTSIZE_FPS = 25;
+const MOBILE_SIZE_FACTOR = 0.75;
+const HEART_SIZE = 48;
 const ANNOUNCE_LIFETIME = 3000;
 const ANNOUNCE_ANIM_TICK = 50;
 
@@ -12,6 +19,19 @@ interface IPlayerItem {
   kills: number;
   color: string;
 }
+
+const getMinutes = (seconds: number) => {
+  return Math.floor(seconds / 60);
+};
+
+const getSeconds = (seconds: number) => {
+  const left = Math.floor(seconds % 60);
+  return left < 0 ? 0 : left;
+};
+
+const getPadded = (time: number, padding: number = 2) => {
+  return time.toString().padStart(padding, '0');
+};
 
 export default class HUDManager extends Container {
 
@@ -71,7 +91,10 @@ export default class HUDManager extends Container {
 
     // Lives
     this._livesHUD = new HUDLives(
-      Constants.PLAYER_LIVES,
+      0,
+      0,
+      HEART_SIZE,
+      0,
       0,
     );
     this.addChild(this._livesHUD);
@@ -79,7 +102,7 @@ export default class HUDManager extends Container {
     // Time
     this._timeHUD = new HUDText(
       '',
-      25,
+      FONTSIZE_TIME,
       0.5,
       0,
       { textAlign: 'center' },
@@ -89,7 +112,7 @@ export default class HUDManager extends Container {
     // Players
     this._playersHUD = new HUDText(
       '',
-      25,
+      FONTSIZE_PLAYERS,
       1,
       0,
     );
@@ -98,7 +121,7 @@ export default class HUDManager extends Container {
     // Logs
     this._logsHUD = new HUDText(
       '',
-      20,
+      FONTSIZE_LOGS,
       0,
       1,
     );
@@ -107,7 +130,7 @@ export default class HUDManager extends Container {
     // FPS
     this._fpsHUD = new HUDText(
       '--',
-      25,
+      FONTSIZE_FPS,
       1,
       1,
     );
@@ -116,7 +139,7 @@ export default class HUDManager extends Container {
     // Announce
     this._announceHUD = new HUDText(
       '',
-      40,
+      FONTSIZE_ANNOUNCE,
       0.5,
       0.5,
       {
@@ -194,40 +217,40 @@ export default class HUDManager extends Container {
   }
 
   private renderLives = () => {
+    const heartSize = this._isMobile ? HEART_SIZE * MOBILE_SIZE_FACTOR : HEART_SIZE;
     this._livesHUD.position.set(HUD_PADDING, HUD_PADDING);
-    this._livesHUD.mobile = this._isMobile;
+    this._livesHUD.heartSize = heartSize;
     this._livesHUD.lives = this._lives;
     this._livesHUD.maxLives = this._maxLives;
   }
 
   private renderTime = () => {
+    this._timeHUD.style = {
+      ...this._timeHUD.style,
+      fontSize: this._isMobile
+        ? FONTSIZE_TIME * MOBILE_SIZE_FACTOR
+        : FONTSIZE_TIME,
+    };
     this._timeHUD.position.set(this._screenWidth / 2, HUD_PADDING);
-
-    const getMinutes = (seconds: number) => {
-      return Math.floor(seconds / 60);
-    };
-
-    const getSeconds = (seconds: number) => {
-      const left = Math.floor(seconds % 60);
-      return left < 0 ? 0 : left;
-    };
-
-    const getPadded = (time: number, padding: number = 2) => {
-      return time.toString().padStart(padding, '0');
-    };
 
     if (this._time <= 0) {
       this._timeHUD.text = '00:00';
       return;
+    } else {
+      const minutesLeft: number = getMinutes(this._time / 1000);
+      const secondsLeft: number = getSeconds(this._time / 1000);
+
+      this._timeHUD.text = `${getPadded(minutesLeft)}:${getPadded(secondsLeft)}`;
     }
-
-    const minutesLeft: number = getMinutes(this._time / 1000);
-    const secondsLeft: number = getSeconds(this._time / 1000);
-
-    this._timeHUD.text = `${getPadded(minutesLeft)}:${getPadded(secondsLeft)}`;
   }
 
   private renderPlayers = () => {
+    this._playersHUD.style = {
+      ...this._playersHUD.style,
+      fontSize: this._isMobile
+        ? FONTSIZE_PLAYERS * MOBILE_SIZE_FACTOR
+        : FONTSIZE_PLAYERS,
+    };
     this._playersHUD.position.set(this._screenWidth - HUD_PADDING, HUD_PADDING);
     this._playersHUD.text = `[${Object.keys(this._playersList).length}/${this._maxPlayersCount}]`;
   }
@@ -244,18 +267,28 @@ export default class HUDManager extends Container {
   }
 
   private renderAnnounce = () => {
-    this._announceHUD.position.set(this._screenWidth / 2, this._screenHeight / 2);
     this._announceHUD.style = {
       ...this._announceHUD.style,
-      wordWrapWidth: this._screenWidth,
+      fontSize: this._isMobile
+        ? FONTSIZE_ANNOUNCE * MOBILE_SIZE_FACTOR
+        : FONTSIZE_ANNOUNCE,
+      wordWrapWidth: this._screenWidth - (HUD_PADDING * 2),
       textAlign: 'center',
     };
+    this._announceHUD.position.set(this._screenWidth / 2, this._screenHeight / 2);
   }
 
   private renderFPS = () => {
+    this._fpsHUD.style = {
+      ...this._fpsHUD.style,
+      fontSize: this._isMobile
+        ? FONTSIZE_FPS * MOBILE_SIZE_FACTOR
+        : FONTSIZE_FPS,
+    };
     this._fpsHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
-    this._fpsHUD.alpha = Constants.SHOW_FPS ? 0.2 : 0;
+    this._fpsHUD.visible = Constants.DEBUG;
     this._fpsHUD.text = `${this._fps}`;
+
   }
 
   private renderTabSprite = () => {

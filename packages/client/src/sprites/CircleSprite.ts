@@ -23,6 +23,7 @@ export default class CircleSprite {
       (this._sprite as AnimatedSprite).animationSpeed = 0.1;
       (this._sprite as AnimatedSprite).play();
     }
+
     this._sprite.anchor.set(0.5);
     this._sprite.position.set(x, y);
     this._sprite.width = radius * 2;

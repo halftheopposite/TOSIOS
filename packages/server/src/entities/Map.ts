@@ -5,14 +5,12 @@ import { Rectangle } from './Rectangle';
 
 export class Map extends Schema {
 
-  public name: string;
   public width: number;
   public height: number;
 
   // Init
-  constructor(name: string, width: number, height: number) {
+  constructor(width: number, height: number) {
     super();
-    this.name = name;
     this.width = width;
     this.height = height;
   }

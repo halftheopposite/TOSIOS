@@ -6,12 +6,15 @@ import {
 import { Circle } from './Circle';
 
 const validateName = (name: string) => name.trim().slice(0, 16);
-const generateColor = () => '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
+const getRandomColor = () => '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
 
 export class Player extends Circle {
 
   @type('number')
   public lives: number;
+
+  @type('number')
+  public maxLives: number;
 
   @type('string')
   public name: string;
@@ -25,15 +28,16 @@ export class Player extends Circle {
   @type('number')
   public rotation: number;
 
-  // These properties are needed to limit rates
+  // This property is needed to limit shooting rate
   private lastShootAt: number;
 
   // Init
-  constructor(x: number, y: number, radius: number, lives: number, name: string) {
+  constructor(x: number, y: number, radius: number, lives: number, maxLives: number, name: string) {
     super(x, y, radius);
     this.lives = lives;
+    this.maxLives = maxLives;
     this.name = validateName(name);
-    this.color = generateColor();
+    this.color = getRandomColor();
     this.kills = 0;
     this.rotation = 0;
     this.lastShootAt = undefined;
@@ -55,7 +59,7 @@ export class Player extends Circle {
   }
 
   heal() {
-    this.lives = this.lives + 1;
+    this.lives += 1;
   }
 
   // Getters
@@ -64,7 +68,7 @@ export class Player extends Circle {
   }
 
   get isFullLives(): boolean {
-    return this.lives === Constants.PLAYER_LIVES;
+    return this.lives === this.maxLives;
   }
 
   get canShoot(): boolean {

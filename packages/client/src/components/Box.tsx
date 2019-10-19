@@ -1,4 +1,4 @@
-import React, { Component, CSSProperties, ReactNode } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 
 const BOX = {
   background: '#FFFFFF',
@@ -9,30 +9,23 @@ const BOX = {
   overflow: 'hidden',
 };
 
-interface IProps {
-  children: ReactNode;
+export default function (props: {
   style?: CSSProperties;
+  children: ReactNode;
+}): React.ReactElement {
+  const {
+    style,
+    children,
+  } = props;
+
+  return (
+    <div
+      style={{
+        ...BOX,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
 }
-
-class Box extends Component<IProps> {
-
-  render() {
-    const {
-      style,
-      children,
-    } = this.props;
-
-    return (
-      <div
-        style={{
-          ...BOX,
-          ...style,
-        }}
-      >
-        {children}
-      </div>
-    );
-  }
-}
-
-export default Box;

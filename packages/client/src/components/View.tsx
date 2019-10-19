@@ -9,9 +9,14 @@ const CENTER_FLEX: CSSProperties = {
   justifyContent: 'center',
 };
 
+const COLUMN_FLEX: CSSProperties = {
+  flexDirection: 'column',
+};
+
 export default function (props: {
   flex?: boolean;
   center?: boolean;
+  column?: boolean;
   children: ReactNode;
   style?: CSSProperties;
   onMouseEnter?: () => void;
@@ -21,6 +26,7 @@ export default function (props: {
   const {
     flex = false,
     center = false,
+    column = false,
     children,
     style,
     onMouseEnter,
@@ -33,6 +39,7 @@ export default function (props: {
       style={{
         ...(flex && FLEX),
         ...(center && CENTER_FLEX),
+        ...(column && COLUMN_FLEX),
         ...style,
       }}
       onMouseEnter={onMouseEnter}

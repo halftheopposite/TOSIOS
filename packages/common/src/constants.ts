@@ -4,8 +4,7 @@ export const APP_TITLE = 'TOSIOS';
 export const WS_PORT = 3001;
 export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name (no need to change)
 export const ROOM_REFRESH = 5000;
-export const SHOW_GHOST = false;
-export const SHOW_FPS = false;
+export const DEBUG = false;
 
 // Game
 export const ROOM_PLAYERS_MIN = 2;
@@ -25,7 +24,7 @@ export const TILE_SIZE = 32;
 // Player (circle)
 export const PLAYER_SIZE = 32;
 export const PLAYER_SPEED = 3;
-export const PLAYER_LIVES = 3;
+export const PLAYER_MAX_LIVES = 3;
 export const PLAYER_WEAPON_SIZE = 10;
 
 // Props (rectangle)
@@ -34,5 +33,5 @@ export const FLASKS_COUNT = 3;
 
 // Bullet (circle)
 export const BULLET_SIZE = 4;
-export const BULLET_SPEED = 15;
-export const BULLET_RATE = 300; // The bigger, the slower.
+export const BULLET_SPEED = 12;
+export const BULLET_RATE = 400; // The bigger, the slower.

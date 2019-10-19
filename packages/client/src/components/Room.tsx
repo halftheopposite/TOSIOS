@@ -1,11 +1,12 @@
 import React from 'react';
-
-import Button from './Button';
-import View from './View';
-import Space from './Space';
+import {
+  Button,
+  Space,
+  View,
+} from './';
 
 const ROOM = {
-  border: '1px solid rgba(9,30,66,.1)',
+  border: '2px solid rgba(9,30,66,.1)',
   borderRadius: 8,
   padding: 8,
   overflow: 'hidden',
@@ -48,11 +49,11 @@ export default function (props: {
       onClick={() => onClick(id)}
     >
       <View>
-        <p><b>{`Name: ${roomName || `Unknown's room`}`}</b></p>
+        <p><b>{`Name: "${roomName || `Unknown's room`}"`}</b></p>
         <Space size="xxs" />
         <p><b>{`Players: [${clients}/${maxClients}]`}</b></p>
         <Space size="xxs" />
-        <p><b>{`Map: ${roomMap}`}</b></p>
+        <p><b>{`Map: "${roomMap}"`}</b></p>
       </View>
       <Button
         type="button"

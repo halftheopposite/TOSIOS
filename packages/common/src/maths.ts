@@ -83,3 +83,15 @@ export const degreeToCardinal = (degree: number) => {
 export const reverseNumber = (num: number, min: number, max: number) => {
   return (max + min) - num;
 };
+
+/**
+ * Snap a position on a grid with TILE_SIZE cells
+ * @param pos The position to snap
+ * @param tileSize The tile size to snap to
+ */
+export const snapPosition = (pos: number, tileSize: number): number => {
+  const rest = pos % tileSize;
+  return rest < tileSize / 2
+    ? -rest
+    : tileSize - rest;
+};

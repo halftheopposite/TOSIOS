@@ -1,35 +1,61 @@
-import { Container, Sprite } from 'pixi.js';
+import { Sprite } from 'pixi.js';
 
 import { GUITextures } from '../images/textures';
+import { AnchorContainer } from './';
 
-const HEART_SIZE = 48;
-const HEART_PADDING = 16;
+export default class HUDLives extends AnchorContainer {
 
-export default class HUDLives extends Container {
-
-  private _mobile: boolean;
+  private _heartSize: number;
   private _maxLives: number;
   private _lives: number;
 
   constructor(
+    anchorX: number,
+    anchorY: number,
+    heartSize: number,
     maxLives: number,
     lives: number,
   ) {
-    super();
+    super(anchorX, anchorY);
 
-    this._mobile = false;
+    this._heartSize = heartSize;
     this._maxLives = maxLives;
     this._lives = lives;
     this.updateLives();
   }
 
+  // Methods
+  updateLives = () => {
+    this.removeChildren();
+
+    const heartSize = this._heartSize;
+    const heartPadding = this._heartSize / 3;
+
+    for (let i = 0; i < this._maxLives; i++) {
+      let sprite: Sprite;
+      if (i < this._lives) {
+        sprite = new Sprite(GUITextures.heartFullTexture);
+      } else {
+        sprite = new Sprite(GUITextures.heartEmptyTexture);
+      }
+
+      sprite.width = heartSize;
+      sprite.height = heartSize;
+      const offset = heartSize * i;
+      const padding = heartPadding * i;
+      sprite.position.set(offset + padding, 0);
+
+      this.addChild(sprite);
+    }
+  }
+
   // Setters
-  set mobile(mobile: boolean) {
-    if (this._mobile === mobile) {
+  set heartSize(heartSize: number) {
+    if (this._heartSize === heartSize) {
       return;
     }
 
-    this._mobile = mobile;
+    this._heartSize = heartSize;
     this.updateLives();
   }
 
@@ -49,43 +75,5 @@ export default class HUDLives extends Container {
 
     this._lives = lives;
     this.updateLives();
-  }
-
-  // Getters
-  get mobile() {
-    return this._mobile;
-  }
-
-  get maxLives() {
-    return this._maxLives;
-  }
-
-  get lives() {
-    return this._lives;
-  }
-
-  // Methods
-  updateLives = () => {
-    this.removeChildren();
-
-    const heartSize = this.mobile ? HEART_SIZE * 0.75 : HEART_SIZE;
-    const heartPadding = this.mobile ? HEART_PADDING / 2 : HEART_PADDING;
-
-    for (let i = 0; i < this.maxLives; i++) {
-      let sprite: Sprite;
-      if (i < this.lives) {
-        sprite = new Sprite(GUITextures.heartFullTexture);
-      } else {
-        sprite = new Sprite(GUITextures.heartEmptyTexture);
-      }
-
-      sprite.width = heartSize;
-      sprite.height = heartSize;
-      const offset = heartSize * i;
-      const padding = heartPadding * i;
-      sprite.position.set(offset + padding, 0);
-
-      this.addChild(sprite);
-    }
   }
 }

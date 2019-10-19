@@ -1,5 +1,5 @@
 import { Types } from '@tosios/common';
-import React, { Component, CSSProperties, SyntheticEvent } from 'react';
+import React, { CSSProperties, SyntheticEvent } from 'react';
 
 const SELECT: CSSProperties = {
   fontSize: 16,
@@ -13,43 +13,38 @@ const SELECT: CSSProperties = {
   maxWidth: '100%',
 };
 
-interface IProps {
+export default function (props: {
   value?: any;
   values: Types.IListItem[];
   style?: CSSProperties;
   onChange?: (event: SyntheticEvent) => void;
-}
+}): React.ReactElement {
+  const {
+    value,
+    values = [],
+    style,
+    onChange,
+  } = props;
 
-export default class Select extends Component<IProps> {
+  const list = values.map(item => (
+    <option
+      key={item.value}
+      value={item.value}
+    >
+      {item.title}
+    </option>
+  ));
 
-  render() {
-    const {
-      value,
-      values = [],
-      style,
-      onChange,
-    } = this.props;
-
-    const list = values.map(item => (
-      <option
-        key={item.value}
-        value={item.value}
-      >
-        {item.title}
-      </option>
-    ));
-
-    return (
-      <select
-        style={{
-          ...SELECT,
-          ...style,
-        }}
-        value={value}
-        onChange={onChange}
-      >
-        {list}
-      </select>
-    );
-  }
+  return (
+    <select
+      style={{
+        ...SELECT,
+        ...style,
+      }}
+      value={value}
+      onChange={onChange}
+    >
+      {list}
+    </select>
+  );
 }
