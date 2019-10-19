@@ -41,8 +41,8 @@ export default class Home extends Component<IProps, IState> {
     rooms: [],
     timer: null,
     roomName: localStorage.getItem('roomName') || '',
-    roomMap: Maps.List[0].value,
-    roomMaxPlayers: Maps.Players[0].value,
+    roomMap: Maps.List[1].value,
+    roomMaxPlayers: Maps.Players[1].value,
   };
 
   private client?: Client;
