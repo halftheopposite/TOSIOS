@@ -82,7 +82,7 @@ export class DMState extends Schema {
   // UPDATES
   update() {
     this.updateGame();
-    this.updatePlayers();
+    this.updateActions();
     this.updateBullets();
   }
 
@@ -146,29 +146,24 @@ export class DMState extends Schema {
     }
   }
 
-  private updatePlayers() {
+  private updateActions() {
     let action: Types.IAction;
-    let player: Player;
 
     while (this.actionsLog.length > 0) {
       action = this.actionsLog.shift();
-      player = this.players[action.playerId];
-      if (!player) {
-        continue;
-      }
 
       switch (action.type) {
         case 'name': {
           this.playerName(action.playerId, action.value);
         } break;
         case 'move': {
-          this.playerMove(action.playerId, action.value);
+          this.playerMove(action.playerId, action.ts, action.value);
         } break;
         case 'rotate': {
-          this.playerRotate(action.playerId, action.value.rotation);
+          this.playerRotate(action.playerId, action.ts, action.value.rotation);
         } break;
         case 'shoot': {
-          this.playerShoot(action.playerId, action.value.angle);
+          this.playerShoot(action.playerId, action.ts, action.value.angle);
         } break;
       }
     }
@@ -222,7 +217,7 @@ export class DMState extends Schema {
     player.setName(name);
   }
 
-  private playerMove(id: string, dir: Geometry.Vector) {
+  private playerMove(id: string, ts: number, dir: Geometry.Vector) {
     const player: Player = this.players[id];
     if (!player || dir.empty) {
       return;
@@ -263,7 +258,7 @@ export class DMState extends Schema {
     }
   }
 
-  private playerRotate(id: string, rotation: number) {
+  private playerRotate(id: string, ts: number, rotation: number) {
     const player: Player = this.players[id];
     if (!player) {
       return;
@@ -272,11 +267,18 @@ export class DMState extends Schema {
     player.setRotation(rotation);
   }
 
-  private playerShoot(id: string, angle: number) {
+  private playerShoot(id: string, ts: number, angle: number) {
     const player: Player = this.players[id];
-    if (!player || !player.canShoot || this.game.state !== 'game') {
+    if (!player || !player.isAlive || this.game.state !== 'game') {
       return;
     }
+
+    // Check if player can shoot
+    const delta = ts - player.lastShootAt;
+    if (player.lastShootAt && delta < Constants.BULLET_RATE) {
+      return;
+    }
+    player.lastShootAt = ts;
 
     // Make the bullet start at the staff
     const bulletX = player.x + Math.cos(angle) * Constants.PLAYER_WEAPON_SIZE;

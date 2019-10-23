@@ -247,6 +247,7 @@ export default class GameManager {
 
     this.onActionSend({
       type: 'move',
+      ts: Date.now(),
       value: {
         x: dir.x,
         y: dir.y,
@@ -290,6 +291,7 @@ export default class GameManager {
         this.me.rotation = rotation;
         this.onActionSend({
           type: 'rotate',
+          ts: Date.now(),
           value: {
             rotation,
           },
@@ -301,6 +303,7 @@ export default class GameManager {
         this.me.rotation = this.forcedRotation;
         this.onActionSend({
           type: 'rotate',
+          ts: Date.now(),
           value: {
             rotation: this.forcedRotation,
           },
@@ -329,6 +332,7 @@ export default class GameManager {
     );
     this.onActionSend({
       type: 'shoot',
+      ts: Date.now(),
       value: {
         angle: this.me.rotation,
       },

@@ -1,8 +1,5 @@
 import { type } from '@colyseus/schema';
-import {
-  Constants,
-  Maths,
-} from '@tosios/common';
+import { Maths } from '@tosios/common';
 import { Circle } from './Circle';
 
 const validateName = (name: string) => name.trim().slice(0, 16);
@@ -29,7 +26,7 @@ export class Player extends Circle {
   public rotation: number;
 
   // This property is needed to limit shooting rate
-  private lastShootAt: number;
+  public lastShootAt: number;
 
   // Init
   constructor(x: number, y: number, radius: number, lives: number, maxLives: number, name: string) {
@@ -69,20 +66,6 @@ export class Player extends Circle {
 
   get isFullLives(): boolean {
     return this.lives === this.maxLives;
-  }
-
-  get canShoot(): boolean {
-    if (!this.isAlive) {
-      return false;
-    }
-
-    const now: number = Date.now();
-    if (this.lastShootAt && (now - this.lastShootAt) < Constants.BULLET_RATE) {
-      return false;
-    }
-
-    this.lastShootAt = now;
-    return true;
   }
 
   // Setters

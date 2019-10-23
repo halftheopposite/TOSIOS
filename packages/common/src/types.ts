@@ -13,7 +13,7 @@ export type MapNameType = 'small' | 'long' | 'big';
 
 export interface IAction {
   playerId?: string;
-  ts?: number;
+  ts: number;
   type: ActionType;
   value: any;
 }
