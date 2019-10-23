@@ -173,6 +173,7 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 * ~Implement a R-Tree for performances.~ DONE
 * Add players spawner object instead of randomized points.
 * Add a Team Death Match mode.
+* Add a force shield to deflect bullets.
 * Add some monsters that attack all players.
 * Add support for JSON TMX format (Tiled).
 
