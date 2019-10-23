@@ -53,6 +53,7 @@ export class DMRoom extends Room<DMState> {
         this.state.playerAddAction({
           playerId,
           ...data,
+          ts: Date.now(),
         });
         break;
       default:
