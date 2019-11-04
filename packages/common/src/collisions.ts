@@ -218,6 +218,10 @@ export class TreeCollider extends RBush {
     const updatedBody: RectangleBody = body.copy();
     const leafBody = new RectangleBody(0, 0, 0, 0);
     for (const wall of leaves) {
+      if (wall.collider !== 'full') {
+        continue;
+      }
+
       leafBody.x = wall.minX;
       leafBody.y = wall.minY;
       leafBody.width = wall.maxX - wall.minX;
@@ -253,6 +257,10 @@ export class TreeCollider extends RBush {
     const updatedBody: CircleBody = body.copy();
     const leafBody = new RectangleBody(0, 0, 0, 0);
     for (const wall of leaves) {
+      if (wall.collider !== 'full') {
+        continue;
+      }
+
       leafBody.x = wall.minX;
       leafBody.y = wall.minY;
       leafBody.width = wall.maxX - wall.minX;
@@ -276,5 +284,19 @@ export class TreeCollider extends RBush {
     }
 
     return updatedBody;
+  }
+
+  // Getters
+  getAllByType(type: number): RectangleBody[] {
+    const walls = this.all();
+    const filtered = walls.filter((wall: any) => wall.type === type);
+    const mapped = filtered.map((wall: any) => new RectangleBody(
+      wall.minX,
+      wall.minY,
+      wall.maxX,
+      wall.maxY,
+    ));
+
+    return mapped;
   }
 }

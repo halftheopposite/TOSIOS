@@ -184,15 +184,14 @@ export default class GameManager {
       ));
 
       // Collision
-      if (wall.collider === 'full') {
-        this.wallsTree.insert({
-          minX: wall.x,
-          minY: wall.y,
-          maxX: wall.x + wall.width,
-          maxY: wall.y + wall.height,
-          type: wall.type,
-        });
-      }
+      this.wallsTree.insert({
+        minX: wall.x,
+        minY: wall.y,
+        maxX: wall.x + wall.width,
+        maxY: wall.y + wall.height,
+        type: wall.type,
+        collider: wall.collider,
+      });
     });
   }
 
