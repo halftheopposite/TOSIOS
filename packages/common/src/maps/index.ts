@@ -54,6 +54,7 @@ export const parseByName = (name: Types.MapNameType): {
           width: Constants.TILE_SIZE,
           height: Constants.TILE_SIZE,
           type: col,
+          collider: col === 12 ? 'none' : 'full',
         });
       }
       x += Constants.TILE_SIZE;

@@ -65,13 +65,15 @@ export class DMState extends Schema {
     // Create a R-Tree for walls
     this.walls = new Collisions.TreeCollider();
     walls.forEach(wall => {
-      this.walls.insert({
-        minX: wall.x,
-        minY: wall.y,
-        maxX: wall.x + wall.width,
-        maxY: wall.y + wall.height,
-        type: wall.type,
-      });
+      if (wall.collider === 'full') {
+        this.walls.insert({
+          minX: wall.x,
+          minY: wall.y,
+          maxX: wall.x + wall.width,
+          maxY: wall.y + wall.height,
+          type: wall.type,
+        });
+      }
     });
 
     // Callback

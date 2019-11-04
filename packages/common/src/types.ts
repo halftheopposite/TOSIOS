@@ -10,6 +10,7 @@ export type GameState = 'waiting' | 'lobby' | 'game';
 export type MessageType = 'waiting' | 'start' | 'stop' | 'joined' | 'killed' | 'won' | 'left';
 export type PropType = 'potion-red';
 export type MapNameType = 'small' | 'long' | 'big';
+export type WallCollisionType = 'full' | 'none';
 
 export interface IAction {
   playerId?: string;
@@ -35,4 +36,5 @@ export interface IWall {
   width: number;
   height: number;
   type: number;
+  collider: WallCollisionType;
 }

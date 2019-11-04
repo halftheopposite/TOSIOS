@@ -14,6 +14,7 @@ import centerTopRight1 from './center-top-right-1.png';
 import centerTopRight2 from './center-top-right-2.png';
 import doorLeft1 from './door-left-1.png';
 import doorRight1 from './door-right-1.png';
+import ladder1 from './ladder-1.png';
 import left1 from './left-1.png';
 import right1 from './right-1.png';
 import top1 from './top-1.png';
@@ -54,6 +55,9 @@ const top1Texture = Texture.from(top1);
 const top2Texture = Texture.from(top2);
 const top3Texture = Texture.from(top3);
 
+// Ladder
+const ladder1Texture = Texture.from(ladder1);
+
 export {
   bottom1Texture,
   bottom2Texture,
@@ -66,6 +70,7 @@ export {
   centerTopRight2Texture,
   doorLeft1Texture,
   doorRight1Texture,
+  ladder1Texture,
   left1Texture,
   right1Texture,
   top1Texture,
