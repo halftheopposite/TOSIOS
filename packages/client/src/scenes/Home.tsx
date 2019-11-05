@@ -10,6 +10,7 @@ import {
   Box,
   Button,
   GitHub,
+  Inline,
   Input,
   Room,
   Select,
@@ -17,6 +18,7 @@ import {
   Space,
   View,
 } from '../components';
+import playerImage from '../images/textures/player/player-idle-2.png';
 
 interface IProps extends RouteComponentProps {
 }
@@ -180,7 +182,11 @@ export default class Home extends Component<IProps, IState> {
           maxWidth: '100%',
         }}
       >
-        <p>Pick your name:</p>
+        <View flex={true}>
+          <img src={playerImage} width={30} />
+          <Inline size="thin" />
+          <p>Pick your name:</p>
+        </View>
         <Space size="xs" />
         <Input
           value={this.state.playerName}
@@ -210,8 +216,6 @@ export default class Home extends Component<IProps, IState> {
           maxWidth: '100%',
         }}
       >
-        <p>Create or select a room:</p>
-        <Space size="xs" />
         {this.renderNewRoom()}
         <Space size="xxs" />
         <Separator />

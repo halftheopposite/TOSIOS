@@ -14,6 +14,7 @@ const WALLS: { [key: string]: Texture | Texture[] } = {
   doorLeft: WallTextures.doorLeft1Texture,
   doorRight: WallTextures.doorRight1Texture,
   candleStick: WallTextures.candleStickTextures,
+  ladder: WallTextures.ladder1Texture,
 };
 
 const getTexture = (type: number): {
@@ -42,6 +43,8 @@ const getTexture = (type: number): {
       return { single: WALLS.doorRight };
     case 11:
       return { array: WALLS.candleStick };
+    case 12:
+      return { single: WALLS.ladder };
     default:
       return { single: WALLS.bottom };
   }

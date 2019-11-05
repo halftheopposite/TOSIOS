@@ -1,4 +1,5 @@
 import React from 'react';
+import { isMobile } from 'react-device-detect';
 import {
   Button,
   Space,
@@ -42,6 +43,7 @@ export default function (props: {
     <View
       style={{
         ...ROOM,
+        flexDirection: isMobile ? 'column' : 'row',
         ...(hovered && ROOM_HOVERED),
       }}
       onMouseEnter={() => setHovered(true)}
@@ -55,9 +57,13 @@ export default function (props: {
         <Space size="xxs" />
         <p><b>{`Map: "${roomMap}"`}</b></p>
       </View>
+      {isMobile && <Space size="xs" />}
       <Button
         type="button"
-        style={{ marginLeft: 'auto', width: 'fit-content' }}
+        style={{
+          marginLeft: 'auto',
+          width: isMobile ? '100%' : 'fit-content',
+        }}
       >
         Join
       </Button>

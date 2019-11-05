@@ -71,6 +71,7 @@ export class DMState extends Schema {
         maxX: wall.x + wall.width,
         maxY: wall.y + wall.height,
         type: wall.type,
+        collider: wall.collider,
       });
     });
 
@@ -177,24 +178,21 @@ export class DMState extends Schema {
 
 
   // PLAYERS: single
+  getRandomSpawner(): Geometry.RectangleBody {
+    const spawners: Geometry.RectangleBody[] = this.walls.getAllByType(12);
+    return spawners[Maths.getRandomInt(spawners.length)];
+  }
+
   playerAdd(id: string, name: string) {
+    const spawner = this.getRandomSpawner();
     const player = new Player(
-      Maths.getRandomInt(this.map.width - Constants.PLAYER_SIZE),
-      Maths.getRandomInt(this.map.height - Constants.PLAYER_SIZE),
+      spawner.x + Constants.PLAYER_SIZE / 2,
+      spawner.y + Constants.PLAYER_SIZE / 2,
       Constants.PLAYER_SIZE / 2,
       0,
       Constants.PLAYER_MAX_LIVES,
       name || id,
     );
-
-    // Generate a random snapped position
-    while (this.walls.collidesWithCircle(player.body)) {
-      player.x = Maths.getRandomInt(this.map.width - Constants.PLAYER_SIZE);
-      player.y = Maths.getRandomInt(this.map.height - Constants.PLAYER_SIZE);
-    }
-
-    player.x += Maths.snapPosition(player.body.left, Constants.TILE_SIZE);
-    player.y += Maths.snapPosition(player.body.top, Constants.TILE_SIZE);
 
     this.players[id] = player;
 

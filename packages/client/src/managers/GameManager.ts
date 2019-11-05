@@ -190,6 +190,7 @@ export default class GameManager {
         maxX: wall.x + wall.width,
         maxY: wall.y + wall.height,
         type: wall.type,
+        collider: wall.collider,
       });
     });
   }
