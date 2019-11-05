@@ -39,7 +39,7 @@ You can see a very small amount of gameplay below (the framerate of this GIF is 
 
 You can build this game yourself easily if you are experienced with modern javascript development or Docker.
 
-### Docker Compose
+### Docker Compose 🐋
 
 The easiest way to run the game is to use the `docker-compose.yml` file with the following command `docker-compose up -d`.
 
@@ -47,7 +47,7 @@ The `up` option will download the image if you don't have it yet and run the con
 
 The `-d` option will run the container in the background.
 
-### Docker
+### Docker 🐋
 
 You can also build the Docker image yourself:
 
@@ -116,6 +116,7 @@ When creating a map each number represents a specific wall sprite that will be d
 * `9` for a left door
 * `10` for a right door
 * `11` for a torch
+* `12` for a ladder (player spawner)
 
 Example:
 
@@ -171,10 +172,10 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 * ~Add visual feedback when a player gets hit.~ DONE
 * ~Add smoother bullets.~ DONE
 * ~Implement a R-Tree for performances.~ DONE
-* Add players spawner object instead of randomized points.
+* ~Add players spawner object instead of randomized points.~ DONE
 * Add a Team Death Match mode.
 * Add a force shield to deflect bullets.
-* Add some monsters that attack all players.
+* Add some monsters that attack players.
 * Add support for JSON TMX format (Tiled).
 
 ## Special thanks
