@@ -1,5 +1,5 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Maps, Types } from '@tosios/common';
+import { Constants, Types } from '@tosios/common';
 import { Client } from 'colyseus.js';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
@@ -43,8 +43,8 @@ export default class Home extends Component<IProps, IState> {
     rooms: [],
     timer: null,
     roomName: localStorage.getItem('roomName') || '',
-    roomMap: Maps.List[1].value,
-    roomMaxPlayers: Maps.Players[1].value,
+    roomMap: Types.Maps[0].value,
+    roomMaxPlayers: Types.Players[1].value,
   };
 
   private client?: Client;
@@ -183,7 +183,7 @@ export default class Home extends Component<IProps, IState> {
         }}
       >
         <View flex={true}>
-          <img src={playerImage} width={30} />
+          <img src={playerImage} alt="player" width={30} />
           <Inline size="thin" />
           <p>Pick your name:</p>
         </View>
@@ -266,7 +266,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMap}
-              values={Maps.List}
+              values={Types.Maps}
               onChange={(event: any) => this.setState({ roomMap: event.target.value })}
             />
             <Space size="s" />
@@ -276,7 +276,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMaxPlayers}
-              values={Maps.Players}
+              values={Types.Players}
               onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
             />
             <Space size="s" />
@@ -325,7 +325,7 @@ export default class Home extends Component<IProps, IState> {
     }
 
     return rooms.map(({ roomId, metadata, clients, maxClients }, index) => {
-      const map = Maps.List.find(item => item.value === metadata.roomMap);
+      const map = Types.Maps.find(item => item.value === metadata.roomMap);
       const mapName = map ? map.title : metadata.roomMap;
 
       return (

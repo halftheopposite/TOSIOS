@@ -2,8 +2,8 @@ import {
   Collisions,
   Constants,
   Geometry,
-  Maps,
   Maths,
+  Tiled,
   Types,
 } from '@tosios/common';
 import { Emitter } from 'pixi-particles';
@@ -163,35 +163,54 @@ export default class GameManager {
 
   // METHODS
   private initializeMap = (mapName: Types.MapNameType) => {
+    if (this.mapName) {
+      return;
+    }
+
     this.mapName = mapName;
 
     // Parse the selected map
-    const { walls, width, height } = Maps.parseByName(mapName);
+    const map = new Tiled.Map('gigantic', 2);
+    const width = map.widthInPixels;
+    const height = map.heightInPixels;
+    const collisions = map.collisions;
+    const layers = map.layers;
 
     // Dimensions
     this.groundManager.dimensions = { width, height };
     this.mapManager.dimensions = { width, height };
 
-    // Walls
-    walls.forEach((wall, index) => {
-      // Sprite
-      this.mapManager.add(`${index}`, new Wall(
-        wall.x,
-        wall.y,
-        wall.width,
-        wall.height,
-        wall.type,
-      ));
+    // Tiles
+    // 0. Create PIXI Spritesheet (ex: Sprites.get(id: string): AnimatedSprite/Sprite)
+    // 1. Iterate over objects in layers
+    // 2. Create new PIXI.Container to contain layers
+    // 3. Add a new PIXI.Container for each layer
+    // 4. Iterate over the tiles
 
-      // Collision
-      this.wallsTree.insert({
-        minX: wall.x,
-        minY: wall.y,
-        maxX: wall.x + wall.width,
-        maxY: wall.y + wall.height,
-        type: wall.type,
-        collider: wall.collider,
-      });
+    // Collisions
+    collisions.forEach((wall) => {
+      if (wall.tileId > 0) {
+        this.wallsTree.insert({
+          minX: wall.minX,
+          minY: wall.minY,
+          maxX: wall.maxX,
+          maxY: wall.maxY,
+          collider: 'full',
+        });
+      }
+    });
+
+    // Layers
+    collisions.forEach((wall, index) => {
+      if (wall.tileId > 0) {
+        this.mapManager.add(`${index}`, new Wall(
+          wall.minX,
+          wall.minY,
+          wall.maxX - wall.minX,
+          wall.maxY - wall.minY,
+          4,
+        ));
+      }
     });
   }
 

@@ -9,7 +9,7 @@ export type ActionType = 'move' | 'rotate' | 'name' | 'shoot';
 export type GameState = 'waiting' | 'lobby' | 'game';
 export type MessageType = 'waiting' | 'start' | 'stop' | 'joined' | 'killed' | 'won' | 'left';
 export type PropType = 'potion-red';
-export type MapNameType = 'small' | 'long' | 'big';
+export type MapNameType = 'gigantic';
 export type WallCollisionType = 'full' | 'none';
 
 export interface IAction {
@@ -38,3 +38,14 @@ export interface IWall {
   type: number;
   collider: WallCollisionType;
 }
+
+export const Maps: IListItem[] = [
+  { value: 'gigantic', title: 'Gigantic' },
+];
+
+export const Players: IListItem[] = [
+  { value: 2, title: '2 players' },
+  { value: 4, title: '4 players' },
+  { value: 8, title: '8 players' },
+  { value: 16, title: '16 players' },
+];
