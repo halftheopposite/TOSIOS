@@ -1,34 +1,16 @@
-import {
-  Collisions,
-  Constants,
-  Geometry,
-  Maths,
-  Tiled,
-  Types,
-} from '@tosios/common';
+import { Collisions, Constants, Geometry, Maths, Tiled, Types, Maps } from '@tosios/common';
 import { Emitter } from 'pixi-particles';
 import { Viewport } from 'pixi-viewport';
 import { Application, utils } from 'pixi.js';
-
-import {
-  Player,
-  Prop,
-  Wall,
-} from '../entities';
+import { Player, Prop } from '../entities';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
-import {
-  BulletsManager,
-  GroundManager,
-  HUDManager,
-  MapManager,
-  PlayersManager,
-  PropsManager,
-} from './';
+import { SpriteSheets } from '../images/maps';
+import { getSpritesLayer, getTextures } from '../tiled';
+import { BulletsManager, HUDManager, MapManager, PlayersManager, PropsManager } from './';
 
 // These two constants should be calculated automatically.
-// They are actually used to interpolate movements of other players
-// between two points.
+// They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
 
@@ -61,8 +43,7 @@ export default class GameManager {
   private app: Application;
   private viewport: Viewport;
   private hudManager: HUDManager;
-  private mapManager: MapManager;
-  private groundManager: GroundManager;
+  private mapManager: MapManager = new MapManager();
   private bulletsManager: BulletsManager;
   private propsManager: PropsManager;
   private playersManager: PlayersManager;
@@ -116,16 +97,6 @@ export default class GameManager {
     );
     this.app.stage.addChild(this.hudManager);
 
-    // Ground
-    this.groundManager = new GroundManager();
-    this.groundManager.zIndex = 0;
-    this.viewport.addChild(this.groundManager);
-
-    // Map
-    this.mapManager = new MapManager();
-    this.mapManager.zIndex = 1;
-    this.viewport.addChild(this.mapManager);
-
     // Props
     this.propsManager = new PropsManager();
     this.propsManager.zIndex = 2;
@@ -170,25 +141,14 @@ export default class GameManager {
     this.mapName = mapName;
 
     // Parse the selected map
-    const map = new Tiled.Map('gigantic', 2);
-    const width = map.widthInPixels;
-    const height = map.heightInPixels;
-    const collisions = map.collisions;
-    const layers = map.layers;
+    const data = Maps.List[this.mapName];
+    const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
-    // Dimensions
-    this.groundManager.dimensions = { width, height };
-    this.mapManager.dimensions = { width, height };
-
-    // Tiles
-    // 0. Create PIXI Spritesheet (ex: Sprites.get(id: string): AnimatedSprite/Sprite)
-    // 1. Iterate over objects in layers
-    // 2. Create new PIXI.Container to contain layers
-    // 3. Add a new PIXI.Container for each layer
-    // 4. Iterate over the tiles
+    // Set the map boundaries
+    this.mapManager.setDimensions(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
     // Collisions
-    collisions.forEach((wall) => {
+    tiledMap.collisions.forEach((wall) => {
       if (wall.tileId > 0) {
         this.wallsTree.insert({
           minX: wall.minX,
@@ -200,18 +160,13 @@ export default class GameManager {
       }
     });
 
+    // Textures
+    const texturePath = SpriteSheets[tiledMap.imageName];
+    const textures = getTextures(texturePath, tiledMap.tilesets);
+
     // Layers
-    collisions.forEach((wall, index) => {
-      if (wall.tileId > 0) {
-        this.mapManager.add(`${index}`, new Wall(
-          wall.minX,
-          wall.minY,
-          wall.maxX - wall.minX,
-          wall.maxY - wall.minY,
-          4,
-        ));
-      }
-    });
+    const container = getSpritesLayer(textures, tiledMap.layers);
+    this.viewport.addChild(container);
   }
 
   private update = () => {

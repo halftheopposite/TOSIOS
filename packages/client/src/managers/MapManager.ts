@@ -1,15 +1,11 @@
 import { Geometry, Maths } from '@tosios/common';
-import { Wall } from '../entities';
-import { ManagerContainer } from './ManagerContainer';
 
-export default class MapManager extends ManagerContainer<Wall> {
+export default class MapManager {
 
   public width: number;
   public height: number;
 
   constructor(width: number = 0, height: number = 0) {
-    super('MAP');
-
     this.width = width;
     this.height = height;
   }
@@ -43,8 +39,7 @@ export default class MapManager extends ManagerContainer<Wall> {
 
 
   // Setters
-  set dimensions(dimensions: { width: number, height: number }) {
-    const { width, height } = dimensions;
+  setDimensions(width: number, height: number) {
     this.width = width;
     this.height = height;
   }

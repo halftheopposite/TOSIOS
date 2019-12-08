@@ -1,18 +1,11 @@
-import gigantic from './gigantic.json';
 import { Tiled } from './types.js';
 
-const Maps: {
-  [key: string]: Tiled.IMap;
-} = {
-  gigantic,
-};
-
-interface ISpriteLayer {
+export interface ISpriteLayer {
   name: string;
   tiles: ITile[];
 }
 
-interface ITile {
+export interface ITile {
   tileId: number;
   minX: number;
   minY: number;
@@ -30,16 +23,15 @@ export class Map {
   private tileHeightPixels: number; // Height in pixels
   private mapWidthUnits: number; // Width in units
   private mapHeightUnits: number; // Height in units
-  private scale: number; // The scale to apply to pixels (default is 1)
-  private imageName?: string; // The image to slice up
+  private tileSize: number; // The tile size to apply in layers
+  public imageName: string = ''; // The image to slice up
 
   // Collisions
-  public tilesets: { [key: number]: ITile } = {};
+  public tilesets: ITile[] = [];
   public collisions: ITile[] = [];
-  public layers: { [key: string]: ISpriteLayer } = {};
+  public layers: ISpriteLayer[] = [];
 
-  constructor(mapName: string, scale: number = 1) {
-    const data: Tiled.IMap = Maps[mapName];
+  constructor(data: Tiled.IMap, desiredTileSize: number) {
     if (!data) {
       throw Error('Map does not exist');
     }
@@ -48,7 +40,7 @@ export class Map {
     this.tileHeightPixels = data.tileheight;
     this.mapWidthUnits = data.width;
     this.mapHeightUnits = data.height;
-    this.scale = scale;
+    this.tileSize = desiredTileSize;
 
     this.computeTileSets(data.tilesets);
     this.computeCollisions(data.layers);
@@ -79,13 +71,13 @@ export class Map {
       x = col * tileWidth;
       y = row * tileHeight;
 
-      this.tilesets[i] = {
-        tileId: i,
+      this.tilesets.push({
+        tileId: i + foundTileset.firstgid,
         minX: x,
         minY: y,
         maxX: x + tileWidth,
         maxY: y + tileHeight,
-      };
+      });
 
       col++;
 
@@ -110,15 +102,11 @@ export class Map {
       return;
     }
 
-    layers.map((layer, index) => {
-      if (layer.name === 'collisions') {
-        return;
-      }
-
-      this.layers[index] = {
+    layers.map((layer) => {
+      this.layers.push({
         name: layer.name,
         tiles: this.parseLayer(layer.data),
-      };
+      });
     });
   }
 
@@ -127,26 +115,28 @@ export class Map {
       return [];
     }
 
-    let tile: ITile;
     let col = 0;
     let row = 0;
     let x = 0;
     let y = 0;
-    const tileWidth = this.tileWidthPixels * this.scale;
-    const tileHeight = this.tileHeightPixels * this.scale;
+    const tileWidth = this.tileSize;
+    const tileHeight = this.tileSize;
 
-    return data.map(tileId => {
-      x = col * tileWidth;
-      y = row * tileHeight;
+    const tiles: ITile[] = [];
+    data.map(tileId => {
+      if (tileId !== 0) {
+        x = col * tileWidth;
+        y = row * tileHeight;
 
-      // Set the tile
-      tile = {
-        tileId,
-        minX: x,
-        minY: y,
-        maxX: x + tileWidth,
-        maxY: y + tileHeight,
-      };
+        // Set the tile
+        tiles.push({
+          tileId,
+          minX: x,
+          minY: y,
+          maxX: x + tileWidth,
+          maxY: y + tileHeight,
+        });
+      }
 
       col++;
 
@@ -154,9 +144,8 @@ export class Map {
         col = 0;
         row++;
       }
-
-      return tile;
     });
+    return tiles;
   }
 
   // Getters
@@ -169,10 +158,10 @@ export class Map {
   }
 
   get widthInPixels() {
-    return this.mapWidthUnits * this.tileWidthPixels * this.scale;
+    return this.mapWidthUnits * this.tileSize;
   }
 
   get heightInPixels() {
-    return this.mapHeightUnits * this.tileHeightPixels * this.scale;
+    return this.mapHeightUnits * this.tileSize;
   }
 }

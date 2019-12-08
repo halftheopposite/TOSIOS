@@ -8,6 +8,7 @@ import {
   Collisions,
   Constants,
   Geometry,
+  Maps,
   Maths,
   Tiled,
   Types,
@@ -60,17 +61,15 @@ export class DMState extends Schema {
     );
 
     // Map
-    const map = new Tiled.Map('gigantic', 2);
-    const width = map.widthInPixels;
-    const height = map.heightInPixels;
-    const collisions = map.collisions;
+    const data = Maps.List[mapName];
+    const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
     // Set the map boundaries
-    this.map = new Map(width, height);
+    this.map = new Map(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
     // Create a R-Tree for walls
     this.wallsTree = new Collisions.TreeCollider();
-    collisions.forEach(tile => {
+    tiledMap.collisions.forEach(tile => {
       if (tile.tileId > 0) {
         this.wallsTree.insert({
           minX: tile.minX,
@@ -82,8 +81,8 @@ export class DMState extends Schema {
       }
     });
 
-    // TODO: Spawners
-    this.spawners.push(new Geometry.RectangleBody(32, 32, 32, 32));
+    // TODO: Spawners should be returned from Tiled
+    this.spawners.push(new Geometry.RectangleBody(600, 600, 32, 32));
 
     // Callback
     this.onMessage = onMessage;
