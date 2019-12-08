@@ -1,13 +1,16 @@
-import { Collisions, Constants, Geometry, Maths, Tiled, Types, Maps } from '@tosios/common';
+import { Collisions, Constants, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
 import { Emitter } from 'pixi-particles';
 import { Viewport } from 'pixi-viewport';
-import { Application, utils } from 'pixi.js';
+import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { Player, Prop } from '../entities';
+import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
-import { SpriteSheets } from '../images/maps';
 import { getSpritesLayer, getTextures } from '../tiled';
 import { BulletsManager, HUDManager, MapManager, PlayersManager, PropsManager } from './';
+
+// We don't want to scale textures linearly because they would appear blurry.
+settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
 // These two constants should be calculated automatically.
 // They are used to interpolate movements of other players for smoothness.
