@@ -28,7 +28,7 @@ export namespace Tiled {
   }
 
   export interface ITile {
-    tileid: number;
+    id: number;
     animation?: ITileAnimFrame[];
     objectgroup?: ITileObjectGroup;
   }

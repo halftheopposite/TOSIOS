@@ -7,6 +7,7 @@ export interface ISpriteLayer {
 
 export interface ITile {
   tileId: number;
+  tileIds?: number[]; // Used for animated tiles
   minX: number;
   minY: number;
   maxX: number;
@@ -31,6 +32,7 @@ export class Map {
   public collisions: ITile[] = [];
   public layers: ISpriteLayer[] = [];
 
+  // Constructor
   constructor(data: Tiled.IMap, desiredTileSize: number) {
     if (!data) {
       throw Error('Map does not exist');
@@ -55,14 +57,14 @@ export class Map {
 
     // We only take the first tileset
     const foundTileset = tilesets[0];
-
-    // The path to the image
+    const offset = foundTileset.firstgid;
     this.imageName = foundTileset.image;
+
+    // Compute the position of each sprite into the image
     const tileWidth = foundTileset.tilewidth;
     const tileHeight = foundTileset.tileheight;
     const imageWidthInUnits = foundTileset.imagewidth / tileWidth;
 
-    // Compute the position of each sprite into the image
     let col = 0;
     let row = 0;
     let x;
@@ -72,7 +74,7 @@ export class Map {
       y = row * tileHeight;
 
       this.tilesets.push({
-        tileId: i + foundTileset.firstgid,
+        tileId: i + offset,
         minX: x,
         minY: y,
         maxX: x + tileWidth,
@@ -86,6 +88,20 @@ export class Map {
         row++;
       }
     }
+
+    // Compute animated tiles
+    foundTileset.tiles.forEach(tile => {
+      if (tile.animation && tile.animation.length > 0) {
+        const animationId = tile.id + offset;
+
+        // We look for the already existing tile
+        const index = this.tilesets.findIndex(item => item.tileId === animationId);
+        if (index !== -1) {
+          // We set our array of frames on our tile
+          this.tilesets[index].tileIds = tile.animation.map(frame => frame.tileid + offset);
+        }
+      }
+    });
   }
 
   private computeCollisions(layers: Tiled.ILayer[]) {

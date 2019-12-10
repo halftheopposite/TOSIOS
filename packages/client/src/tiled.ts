@@ -2,27 +2,48 @@ import { Constants, Tiled } from '@tosios/common';
 import { BaseTexture, Container, Rectangle, Texture } from 'pixi.js';
 import { RectangleSprite } from './sprites';
 
-export const getTextures = (texturePath: string, tiles: Tiled.ITile[]) => {
-  const baseTexture = BaseTexture.from(texturePath);
+interface ITilesSet {
+  [tileId: number]: {
+    single: Texture;
+    multiple?: Texture[];
+  };
+}
 
-  const textures: { [tileId: number]: Texture } = {};
+export const getTextures = (
+  texturePath: string,
+  tiles: Tiled.ITile[],
+): ITilesSet => {
+  const baseTexture = BaseTexture.from(texturePath);
+  const result: ITilesSet = {};
+
+  // We first compute all frames individually
   tiles.forEach(tile => {
-    textures[tile.tileId] = new Texture(
-      baseTexture,
-      new Rectangle(
-        tile.minX,
-        tile.minY,
-        tile.maxX - tile.minX,
-        tile.maxY - tile.minY,
+    result[tile.tileId] = {
+      single: new Texture(
+        baseTexture,
+        new Rectangle(
+          tile.minX,
+          tile.minY,
+          tile.maxX - tile.minX,
+          tile.maxY - tile.minY,
+        ),
       ),
-    );
+    };
   });
 
-  return textures;
+  // We then compute animation
+  tiles.forEach(tile => {
+    if (tile.tileIds) {
+      const animation = tile.tileIds.map(frameId => result[frameId].single);
+      result[tile.tileId].multiple = animation;
+    }
+  });
+
+  return result;
 };
 
 export const getSpritesLayer = (
-  tileset: { [tileId: number]: Texture; },
+  tilesSet: ITilesSet,
   layers: Tiled.ISpriteLayer[],
 ): Container => {
   const container = new Container();
@@ -44,7 +65,10 @@ export const getSpritesLayer = (
         tile.maxY - tile.minY,
         0,
         {
-          single: tileset[tile.tileId],
+          ...(tilesSet[tile.tileId].multiple
+            ? { array: tilesSet[tile.tileId].multiple }
+            : { single: tilesSet[tile.tileId].single }
+          ),
         },
       );
 
