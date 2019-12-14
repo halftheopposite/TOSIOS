@@ -1,4 +1,3 @@
-import { Types } from '@tosios/common';
 import React, { CSSProperties, SyntheticEvent } from 'react';
 
 const SELECT: CSSProperties = {
@@ -13,9 +12,14 @@ const SELECT: CSSProperties = {
   maxWidth: '100%',
 };
 
-export default function (props: {
+export interface IListItem {
+  value: string | number;
+  title: string;
+}
+
+export function Select(props: {
   value?: any;
-  values: Types.IListItem[];
+  values: IListItem[];
   style?: CSSProperties;
   onChange?: (event: SyntheticEvent) => void;
 }): React.ReactElement {
