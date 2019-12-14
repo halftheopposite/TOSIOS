@@ -5,20 +5,18 @@ import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import React, { Component, Fragment } from 'react';
 import { Helmet } from 'react-helmet';
-
-import {
-  Box,
-  Button,
-  GitHub,
-  Inline,
-  Input,
-  Room,
-  Select,
-  Separator,
-  Space,
-  View,
-} from '../components';
+import { Box, Button, GitHub, IListItem, Inline, Input, Room, Select, Separator, Space, View } from '../components';
 import playerImage from '../images/textures/player/player-idle-2.png';
+
+const MapsList: IListItem[] = Constants.MAPS_NAMES.map(value => ({
+  value,
+  title: value,
+}));
+
+const PlayersCountList: IListItem[] = Constants.ROOM_PLAYERS_SCALES.map(value => ({
+  value,
+  title: `${value} players`,
+}));
 
 interface IProps extends RouteComponentProps {
 }
@@ -43,8 +41,8 @@ export default class Home extends Component<IProps, IState> {
     rooms: [],
     timer: null,
     roomName: localStorage.getItem('roomName') || '',
-    roomMap: Types.Maps[0].value,
-    roomMaxPlayers: Types.Players[1].value,
+    roomMap: MapsList[0].value,
+    roomMaxPlayers: PlayersCountList[0].value,
   };
 
   private client?: Client;
@@ -266,7 +264,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMap}
-              values={Types.Maps}
+              values={MapsList}
               onChange={(event: any) => this.setState({ roomMap: event.target.value })}
             />
             <Space size="s" />
@@ -276,7 +274,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMaxPlayers}
-              values={Types.Players}
+              values={PlayersCountList}
               onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
             />
             <Space size="s" />
@@ -325,7 +323,7 @@ export default class Home extends Component<IProps, IState> {
     }
 
     return rooms.map(({ roomId, metadata, clients, maxClients }, index) => {
-      const map = Types.Maps.find(item => item.value === metadata.roomMap);
+      const map = MapsList.find(item => item.value === metadata.roomMap);
       const mapName = map ? map.title : metadata.roomMap;
 
       return (

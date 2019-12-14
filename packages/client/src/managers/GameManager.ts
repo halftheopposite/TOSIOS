@@ -6,7 +6,7 @@ import { Player, Prop } from '../entities';
 import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
-import { getSpritesLayer, getTextures } from '../tiled';
+import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
 import { BulletsManager, HUDManager, MapManager, PlayersManager, PropsManager } from './';
 
 // We don't want to scale textures linearly because they would appear blurry.
@@ -55,7 +55,7 @@ export default class GameManager {
   private wallsTree: Collisions.TreeCollider;
 
   // Game
-  private mapName?: Types.MapNameType;
+  private mapName?: string;
   private maxPlayers: number = 0;
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
@@ -136,7 +136,7 @@ export default class GameManager {
 
 
   // METHODS
-  private initializeMap = (mapName: Types.MapNameType) => {
+  private initializeMap = (mapName: string) => {
     if (this.mapName) {
       return;
     }
@@ -165,7 +165,7 @@ export default class GameManager {
 
     // Textures
     const texturePath = SpriteSheets[tiledMap.imageName];
-    const textures = getTextures(texturePath, tiledMap.tilesets);
+    const textures = getTexturesSet(texturePath, tiledMap.tilesets);
 
     // Layers
     const container = getSpritesLayer(textures, tiledMap.layers);

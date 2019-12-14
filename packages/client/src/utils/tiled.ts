@@ -1,20 +1,23 @@
 import { Constants, Tiled } from '@tosios/common';
 import { BaseTexture, Container, Rectangle, Texture } from 'pixi.js';
-import { RectangleSprite } from './sprites';
+import { RectangleSprite } from '../sprites';
 
-interface ITilesSet {
+interface ITexturesSet {
   [tileId: number]: {
     single: Texture;
     multiple?: Texture[];
   };
 }
 
-export const getTextures = (
+/**
+ * Create a set of textures for each tile
+ */
+export const getTexturesSet = (
   texturePath: string,
   tiles: Tiled.ITile[],
-): ITilesSet => {
+): ITexturesSet => {
   const baseTexture = BaseTexture.from(texturePath);
-  const result: ITilesSet = {};
+  const result: ITexturesSet = {};
 
   // We first compute all frames individually
   tiles.forEach(tile => {
@@ -31,7 +34,7 @@ export const getTextures = (
     };
   });
 
-  // We then compute animation
+  // We then compute animation (if any)
   tiles.forEach(tile => {
     if (tile.tileIds) {
       const animation = tile.tileIds.map(frameId => result[frameId].single);
@@ -43,20 +46,24 @@ export const getTextures = (
 };
 
 export const getSpritesLayer = (
-  tilesSet: ITilesSet,
+  tilesSet: ITexturesSet,
   layers: Tiled.ISpriteLayer[],
 ): Container => {
+  // We create the main container for all layers
   const container = new Container();
   container.zIndex = 1;
 
+  // We then parse each layer
   layers.forEach((layer, index) => {
     const layerContainer = new Container();
     layerContainer.zIndex = 1 + index;
+
     // Hide collision layer when not in debug
     if (layer.name === 'collisions') {
       layerContainer.alpha = Constants.DEBUG ? 0.2 : 0;
     }
 
+    // Parse all tiles in layer
     layer.tiles.forEach(tile => {
       const tileSprite = new RectangleSprite(
         tile.minX,

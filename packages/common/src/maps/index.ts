@@ -1,9 +1,7 @@
-import { Tiled } from '../tiled/types';
+import { TMX } from '../tiled/tmx';
 import gigantic from './gigantic.json';
 
-const List: {
-  [key: string]: Tiled.IMap;
-} = {
+const List: { [key: string]: TMX.IMap } = {
   gigantic,
 };
 

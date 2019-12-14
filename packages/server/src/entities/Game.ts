@@ -4,7 +4,7 @@ import { Types } from '@tosios/common';
 export class Game extends Schema {
 
   @type('string')
-  public mapName: Types.MapNameType;
+  public mapName: string;
 
   @type('string')
   public state: Types.GameState;
@@ -23,7 +23,7 @@ export class Game extends Schema {
 
   // Init
   constructor(
-    mapName: Types.MapNameType,
+    mapName: string,
     lobbyDuration: number,
     gameDuration: number,
     maxPlayers: number,

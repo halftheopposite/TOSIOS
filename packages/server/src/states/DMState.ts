@@ -46,7 +46,7 @@ export class DMState extends Schema {
 
   // INIT
   constructor(
-    mapName: Types.MapNameType,
+    mapName: string,
     maxPlayers: number,
     onMessage: any,
   ) {
