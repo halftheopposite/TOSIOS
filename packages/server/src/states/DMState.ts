@@ -81,8 +81,17 @@ export class DMState extends Schema {
       }
     });
 
-    // TODO: Spawners should be returned from Tiled
-    this.spawners.push(new Geometry.RectangleBody(600, 600, 32, 32));
+    // Create spawners
+    tiledMap.spawners.forEach(tile => {
+      if (tile.tileId > 0) {
+        this.spawners.push(new Geometry.RectangleBody(
+          tile.minX,
+          tile.minY,
+          tile.maxX,
+          tile.maxY,
+        ));
+      }
+    });
 
     // Callback
     this.onMessage = onMessage;

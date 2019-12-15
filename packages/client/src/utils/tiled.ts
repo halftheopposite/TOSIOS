@@ -2,6 +2,8 @@ import { Constants, Tiled } from '@tosios/common';
 import { BaseTexture, Container, Rectangle, Texture } from 'pixi.js';
 import { RectangleSprite } from '../sprites';
 
+const SPECIAL_LAYERS = ['collisions', 'spawners'];
+
 interface ITexturesSet {
   [tileId: number]: {
     single: Texture;
@@ -58,9 +60,13 @@ export const getSpritesLayer = (
     const layerContainer = new Container();
     layerContainer.zIndex = 1 + index;
 
-    // Hide collision layer when not in debug
-    if (layer.name === 'collisions') {
-      layerContainer.alpha = Constants.DEBUG ? 0.2 : 0;
+    // Hide special layers when not in debug
+    if (SPECIAL_LAYERS.includes(layer.name)) {
+      if (Constants.DEBUG) {
+        return;
+      }
+
+      layerContainer.alpha = 0.2;
     }
 
     // Parse all tiles in layer

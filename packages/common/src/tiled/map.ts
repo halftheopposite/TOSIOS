@@ -13,6 +13,7 @@ export class Map {
   public imageName: string = ''; // The image to slice up
   public tilesets: ITile[] = [];
   public collisions: ITile[] = [];
+  public spawners: ITile[] = [];
   public layers: ISpriteLayer[] = [];
 
   // Constructor
@@ -27,6 +28,7 @@ export class Map {
 
     this.computeTileSets(data.tilesets);
     this.computeCollisions(data.layers);
+    this.computeSpawners(data.layers);
     this.computeLayers(data.layers);
   }
 
@@ -92,6 +94,15 @@ export class Map {
     }
 
     this.collisions = this.parseLayer(foundLayer.data);
+  }
+
+  private computeSpawners(layers: TMX.ILayer[]) {
+    const foundLayer = layers.find(layer => layer.name === 'spawners');
+    if (!foundLayer) {
+      return;
+    }
+
+    this.spawners = this.parseLayer(foundLayer.data);
   }
 
   private computeLayers(layers: TMX.ILayer[]) {
