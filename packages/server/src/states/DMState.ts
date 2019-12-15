@@ -76,7 +76,7 @@ export class DMState extends Schema {
           minY: tile.minY,
           maxX: tile.maxX,
           maxY: tile.maxY,
-          collider: 'full',
+          collider: tile.type,
         });
       }
     });
@@ -416,7 +416,7 @@ export class DMState extends Schema {
     }
 
     // Collisions: Walls
-    if (this.wallsTree.collidesWithCircle(bullet.body)) {
+    if (this.wallsTree.collidesWithCircle(bullet.body, 'half')) {
       bullet.active = false;
     }
   }

@@ -151,14 +151,14 @@ export default class GameManager {
     this.mapManager.setDimensions(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
     // Collisions
-    tiledMap.collisions.forEach((wall) => {
-      if (wall.tileId > 0) {
+    tiledMap.collisions.forEach(tile => {
+      if (tile.tileId > 0) {
         this.wallsTree.insert({
-          minX: wall.minX,
-          minY: wall.minY,
-          maxX: wall.maxX,
-          maxY: wall.maxY,
-          collider: 'full',
+          minX: tile.minX,
+          minY: tile.minY,
+          maxX: tile.maxX,
+          maxY: tile.maxY,
+          collider: tile.type,
         });
       }
     });
@@ -372,7 +372,7 @@ export default class GameManager {
       }
 
       // Collisions: Walls
-      if (this.wallsTree.collidesWithCircle(bullet.body)) {
+      if (this.wallsTree.collidesWithCircle(bullet.body, 'half')) {
         bullet.active = false;
         this.spawnImpact(bullet.x, bullet.y);
         continue;
