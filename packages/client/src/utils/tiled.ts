@@ -4,7 +4,7 @@ import { RectangleSprite } from '../sprites';
 
 const SPECIAL_LAYERS = ['collisions', 'spawners'];
 
-interface ITexturesSet {
+interface ITextureSets {
   [tileId: number]: {
     single: Texture;
     multiple?: Texture[];
@@ -16,13 +16,14 @@ interface ITexturesSet {
  */
 export const getTexturesSet = (
   texturePath: string,
-  tiles: Tiled.ITile[],
-): ITexturesSet => {
+  tileSets: Tiled.ITileSets,
+): ITextureSets => {
   const baseTexture = BaseTexture.from(texturePath);
-  const result: ITexturesSet = {};
+  const result: ITextureSets = {};
 
   // We first compute all frames individually
-  tiles.forEach(tile => {
+  Object.keys(tileSets).forEach(tileId => {
+    const tile = tileSets[tileId];
     result[tile.tileId] = {
       single: new Texture(
         baseTexture,
@@ -37,7 +38,8 @@ export const getTexturesSet = (
   });
 
   // We then compute animation (if any)
-  tiles.forEach(tile => {
+  Object.keys(tileSets).forEach(tileId => {
+    const tile = tileSets[tileId];
     if (tile.tileIds) {
       const animation = tile.tileIds.map(frameId => result[frameId].single);
       result[tile.tileId].multiple = animation;
@@ -48,7 +50,7 @@ export const getTexturesSet = (
 };
 
 export const getSpritesLayer = (
-  tilesSet: ITexturesSet,
+  tilesSet: ITextureSets,
   layers: Tiled.ISpriteLayer[],
 ): Container => {
   // We create the main container for all layers

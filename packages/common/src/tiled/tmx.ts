@@ -33,6 +33,7 @@ export namespace TMX {
   export interface ITile {
     id: number;
     animation?: ITileAnimFrame[];
+    type?: string;
     objectgroup?: ITileObjectGroup;
   }
 

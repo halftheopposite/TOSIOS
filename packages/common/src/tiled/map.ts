@@ -1,5 +1,5 @@
 import { TMX } from './tmx';
-import { ISpriteLayer, ITile } from './types';
+import { ISpriteLayer, ITile, ITileSets } from './types';
 
 /**
  * A class used to parse Tiled maps from JSON.
@@ -11,7 +11,7 @@ export class Map {
   private mapHeightUnits: number;
   private fixedTileSize: number; // The tile size to apply in layers
   public imageName: string = ''; // The image to slice up
-  public tilesets: ITile[] = [];
+  public tilesets: ITileSets = {};
   public collisions: ITile[] = [];
   public spawners: ITile[] = [];
   public layers: ISpriteLayer[] = [];
@@ -40,7 +40,7 @@ export class Map {
 
     // We only take the first tileset
     const foundTileset = tilesets[0];
-    const offset = foundTileset.firstgid;
+    const offset = foundTileset.firstgid; // There is an offset needed to compute tileId in layers
     this.imageName = foundTileset.image;
 
     // Compute the position of each sprite into the image
@@ -53,16 +53,17 @@ export class Map {
     let x;
     let y;
     for (let i = 0; i < foundTileset.tilecount; i++) {
+      const tileId = i + offset;
       x = col * tileWidth;
       y = row * tileHeight;
 
-      this.tilesets.push({
-        tileId: i + offset,
+      this.tilesets[tileId] = {
+        tileId,
         minX: x,
         minY: y,
         maxX: x + tileWidth,
         maxY: y + tileHeight,
-      });
+      };
 
       col++;
 
@@ -72,17 +73,23 @@ export class Map {
       }
     }
 
-    // Compute animated tiles
+    // Compute special tiles
     foundTileset.tiles.forEach(tile => {
-      if (tile.animation && tile.animation.length > 0) {
-        const animationId = tile.id + offset;
+      const tileId = tile.id + offset;
 
-        // We look for the already existing tile
-        const index = this.tilesets.findIndex(item => item.tileId === animationId);
-        if (index !== -1) {
-          // We set our array of frames on our tile
-          this.tilesets[index].tileIds = tile.animation.map(frame => frame.tileid + offset);
+      // Compute animated tiles
+      if (tile.animation && tile.animation.length > 0) {
+        const animationId = tileId;
+
+        const foundTile = this.tilesets[animationId];
+        if (foundTile) {
+          this.tilesets[animationId].tileIds = tile.animation.map(frame => frame.tileid + offset);
         }
+      }
+
+      // Compute special tiles
+      if (tile.type) {
+        this.tilesets[tileId].type = tile.type;
       }
     });
   }
@@ -131,8 +138,9 @@ export class Map {
     const tileHeight = this.fixedTileSize;
 
     const tiles: ITile[] = [];
-    data.map(tileId => {
+    data.forEach(tileId => {
       if (tileId !== 0) {
+        const foundTile = this.tilesets[tileId];
         x = col * tileWidth;
         y = row * tileHeight;
 
@@ -143,11 +151,13 @@ export class Map {
           minY: y,
           maxX: x + tileWidth,
           maxY: y + tileHeight,
+          ...(foundTile.type && { type: foundTile.type }),
         });
       }
 
       col++;
 
+      // Jump to new line
       if (col === this.widthInUnits) {
         col = 0;
         row++;
