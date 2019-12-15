@@ -10,6 +10,7 @@ import {
   Geometry,
   Maps,
   Maths,
+  Tiled,
   Types,
 } from '@tosios/common';
 
@@ -37,14 +38,15 @@ export class DMState extends Schema {
   public bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
 
   private map: Map;
-  private walls: Collisions.TreeCollider;
+  private wallsTree: Collisions.TreeCollider;
+  private spawners: Geometry.RectangleBody[] = [];
   private actionsLog: Types.IAction[] = [];
   private onMessage: (message: Message) => void;
 
 
   // INIT
   constructor(
-    mapName: Types.MapNameType,
+    mapName: string,
     maxPlayers: number,
     onMessage: any,
   ) {
@@ -59,20 +61,36 @@ export class DMState extends Schema {
     );
 
     // Map
-    const { width, height, walls } = Maps.parseByName(mapName);
-    this.map = new Map(width, height);
+    const data = Maps.List[mapName];
+    const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
+
+    // Set the map boundaries
+    this.map = new Map(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
     // Create a R-Tree for walls
-    this.walls = new Collisions.TreeCollider();
-    walls.forEach(wall => {
-      this.walls.insert({
-        minX: wall.x,
-        minY: wall.y,
-        maxX: wall.x + wall.width,
-        maxY: wall.y + wall.height,
-        type: wall.type,
-        collider: wall.collider,
-      });
+    this.wallsTree = new Collisions.TreeCollider();
+    tiledMap.collisions.forEach(tile => {
+      if (tile.tileId > 0) {
+        this.wallsTree.insert({
+          minX: tile.minX,
+          minY: tile.minY,
+          maxX: tile.maxX,
+          maxY: tile.maxY,
+          collider: tile.type,
+        });
+      }
+    });
+
+    // Create spawners
+    tiledMap.spawners.forEach(tile => {
+      if (tile.tileId > 0) {
+        this.spawners.push(new Geometry.RectangleBody(
+          tile.minX,
+          tile.minY,
+          tile.maxX,
+          tile.maxY,
+        ));
+      }
     });
 
     // Callback
@@ -179,8 +197,7 @@ export class DMState extends Schema {
 
   // PLAYERS: single
   getRandomSpawner(): Geometry.RectangleBody {
-    const spawners: Geometry.RectangleBody[] = this.walls.getAllByType(12);
-    return spawners[Maths.getRandomInt(spawners.length)];
+    return this.spawners[Maths.getRandomInt(this.spawners.length)];
   }
 
   playerAdd(id: string, name: string) {
@@ -228,7 +245,7 @@ export class DMState extends Schema {
     player.setPosition(clampedPosition.x, clampedPosition.y);
 
     // Collisions: Walls
-    const correctedPosition = this.walls.correctWithCircle(player.body);
+    const correctedPosition = this.wallsTree.correctWithCircle(player.body);
     player.setPosition(correctedPosition.x, correctedPosition.y);
 
     // Collisions: Props
@@ -399,7 +416,7 @@ export class DMState extends Schema {
     }
 
     // Collisions: Walls
-    if (this.walls.collidesWithCircle(bullet.body)) {
+    if (this.wallsTree.collidesWithCircle(bullet.body, 'half')) {
       bullet.active = false;
     }
   }
@@ -431,7 +448,7 @@ export class DMState extends Schema {
       );
 
       // Update its position if it collides
-      while (this.walls.collidesWithRectangle(prop.body)) {
+      while (this.wallsTree.collidesWithRectangle(prop.body)) {
         prop.x = Maths.getRandomInt(this.map.width);
         prop.y = Maths.getRandomInt(this.map.height);
       }

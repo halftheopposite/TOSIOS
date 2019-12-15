@@ -10,7 +10,7 @@ export const calculateAngle = (x1: number, y1: number, x2: number, y2: number) =
 };
 
 /**
- * Lerp between two value
+ * Lerp between two values
  * @param a
  * @param b
  * @param n
@@ -66,7 +66,7 @@ export const normalize2D = (ax: number, ay: number) => {
 };
 
 /**
- * Transform a degree angle to one of the 8 cardinals.
+ * Transform an angle in degrees to the nearest cardinal point.
  */
 export const degreeToCardinal = (degree: number) => {
   const cardinals = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];

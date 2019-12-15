@@ -1,34 +1,19 @@
-import {
-  Collisions,
-  Constants,
-  Geometry,
-  Maps,
-  Maths,
-  Types,
-} from '@tosios/common';
+import { Collisions, Constants, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
 import { Emitter } from 'pixi-particles';
 import { Viewport } from 'pixi-viewport';
-import { Application, utils } from 'pixi.js';
-
-import {
-  Player,
-  Prop,
-  Wall,
-} from '../entities';
+import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
+import { Player, Prop } from '../entities';
+import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
-import {
-  BulletsManager,
-  GroundManager,
-  HUDManager,
-  MapManager,
-  PlayersManager,
-  PropsManager,
-} from './';
+import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
+import { BulletsManager, HUDManager, MapManager, PlayersManager, PropsManager } from './';
+
+// We don't want to scale textures linearly because they would appear blurry.
+settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
 // These two constants should be calculated automatically.
-// They are actually used to interpolate movements of other players
-// between two points.
+// They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
 
@@ -61,8 +46,7 @@ export default class GameManager {
   private app: Application;
   private viewport: Viewport;
   private hudManager: HUDManager;
-  private mapManager: MapManager;
-  private groundManager: GroundManager;
+  private mapManager: MapManager = new MapManager();
   private bulletsManager: BulletsManager;
   private propsManager: PropsManager;
   private playersManager: PlayersManager;
@@ -71,7 +55,7 @@ export default class GameManager {
   private wallsTree: Collisions.TreeCollider;
 
   // Game
-  private mapName?: Types.MapNameType;
+  private mapName?: string;
   private maxPlayers: number = 0;
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
@@ -116,16 +100,6 @@ export default class GameManager {
     );
     this.app.stage.addChild(this.hudManager);
 
-    // Ground
-    this.groundManager = new GroundManager();
-    this.groundManager.zIndex = 0;
-    this.viewport.addChild(this.groundManager);
-
-    // Map
-    this.mapManager = new MapManager();
-    this.mapManager.zIndex = 1;
-    this.viewport.addChild(this.mapManager);
-
     // Props
     this.propsManager = new PropsManager();
     this.propsManager.zIndex = 2;
@@ -162,37 +136,40 @@ export default class GameManager {
 
 
   // METHODS
-  private initializeMap = (mapName: Types.MapNameType) => {
+  private initializeMap = (mapName: string) => {
+    if (this.mapName) {
+      return;
+    }
+
     this.mapName = mapName;
 
     // Parse the selected map
-    const { walls, width, height } = Maps.parseByName(mapName);
+    const data = Maps.List[this.mapName];
+    const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
-    // Dimensions
-    this.groundManager.dimensions = { width, height };
-    this.mapManager.dimensions = { width, height };
+    // Set the map boundaries
+    this.mapManager.setDimensions(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
-    // Walls
-    walls.forEach((wall, index) => {
-      // Sprite
-      this.mapManager.add(`${index}`, new Wall(
-        wall.x,
-        wall.y,
-        wall.width,
-        wall.height,
-        wall.type,
-      ));
-
-      // Collision
-      this.wallsTree.insert({
-        minX: wall.x,
-        minY: wall.y,
-        maxX: wall.x + wall.width,
-        maxY: wall.y + wall.height,
-        type: wall.type,
-        collider: wall.collider,
-      });
+    // Collisions
+    tiledMap.collisions.forEach(tile => {
+      if (tile.tileId > 0) {
+        this.wallsTree.insert({
+          minX: tile.minX,
+          minY: tile.minY,
+          maxX: tile.maxX,
+          maxY: tile.maxY,
+          collider: tile.type,
+        });
+      }
     });
+
+    // Textures
+    const texturePath = SpriteSheets[tiledMap.imageName];
+    const textures = getTexturesSet(texturePath, tiledMap.tilesets);
+
+    // Layers
+    const container = getSpritesLayer(textures, tiledMap.layers);
+    this.viewport.addChild(container);
   }
 
   private update = () => {
@@ -395,7 +372,7 @@ export default class GameManager {
       }
 
       // Collisions: Walls
-      if (this.wallsTree.collidesWithCircle(bullet.body)) {
+      if (this.wallsTree.collidesWithCircle(bullet.body, 'half')) {
         bullet.active = false;
         this.spawnImpact(bullet.x, bullet.y);
         continue;

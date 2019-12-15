@@ -1,24 +1,22 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Maps, Types } from '@tosios/common';
+import { Constants, Types } from '@tosios/common';
 import { Client } from 'colyseus.js';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import React, { Component, Fragment } from 'react';
 import { Helmet } from 'react-helmet';
-
-import {
-  Box,
-  Button,
-  GitHub,
-  Inline,
-  Input,
-  Room,
-  Select,
-  Separator,
-  Space,
-  View,
-} from '../components';
+import { Box, Button, GitHub, IListItem, Inline, Input, Room, Select, Separator, Space, View } from '../components';
 import playerImage from '../images/textures/player/player-idle-2.png';
+
+const MapsList: IListItem[] = Constants.MAPS_NAMES.map(value => ({
+  value,
+  title: value,
+}));
+
+const PlayersCountList: IListItem[] = Constants.ROOM_PLAYERS_SCALES.map(value => ({
+  value,
+  title: `${value} players`,
+}));
 
 interface IProps extends RouteComponentProps {
 }
@@ -43,8 +41,8 @@ export default class Home extends Component<IProps, IState> {
     rooms: [],
     timer: null,
     roomName: localStorage.getItem('roomName') || '',
-    roomMap: Maps.List[1].value,
-    roomMaxPlayers: Maps.Players[1].value,
+    roomMap: MapsList[0].value,
+    roomMaxPlayers: PlayersCountList[0].value,
   };
 
   private client?: Client;
@@ -183,7 +181,7 @@ export default class Home extends Component<IProps, IState> {
         }}
       >
         <View flex={true}>
-          <img src={playerImage} width={30} />
+          <img src={playerImage} alt="player" width={30} />
           <Inline size="thin" />
           <p>Pick your name:</p>
         </View>
@@ -266,7 +264,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMap}
-              values={Maps.List}
+              values={MapsList}
               onChange={(event: any) => this.setState({ roomMap: event.target.value })}
             />
             <Space size="s" />
@@ -276,7 +274,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xxs" />
             <Select
               value={roomMaxPlayers}
-              values={Maps.Players}
+              values={PlayersCountList}
               onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
             />
             <Space size="s" />
@@ -325,7 +323,7 @@ export default class Home extends Component<IProps, IState> {
     }
 
     return rooms.map(({ roomId, metadata, clients, maxClients }, index) => {
-      const map = Maps.List.find(item => item.value === metadata.roomMap);
+      const map = MapsList.find(item => item.value === metadata.roomMap);
       const mapName = map ? map.title : metadata.roomMap;
 
       return (

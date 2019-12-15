@@ -4,10 +4,10 @@ import GitHub from './GitHub';
 import Inline from './Inline';
 import Input from './Input';
 import Room from './Room';
-import Select from './Select';
 import Separator from './Separator';
 import Space from './Space';
 import View from './View';
+export * from './Select';
 
 export {
   Box,
@@ -16,7 +16,6 @@ export {
   Inline,
   Input,
   Room,
-  Select,
   Separator,
   Space,
   View,

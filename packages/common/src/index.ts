@@ -5,6 +5,7 @@ import * as Keys from './keys';
 import * as Maps from './maps';
 import * as Maths from './maths';
 import * as Sorts from './sort';
+import * as Tiled from './tiled';
 import * as Types from './types';
 
 export {
@@ -12,8 +13,9 @@ export {
   Constants,
   Geometry,
   Keys,
-  Maps,
   Maths,
+  Maps,
   Sorts,
+  Tiled,
   Types,
 };

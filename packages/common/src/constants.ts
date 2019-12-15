@@ -1,14 +1,16 @@
 export const APP_TITLE = 'TOSIOS';
 
-// Connection
+// General
 export const WS_PORT = 3001;
 export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name (no need to change)
 export const ROOM_REFRESH = 5000;
 export const DEBUG = false;
 
 // Game
+export const MAPS_NAMES = ['gigantic'];
 export const ROOM_PLAYERS_MIN = 2;
 export const ROOM_PLAYERS_MAX = 16;
+export const ROOM_PLAYERS_SCALES = [2, 4, 8, 16];
 export const ROOM_NAME_MAX = 16;
 export const PLAYER_NAME_MAX = 16;
 export const LOG_LINES_MAX = 5;

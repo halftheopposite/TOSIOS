@@ -6,7 +6,7 @@ The Open-Source IO Shooter is an open-source multiplayer game in the browser (de
 
 **Desktop version**
 
-![banner](images/banner.jpg "In-game screenshot of desktop")
+![banner](images/banner.png "In-game screenshot of desktop")
 
 **Mobile version**
 
@@ -100,66 +100,75 @@ This project is a monorepo (with the help of Yarn workspaces). It contains the f
 
 ### Maps
 
-Anyone can create their own map pretty easily in TOSIOS.
+Anyone can create their own map to use in TOSIOS.
 
-Maps are composed of `arrays` of `arrays` where each number greater than `0` represents a `wall` to which entities will collide.
+#### How to create my map?
 
-When creating a map each number represents a specific wall sprite that will be drawn:
-* `1` for a wall on the left
-* `2` for a wall on the top
-* `3` for a wall on the right
-* `4` for a wall on the bottom
-* `5` for a wall on the bottom-left (concave angle)
-* `6` for a wall on the bottom-right (concave angle)
-* `7` for a wall on the top-left (convexe angle)
-* `8` for a wall on the bottom-right (convexe angle)
-* `9` for a left door
-* `10` for a right door
-* `11` for a torch
-* `12` for a ladder (player spawner)
+The maps available in TOSIOS have all been created thanks to [Tiled Map Editor](https://www.mapeditor.org/) (TME). You must first download this software in order to start creating your own map. I also invite you to read some tutorial for an easier beginning.
 
-Example:
+The most important concepts to create a functional map are `layers` and `tilesets` (I invite you to open one of the existing map in TME to familiarize yourself with how maps are structured. It will make things 10x easier if you have a living example under your eyes).
 
-```js
-  [
-    [1, 2, 9, 10, 2, 3],
-    [1, 11, 0, 0, 11, 3],
-    [1, 0, 0, 0, 0, 3],
-    [1, 0, 7, 8, 0, 3],
-    [1, 0, 4, 4, 0, 3],
-    [1, 0, 0, 0, 0, 3],
-    [5, 4, 4, 4, 4, 6],
-  ]
-```
+**Layers**
 
-will render into
+A `layer` is where your tiles are placed to form a map. You can combine multiple `layers` on top of each other so that you can get a crate over a ground tile, or a spider web over a wall for example.
 
-<img src="images/map.jpg" alt="drawing" width="200"/>
+There are two reserved layers that should be present at all time (although not rendered):
 
-**Creating your own map**
+* `collisions`: for the client and server to know where the player can move or not (ex: walls or pits), or shoot through (ex: pits or small rocks). 
+* `spawners`: for the server to determine the starting position of a player.
 
-If you want to add your own map to the game:
+Other than that, you can add as many `layers` as you want and they will be rendered by `PIXI.js` in a WYSIWYG manner (order is maintained).
 
-1. Add a new file in `package/common/maps` containing your map template as shown in the example (e.g. `package/common/maps/gigantic.ts`).
-2. Open `package/common/maps/index.ts`, and add the following statements:
-```typescript
-///...
-import gigantic from './gigantic';
-//...
-const MAPS = {
-  //...
-  gigantic,
-};
-//...
-export const List: Types.IListItem[] = [
-  //...
-  { value: 'gigantic', title: 'Gigantic' }, // Used for the dropdown on the client
-];
-```
-3. Open `package/common/types.ts`, and add your map `value` key to `MapNameType`:
-```typescript
-export type MapNameType = 'small' | 'long' | 'big' | 'gigantic';
-```
+Although in the `dungeon.png` spritesheet I use colored tiles to represent `collisions` (light red and light blue) and spawners (deep red), you can use any tile you want as it won't be rendered anyway.
+
+<img src="images/tme-layers.png" alt="drawing"/>
+
+**Tilesets**
+
+The `tilesets` is where lie the splitted spritesheet and its collision, animated and spawner tiles.
+
+When defining which tile will be used for collisions it is very important to set its `type` field to either:
+
+* `half`: a `player` CAN'T go through, but a `bullet` CAN go through.
+* `full`: a `player` CAN'T go through, and a `bullet` CAN'T go through.
+
+This can be done by selecting a tile in the tilesets editor, and entering its `type` on the left pane.
+
+<img src="images/tme-tilesets.png" alt="The collision tile (red) is selected"/>
+
+#### How to add my map to the game?
+
+If you want to add your map to the game:
+
+1. If you have a custom spritesheet image, add it in `/packages/client/src/images/maps/custom.png`
+2. Open `/packages/client/src/images/maps/index.ts`, and add the following statements:
+  ```typescript
+  import gigantic from './gigantic.png';
+  import custom from './custom.png'; // <- Add this line
+
+  export const SpriteSheets: { [key: string]: string } = {
+    'dungeon.png': dungeon,
+    'custom.png': custom, // <- Add this line
+  };
+  ```
+3. Add your map file (TMX as JSON) in `/packages/common/maps/custom.json`.
+4. Open `/packages/common/maps/index.ts`:
+  ```typescript
+  // ...
+  import gigantic from './gigantic.json';
+  import custom from './custom.json'; // <- Add this line
+
+  export const List: { [key: string]: TMX.IMap } = {
+    gigantic,
+    custom, // <- Add this line
+  };
+  ```
+5. Open `/packages/common/constants.ts`:
+  ```typescript
+  // ...
+  export const MAPS_NAMES = ['gigantic', 'custom']; // <- Add this entry
+  // ...
+  ```
 
 ## Roadmap for 1.0.0 (Q4 2019)
 
@@ -173,10 +182,10 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 * ~Add smoother bullets.~ DONE
 * ~Implement a R-Tree for performances.~ DONE
 * ~Add players spawner object instead of randomized points.~ DONE
+* ~Add support for JSON TMX format (Tiled).~ DONE
 * Add a Team Death Match mode.
 * Add a force shield to deflect bullets.
 * Add some monsters that attack players.
-* Add support for JSON TMX format (Tiled).
 
 ## Special thanks
 
@@ -185,6 +194,8 @@ Thanks to [@endel](https://github.com/endel) for his fabulous work on [Colyseus]
 Thanks to the [PIXI.js](https://github.com/pixijs/pixi.js) team for their incredible library and up-to-date documentation. 
 
 Thanks to [@pixel_poem](https://twitter.com/pixel_poem) for the art package he published on Itch.io which made this game looks cool instantly.
+
+Thanks to [@thorbjorn81](https://twitter.com/thorbjorn81) for the many years of work on the [Tiled](https://github.com/bjorn/tiled) map editor.
 
 ## Licenses
 
