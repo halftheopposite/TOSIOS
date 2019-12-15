@@ -1,6 +1,6 @@
 {
   "name": "@tosios/common",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "main": "build/index.js",
   "typings": "build/index.d.ts",
