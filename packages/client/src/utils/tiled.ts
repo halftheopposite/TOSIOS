@@ -62,7 +62,7 @@ export const getSpritesLayer = (
 
     // Hide special layers when not in debug
     if (SPECIAL_LAYERS.includes(layer.name)) {
-      if (Constants.DEBUG) {
+      if (!Constants.DEBUG) {
         return;
       }
 
