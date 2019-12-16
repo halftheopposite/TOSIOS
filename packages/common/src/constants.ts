@@ -7,7 +7,7 @@ export const ROOM_REFRESH = 5000;
 export const DEBUG = false;
 
 // Game
-export const MAPS_NAMES = ['gigantic'];
+export const MAPS_NAMES = ['small', 'gigantic'];
 export const ROOM_PLAYERS_MIN = 2;
 export const ROOM_PLAYERS_MAX = 16;
 export const ROOM_PLAYERS_SCALES = [2, 4, 8, 16];
