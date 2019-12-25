@@ -349,6 +349,11 @@ export default class GameManager {
 
       // Collisions: Players
       for (const player of this.playersManager.getAll()) {
+        // We don't want to collide players with their own bullets locally
+        if (bullet.playerId === player.playerId) {
+          continue;
+        }
+
         if (player.lives && Collisions.circleToCircle(bullet.body, player.body)) {
           bullet.active = false;
           player.hurt();
