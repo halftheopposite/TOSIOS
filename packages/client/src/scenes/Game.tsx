@@ -213,27 +213,30 @@ export default class Game extends Component<IProps, IState> {
     switch (message.type) {
       case 'waiting':
         this.gameManager.hudLogAdd(`Waiting for other players...`);
-        this.gameManager.hudAnnounceAdd(`Waiting for others to join...`);
+        this.gameManager.hudAnnounceAdd(`Waiting for other players...`);
         break;
       case 'start':
-        this.gameManager.hudLogAdd(`[GAME STARTS]`);
+        this.gameManager.hudLogAdd(`Game starts!`);
         this.gameManager.hudAnnounceAdd(`Game starts!`);
         break;
       case 'stop':
-        this.gameManager.hudLogAdd(`[GAME ENDS]`);
+        this.gameManager.hudLogAdd(`Game ends...`);
         break;
       case 'joined':
-        this.gameManager.hudLogAdd(`"${message.params.name}" joined this room.`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" joined.`);
         break;
       case 'killed':
         this.gameManager.hudLogAdd(`"${message.params.killerName}" killed "${message.params.killedName}".`);
         break;
       case 'won':
-        this.gameManager.hudLogAdd(`"${message.params.name}" is the winner.`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" wins!`);
         this.gameManager.hudAnnounceAdd(`${message.params.name} wins!`);
         break;
       case 'left':
-        this.gameManager.hudLogAdd(`"${message.params.name}" left this room.`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" left.`);
+        break;
+      case 'timeout':
+        this.gameManager.hudAnnounceAdd(`Timeout...`);
         break;
       default:
         break;

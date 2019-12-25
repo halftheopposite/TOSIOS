@@ -1,4 +1,4 @@
-import { Collisions, Constants, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
+import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
 import { Emitter } from 'pixi-particles';
 import { Viewport } from 'pixi-viewport';
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
@@ -7,7 +7,7 @@ import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
 import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
-import { BulletsManager, HUDManager, MapManager, PlayersManager, PropsManager } from './';
+import { BulletsManager, HUDManager, PlayersManager, PropsManager } from './';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -44,15 +44,15 @@ export default class GameManager {
 
   // Application
   private app: Application;
+  private map: Entities.Map;
   private viewport: Viewport;
   private hudManager: HUDManager;
-  private mapManager: MapManager = new MapManager();
-  private bulletsManager: BulletsManager;
-  private propsManager: PropsManager;
   private playersManager: PlayersManager;
+  private propsManager: PropsManager;
+  private bulletsManager: BulletsManager;
 
   // Collisions
-  private wallsTree: Collisions.TreeCollider;
+  private walls: Collisions.TreeCollider;
 
   // Game
   private mapName?: string;
@@ -81,6 +81,9 @@ export default class GameManager {
       backgroundColor: utils.string2hex(Constants.BACKGROUND_COLOR),
     });
 
+    // Map
+    this.map = new Entities.Map(0, 0);
+
     // Viewport
     this.viewport = new Viewport({
       screenWidth,
@@ -89,7 +92,7 @@ export default class GameManager {
     this.app.stage.addChild(this.viewport);
 
     // Walls R-Tree
-    this.wallsTree = new Collisions.TreeCollider();
+    this.walls = new Collisions.TreeCollider();
 
     // HUD
     this.hudManager = new HUDManager(
@@ -148,12 +151,12 @@ export default class GameManager {
     const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
     // Set the map boundaries
-    this.mapManager.setDimensions(tiledMap.widthInPixels, tiledMap.heightInPixels);
+    this.map.setDimensions(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
     // Collisions
     tiledMap.collisions.forEach(tile => {
       if (tile.tileId > 0) {
-        this.wallsTree.insert({
+        this.walls.insert({
           minX: tile.minX,
           minY: tile.minY,
           maxX: tile.maxX,
@@ -176,6 +179,7 @@ export default class GameManager {
     // Uncomment if you need to use time for animations
     // const deltaTime: number = this.app.ticker.elapsedMS;
     this.updateInputs();
+    this.updateMe();
     this.updateGhost();
     this.updatePlayers();
     this.updateBullets();
@@ -218,6 +222,26 @@ export default class GameManager {
     }
   }
 
+  private updateMe = () => {
+    if (!this.me || !this.ghost) {
+      return;
+    }
+
+    const distance = Maths.getDistance(
+      this.me.x,
+      this.me.y,
+      this.ghost.toX,
+      this.ghost.toY,
+    );
+
+    if (distance > Constants.TILE_SIZE) {
+      this.me.position = {
+        x: this.ghost.toX,
+        y: this.ghost.toY,
+      };
+    }
+  }
+
   private move = (dir: Geometry.Vector) => {
     if (!this.me) {
       return;
@@ -234,14 +258,14 @@ export default class GameManager {
     this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
 
     // Collisions: Map
-    const clampedPosition = this.mapManager.clampCircle(this.me.body);
+    const clampedPosition = this.map.clampCircle(this.me.body);
     this.me.position = {
       x: clampedPosition.x,
       y: clampedPosition.y,
     };
 
     // Collisions: Walls
-    const correctedPosition = this.wallsTree.correctWithCircle(this.me.body);
+    const correctedPosition = this.walls.correctWithCircle(this.me.body);
     this.me.position = {
       x: correctedPosition.x,
       y: correctedPosition.y,
@@ -377,18 +401,18 @@ export default class GameManager {
       }
 
       // Collisions: Walls
-      if (this.wallsTree.collidesWithCircle(bullet.body, 'half')) {
+      if (this.walls.collidesWithCircle(bullet.body, 'half')) {
         bullet.active = false;
         this.spawnImpact(bullet.x, bullet.y);
         continue;
       }
 
       // Collisions: Map
-      if (this.mapManager.isCircleOutside(bullet.body)) {
+      if (this.map.isCircleOutside(bullet.body)) {
         bullet.active = false;
         this.spawnImpact(
-          Maths.clamp(bullet.x, 0, this.mapManager.width),
-          Maths.clamp(bullet.y, 0, this.mapManager.height),
+          Maths.clamp(bullet.x, 0, this.map.width),
+          Maths.clamp(bullet.y, 0, this.map.height),
         );
         continue;
       }
@@ -447,7 +471,7 @@ export default class GameManager {
   // SETTERS
   setScreenSize = (screenWidth: number, screenHeight: number) => {
     this.app.renderer.resize(screenWidth, screenHeight);
-    this.viewport.resize(screenWidth, screenHeight, this.mapManager.width, this.mapManager.height);
+    this.viewport.resize(screenWidth, screenHeight, this.map.width, this.map.height);
     this.hudManager.resize(screenWidth, screenHeight);
   }
 
@@ -577,6 +601,7 @@ export default class GameManager {
       0,
     );
     this.ghost.sprite.alpha = 0.2;
+    this.ghost.sprite.zIndex = 800;
     this.viewport.addChild(this.ghost.sprite);
   }
 

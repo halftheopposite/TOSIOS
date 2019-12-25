@@ -1,10 +1,9 @@
 import { Constants, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus';
-
 import { Message } from '../entities/Message';
-import { DMState } from '../states/DMState';
+import { GameState } from '../states/GameState';
 
-export class DMRoom extends Room<DMState> {
+export class GameRoom extends Room<GameState> {
 
   // LIFECYCLE
   onCreate(options: Types.IRoomOptions) {
@@ -24,7 +23,7 @@ export class DMRoom extends Room<DMState> {
     });
 
     // Init State
-    this.setState(new DMState(
+    this.setState(new GameState(
       options.roomMap,
       this.maxClients,
       this.handleMessage,
@@ -50,7 +49,7 @@ export class DMRoom extends Room<DMState> {
       case 'move':
       case 'rotate':
       case 'shoot':
-        this.state.playerAddAction({
+        this.state.playerPushAction({
           playerId,
           ...data,
           ts: Date.now(),

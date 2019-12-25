@@ -6,7 +6,7 @@ import * as express from 'express';
 import { createServer } from 'http';
 
 import { join } from 'path';
-import { DMRoom } from './rooms/DMRoom';
+import { GameRoom } from './rooms/GameRoom';
 
 const PORT = Number(process.env.PORT || Constants.WS_PORT);
 
@@ -21,11 +21,15 @@ const server = new Server({
 });
 
 // Game Rooms
-server.define(Constants.ROOM_NAME, DMRoom);
+server.define(Constants.ROOM_NAME, GameRoom);
 
-// Routes on port 80
+// Serve static resources from the "public" folder
 app.use(express.static(join(__dirname, 'public')));
+
+// If you don't want people accessing your server stats, comment this line.
 app.use('/colyseus', monitor(server));
+
+// Serve the frontend client
 app.get('*', (req: any, res: any) => {
   res.sendFile(join(__dirname, 'public', 'index.html'));
 });

@@ -1,29 +1,8 @@
-import {
-  ArraySchema,
-  MapSchema,
-  Schema,
-  type,
-} from '@colyseus/schema';
-import {
-  Collisions,
-  Constants,
-  Geometry,
-  Maps,
-  Maths,
-  Tiled,
-  Types,
-} from '@tosios/common';
+import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
+import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
+import { Bullet, Game, Message, Player, Prop } from '../entities';
 
-import {
-  Bullet,
-  Game,
-  Map,
-  Message,
-  Player,
-  Prop,
-} from '../entities';
-
-export class DMState extends Schema {
+export class GameState extends Schema {
 
   @type(Game)
   public game: Game;
@@ -37,10 +16,10 @@ export class DMState extends Schema {
   @type([Bullet])
   public bullets: ArraySchema<Bullet> = new ArraySchema<Bullet>();
 
-  private map: Map;
-  private wallsTree: Collisions.TreeCollider;
+  private map: Entities.Map;
+  private walls: Collisions.TreeCollider;
   private spawners: Geometry.RectangleBody[] = [];
-  private actionsLog: Types.IAction[] = [];
+  private actions: Types.IAction[] = [];
   private onMessage: (message: Message) => void;
 
 
@@ -65,13 +44,13 @@ export class DMState extends Schema {
     const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
     // Set the map boundaries
-    this.map = new Map(tiledMap.widthInPixels, tiledMap.heightInPixels);
+    this.map = new Entities.Map(tiledMap.widthInPixels, tiledMap.heightInPixels);
 
     // Create a R-Tree for walls
-    this.wallsTree = new Collisions.TreeCollider();
+    this.walls = new Collisions.TreeCollider();
     tiledMap.collisions.forEach(tile => {
       if (tile.tileId > 0) {
-        this.wallsTree.insert({
+        this.walls.insert({
           minX: tile.minX,
           minY: tile.minY,
           maxX: tile.maxX,
@@ -110,15 +89,15 @@ export class DMState extends Schema {
 
     // Waiting for other players
     if (gameState === 'waiting') {
-      if (this.playersCount > 1) {
-        this.playersUpdateActive = false;
+      if (this.getPlayersCount() > 1) {
+        this.setPlayersActive(false);
         this.game.setState('lobby');
       }
       return;
     }
 
-    // If a player is alone the "game" ends
-    if (this.playersCount === 1) {
+    // If a player is alone, the "game" ends
+    if (this.getPlayersCount() === 1) {
       this.game.setState('waiting');
       this.onMessage(new Message('waiting'));
       return;
@@ -128,34 +107,36 @@ export class DMState extends Schema {
       case 'lobby':
         // Go on "game" when lobby time is over
         if (this.game.lobbyEndsAt < Date.now()) {
-          this.playersUpdateActive = true;
+          this.setPlayersPositionRandomly();
+          this.setPlayersActive(true);
           this.propsAdd();
           this.game.setState('game');
           this.onMessage(new Message('start'));
         }
         break;
       case 'game': {
-        let continueGame = true;
+        let shouldContinueGame = true;
 
         // Stop "game" when (all - 1) are dead
-        if (this.playersCountActive === 1) {
-          const player = this.playersGetFirstActive;
+        if (this.getPlayersCountActive() === 1) {
+          const player = this.getPlayersFirstActive();
           if (player) {
             this.onMessage(new Message('won', {
               name: player.name,
             }));
           }
 
-          continueGame = false;
+          shouldContinueGame = false;
         }
 
         // Stop "game" when time is over (everyone loses)
         if (this.game.gameEndsAt < Date.now()) {
-          this.playersUpdateActive = false;
-          continueGame = false;
+          this.onMessage(new Message('timeout'));
+          this.setPlayersActive(false);
+          shouldContinueGame = false;
         }
 
-        if (!continueGame) {
+        if (!shouldContinueGame) {
           this.onMessage(new Message('stop'));
           this.game.setState('lobby');
         }
@@ -168,8 +149,8 @@ export class DMState extends Schema {
   private updateActions() {
     let action: Types.IAction;
 
-    while (this.actionsLog.length > 0) {
-      action = this.actionsLog.shift();
+    while (this.actions.length > 0) {
+      action = this.actions.shift();
 
       switch (action.type) {
         case 'name': {
@@ -196,12 +177,8 @@ export class DMState extends Schema {
 
 
   // PLAYERS: single
-  getRandomSpawner(): Geometry.RectangleBody {
-    return this.spawners[Maths.getRandomInt(this.spawners.length)];
-  }
-
   playerAdd(id: string, name: string) {
-    const spawner = this.getRandomSpawner();
+    const spawner = this.getSpawnerRandomly();
     const player = new Player(
       spawner.x + Constants.PLAYER_SIZE / 2,
       spawner.y + Constants.PLAYER_SIZE / 2,
@@ -219,8 +196,8 @@ export class DMState extends Schema {
     }));
   }
 
-  playerAddAction(action: Types.IAction) {
-    this.actionsLog.push(action);
+  playerPushAction(action: Types.IAction) {
+    this.actions.push(action);
   }
 
   private playerName(id: string, name: string) {
@@ -241,11 +218,11 @@ export class DMState extends Schema {
     player.move(dir.x, dir.y, Constants.PLAYER_SPEED);
 
     // Collisions: Map
-    const clampedPosition = this.map.clampCircle(player);
+    const clampedPosition = this.map.clampCircle(player.body);
     player.setPosition(clampedPosition.x, clampedPosition.y);
 
     // Collisions: Walls
-    const correctedPosition = this.wallsTree.correctWithCircle(player.body);
+    const correctedPosition = this.walls.correctWithCircle(player.body);
     player.setPosition(correctedPosition.x, correctedPosition.y);
 
     // Collisions: Props
@@ -342,7 +319,7 @@ export class DMState extends Schema {
 
 
   // PLAYERS: multiple
-  private set playersUpdateActive(active: boolean) {
+  private setPlayersActive(active: boolean) {
     let player: Player;
     for (const playerId in this.players) {
       player = this.players[playerId];
@@ -350,7 +327,21 @@ export class DMState extends Schema {
     }
   }
 
-  private get playersCount() {
+  private setPlayersPositionRandomly() {
+    let spawner: Geometry.RectangleBody;
+    let player: Player;
+    for (const playerId in this.players) {
+      spawner = this.getSpawnerRandomly();
+      player = this.players[playerId];
+
+      player.setPosition(
+        spawner.x + Constants.PLAYER_SIZE / 2,
+        spawner.y + Constants.PLAYER_SIZE / 2,
+      );
+    }
+  }
+
+  private getPlayersCount() {
     let count = 0;
     for (const playerId in this.players) {
       count++;
@@ -359,7 +350,7 @@ export class DMState extends Schema {
     return count;
   }
 
-  private get playersCountActive() {
+  private getPlayersCountActive() {
     let count = 0;
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
@@ -370,12 +361,16 @@ export class DMState extends Schema {
     return count;
   }
 
-  private get playersGetFirstActive() {
+  private getPlayersFirstActive() {
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
         return this.players[playerId];
       }
     }
+  }
+
+  private getSpawnerRandomly(): Geometry.RectangleBody {
+    return this.spawners[Maths.getRandomInt(this.spawners.length)];
   }
 
 
@@ -389,7 +384,7 @@ export class DMState extends Schema {
     bullet.move(Constants.BULLET_SPEED);
 
     // Collisions: Map
-    if (!this.map.coordsInMap(bullet.x, bullet.y)) {
+    if (!this.map.isVectorOutside(bullet.x, bullet.y)) {
       bullet.active = false;
       return;
     }
@@ -416,7 +411,7 @@ export class DMState extends Schema {
     }
 
     // Collisions: Walls
-    if (this.wallsTree.collidesWithCircle(bullet.body, 'half')) {
+    if (this.walls.collidesWithCircle(bullet.body, 'half')) {
       bullet.active = false;
     }
   }
@@ -448,7 +443,7 @@ export class DMState extends Schema {
       );
 
       // Update its position if it collides
-      while (this.wallsTree.collidesWithRectangle(prop.body)) {
+      while (this.walls.collidesWithRectangle(prop.body)) {
         prop.x = Maths.getRandomInt(this.map.width);
         prop.y = Maths.getRandomInt(this.map.height);
       }

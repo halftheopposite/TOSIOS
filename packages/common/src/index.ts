@@ -1,5 +1,6 @@
 import * as Collisions from './collisions';
 import * as Constants from './constants';
+import * as Entities from './entities';
 import * as Geometry from './geometry';
 import * as Keys from './keys';
 import * as Maps from './maps';
@@ -11,6 +12,7 @@ import * as Types from './types';
 export {
   Collisions,
   Constants,
+  Entities,
   Geometry,
   Keys,
   Maths,
