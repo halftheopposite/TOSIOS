@@ -16,6 +16,8 @@ settings.SCALE_MODE = SCALE_MODES.NEAREST;
 // They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
+// When is far consired too far for client-side prediction?
+const TOREMOVE_DISTANCE_LIMIT = Constants.TILE_SIZE * 2;
 
 interface IInputs {
   left: boolean;
@@ -234,7 +236,7 @@ export default class GameManager {
       this.ghost.toY,
     );
 
-    if (distance > Constants.TILE_SIZE) {
+    if (distance > TOREMOVE_DISTANCE_LIMIT) {
       this.me.position = {
         x: this.ghost.toX,
         y: this.ghost.toY,
