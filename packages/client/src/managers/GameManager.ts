@@ -338,7 +338,7 @@ export default class GameManager {
   }
 
   private updateGhost = () => {
-    if (!Constants.DEBUG || !this.ghost) {
+    if (!this.ghost) {
       return;
     }
 
@@ -584,7 +584,7 @@ export default class GameManager {
 
   // COLYSEUS: Me (server position)
   private ghostAdd = (attributes: any) => {
-    if (!Constants.DEBUG || this.ghost) {
+    if (this.ghost) {
       return;
     }
 
@@ -600,13 +600,13 @@ export default class GameManager {
       0,
       0,
     );
-    this.ghost.sprite.alpha = 0.2;
+    this.ghost.sprite.alpha = Constants.DEBUG ? 0.2 : 0;
     this.ghost.sprite.zIndex = 800;
     this.viewport.addChild(this.ghost.sprite);
   }
 
   private ghostUpdate = (attributes: any) => {
-    if (!Constants.DEBUG || !this.ghost) {
+    if (!this.ghost) {
       return;
     }
 
@@ -623,7 +623,7 @@ export default class GameManager {
   }
 
   private ghostRemove = () => {
-    if (!Constants.DEBUG || !this.ghost) {
+    if (!this.ghost) {
       return;
     }
 
