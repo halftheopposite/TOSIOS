@@ -55,12 +55,11 @@ export const getSpritesLayer = (
 ): Container => {
   // We create the main container for all layers
   const container = new Container();
-  container.zIndex = 1;
 
   // We then parse each layer
   layers.forEach((layer, index) => {
     const layerContainer = new Container();
-    layerContainer.zIndex = 1 + index;
+    layerContainer.zIndex = index;
 
     // Hide special layers when not in debug
     if (SPECIAL_LAYERS.includes(layer.name)) {

@@ -12,6 +12,14 @@ import { BulletsManager, HUDManager, PlayersManager, PropsManager } from './';
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
+const ZINDEXES = {
+  GROUND: 1,
+  PROPS: 2,
+  GHOST: 3,
+  PLAYERS: 4,
+  BULLETS: 5,
+};
+
 // These two constants should be calculated automatically.
 // They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
@@ -107,17 +115,17 @@ export default class GameManager {
 
     // Props
     this.propsManager = new PropsManager();
-    this.propsManager.zIndex = 2;
+    this.propsManager.zIndex = ZINDEXES.PROPS;
     this.viewport.addChild(this.propsManager);
 
     // Players
     this.playersManager = new PlayersManager();
-    this.playersManager.zIndex = 3;
+    this.playersManager.zIndex = ZINDEXES.PLAYERS;
     this.viewport.addChild(this.playersManager);
 
     // Bullets
     this.bulletsManager = new BulletsManager();
-    this.bulletsManager.zIndex = 4;
+    this.bulletsManager.zIndex = ZINDEXES.BULLETS;
     this.viewport.addChild(this.bulletsManager);
 
     // Viewport
@@ -174,6 +182,7 @@ export default class GameManager {
 
     // Layers
     const container = getSpritesLayer(textures, tiledMap.layers);
+    container.zIndex = ZINDEXES.GROUND;
     this.viewport.addChild(container);
   }
 
@@ -591,19 +600,19 @@ export default class GameManager {
     }
 
     this.ghost = new Player(
-      '',
+      'ghost',
       attributes.x,
       attributes.y,
       attributes.radius,
       attributes.rotation,
-      '',
-      '',
+      'Ghost',
+      '#000000',
       0,
       0,
       0,
     );
     this.ghost.sprite.alpha = Constants.DEBUG ? 0.2 : 0;
-    this.ghost.sprite.zIndex = 800;
+    this.ghost.sprite.zIndex = ZINDEXES.GHOST;
     this.viewport.addChild(this.ghost.sprite);
   }
 
@@ -612,7 +621,6 @@ export default class GameManager {
       return;
     }
 
-    this.ghost.lives = attributes.lives;
     this.ghost.rotation = attributes.rotation;
     this.ghost.position = {
       x: this.ghost.toX,
