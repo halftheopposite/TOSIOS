@@ -20,12 +20,14 @@ export class GameRoom extends Room<GameState> {
       roomName: options.roomName.slice(0, Constants.ROOM_NAME_MAX),
       roomMap: options.roomMap,
       roomMaxPlayers: this.maxClients,
+      mode: options.mode,
     });
 
     // Init State
     this.setState(new GameState(
       options.roomMap,
       this.maxClients,
+      options.mode,
       this.handleMessage,
     ));
 

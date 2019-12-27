@@ -70,6 +70,7 @@ export default class GameManager {
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
   private gameEndsAt: number = 0;
+  private mode?: string;
 
   // Me (the one playing the game on his computer)
   private me: Player | null = null;
@@ -514,6 +515,9 @@ export default class GameManager {
         break;
       case 'gameEndsAt':
         this.gameEndsAt = value;
+        break;
+      case 'mode':
+        this.mode = value;
         break;
       default:
         break;

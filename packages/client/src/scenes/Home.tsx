@@ -18,6 +18,11 @@ const PlayersCountList: IListItem[] = Constants.ROOM_PLAYERS_SCALES.map(value =>
   title: `${value} players`,
 }));
 
+const GameModesList: IListItem[] = Constants.GAME_MODES.map(value => ({
+  value,
+  title: value,
+}));
+
 interface IProps extends RouteComponentProps {
 }
 
@@ -28,6 +33,7 @@ interface IState {
   roomName: string;
   roomMap: any;
   roomMaxPlayers: any;
+  mode: any;
   rooms: RoomAvailable<any>[];
   timer: any;
 }
@@ -38,11 +44,12 @@ export default class Home extends Component<IProps, IState> {
     playerName: localStorage.getItem('playerName') || '',
     hasNameChanged: false,
     isNewRoom: false,
-    rooms: [],
-    timer: null,
     roomName: localStorage.getItem('roomName') || '',
     roomMap: MapsList[0].value,
     roomMaxPlayers: PlayersCountList[0].value,
+    mode: GameModesList[0].value,
+    rooms: [],
+    timer: null,
   };
 
   private client?: Client;
@@ -109,6 +116,7 @@ export default class Home extends Component<IProps, IState> {
       roomName,
       roomMap,
       roomMaxPlayers,
+      mode,
     } = this.state;
 
     const options: Types.IRoomOptions = {
@@ -116,6 +124,7 @@ export default class Home extends Component<IProps, IState> {
       roomName,
       roomMap,
       roomMaxPlayers,
+      mode,
     };
 
     navigate(`/new${qs.stringify(options, true)}`);
@@ -230,7 +239,9 @@ export default class Home extends Component<IProps, IState> {
       roomName,
       roomMap,
       roomMaxPlayers,
+      mode,
     } = this.state;
+
     return (
       <View
         flex={true}
@@ -276,6 +287,16 @@ export default class Home extends Component<IProps, IState> {
               value={roomMaxPlayers}
               values={PlayersCountList}
               onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
+            />
+            <Space size="s" />
+
+            {/* Mode */}
+            <p>Game mode:</p>
+            <Space size="xxs" />
+            <Select
+              value={mode}
+              values={GameModesList}
+              onChange={(event: any) => this.setState({ mode: event.target.value })}
             />
             <Space size="s" />
 
@@ -334,6 +355,7 @@ export default class Home extends Component<IProps, IState> {
             roomMap={mapName}
             clients={clients}
             maxClients={maxClients}
+            mode={metadata.mode}
             onClick={this.handleRoomClick}
           />
           {(index !== rooms.length - 1) && <Space size="xxs" />}

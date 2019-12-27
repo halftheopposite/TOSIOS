@@ -27,7 +27,8 @@ export class GameState extends Schema {
   constructor(
     mapName: string,
     maxPlayers: number,
-    onMessage: any,
+    mode: Types.GameMode,
+    onMessage: (message: Message) => void,
   ) {
     super();
 
@@ -37,6 +38,8 @@ export class GameState extends Schema {
       Constants.LOBBY_DURATION,
       Constants.GAME_DURATION,
       maxPlayers,
+      'waiting',
+      mode,
     );
 
     // Map

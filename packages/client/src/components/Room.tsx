@@ -27,6 +27,7 @@ export default function (props: {
   roomMap: string;
   clients: number;
   maxClients: number;
+  mode: string;
   onClick: (id: string) => void;
 }): React.ReactElement {
   const {
@@ -35,6 +36,7 @@ export default function (props: {
     roomMap,
     clients,
     maxClients,
+    mode,
     onClick,
   } = props;
   const [hovered, setHovered] = React.useState(false);
@@ -56,6 +58,8 @@ export default function (props: {
         <p><b>{`Players: [${clients}/${maxClients}]`}</b></p>
         <Space size="xxs" />
         <p><b>{`Map: "${roomMap}"`}</b></p>
+        <Space size="xxs" />
+        <p><b>{`Mode: "${mode}"`}</b></p>
       </View>
       {isMobile && <Space size="xs" />}
       <Button
