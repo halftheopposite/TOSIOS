@@ -125,16 +125,27 @@ export class GameState extends Schema {
       case 'game': {
         let shouldContinueGame = true;
 
-        // Stop "game" when (all - 1) are dead
-        if (this.getPlayersCountActive() === 1) {
-          const player = this.getPlayersFirstActive();
-          if (player) {
-            this.onMessage(new Message('won', {
-              name: player.name,
-            }));
-          }
+        if (this.game.mode === 'deathmatch') {
+          // Deathmatch
+          if (this.getPlayersCountActive() === 1) {
+            const player = this.getPlayersFirstActive();
+            if (player) {
+              this.onMessage(new Message('won', {
+                name: player.name,
+              }));
+            }
 
-          shouldContinueGame = false;
+            shouldContinueGame = false;
+          }
+        } else {
+          // Team Deathmatch
+          const winningTeam: Types.Teams | null = this.getWinnerTeam();
+          if (winningTeam) {
+            this.onMessage(new Message('won', {
+              name: winningTeam === 'Red' ? 'Red team' : 'Blue team',
+            }));
+            shouldContinueGame = false;
+          }
         }
 
         // Stop "game" when time is over (everyone loses)
@@ -360,7 +371,7 @@ export class GameState extends Schema {
     }
   }
 
-  private getPlayersCount() {
+  private getPlayersCount(): number {
     let count = 0;
     for (const playerId in this.players) {
       count++;
@@ -369,7 +380,7 @@ export class GameState extends Schema {
     return count;
   }
 
-  private getPlayersCountActive() {
+  private getPlayersCountActive(): number {
     let count = 0;
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
@@ -380,12 +391,34 @@ export class GameState extends Schema {
     return count;
   }
 
-  private getPlayersFirstActive() {
+  private getPlayersFirstActive(): Player {
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
         return this.players[playerId];
       }
     }
+  }
+
+  private getWinnerTeam(): Types.Teams | null {
+    let redAlive = false;
+    let blueAlive = false;
+
+    for (const playerId in this.players) {
+      const player = this.players[playerId];
+      if (player.isAlive) {
+        if (player.team === 'Red') {
+          redAlive = true;
+        } else {
+          blueAlive = true;
+        }
+      }
+    }
+
+    if (redAlive && blueAlive) {
+      return null;
+    }
+
+    return redAlive ? 'Red' : 'Blue';
   }
 
   private getSpawnerRandomly(): Geometry.RectangleBody {
