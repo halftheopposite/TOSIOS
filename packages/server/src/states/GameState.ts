@@ -111,6 +111,11 @@ export class GameState extends Schema {
         // Go on "game" when lobby time is over
         if (this.game.lobbyEndsAt < Date.now()) {
           this.setPlayersPositionRandomly();
+
+          if (this.game.mode === 'team deathmatch') {
+            this.setPlayersTeamsRandomly();
+          }
+
           this.setPlayersActive(true);
           this.propsAdd();
           this.game.setState('game');
@@ -284,6 +289,7 @@ export class GameState extends Schema {
     if (index === -1) {
       this.bullets.push(new Bullet(
         id,
+        player.team,
         bulletX,
         bulletY,
         Constants.BULLET_SIZE,
@@ -294,6 +300,7 @@ export class GameState extends Schema {
     } else {
       this.bullets[index].reset(
         id,
+        player.team,
         bulletX,
         bulletY,
         Constants.BULLET_SIZE,
@@ -344,6 +351,15 @@ export class GameState extends Schema {
     }
   }
 
+  private setPlayersTeamsRandomly() {
+    let player: Player;
+    for (const playerId in this.players) {
+      player = this.players[playerId];
+
+      player.setTeam(Maths.getRandomInt(0, 1) === 0 ? 'Blue' : 'Red');
+    }
+  }
+
   private getPlayersCount() {
     let count = 0;
     for (const playerId in this.players) {
@@ -373,7 +389,7 @@ export class GameState extends Schema {
   }
 
   private getSpawnerRandomly(): Geometry.RectangleBody {
-    return this.spawners[Maths.getRandomInt(this.spawners.length)];
+    return this.spawners[Maths.getRandomInt(0, this.spawners.length - 1)];
   }
 
 
@@ -386,36 +402,42 @@ export class GameState extends Schema {
 
     bullet.move(Constants.BULLET_SPEED);
 
-    // Collisions: Map
-    if (!this.map.isVectorOutside(bullet.x, bullet.y)) {
-      bullet.active = false;
-      return;
-    }
-
     // Collisions: Players
     for (const playerKey of Object.keys(this.players)) {
-      // Only compute collision if the bullet doesn't belong to the Player
-      if (bullet.playerId !== playerKey) {
-        const player = this.players[playerKey];
+      const player: Player = this.players[playerKey];
 
-        if (player.isAlive && Collisions.circleToCircle(bullet.body, player.body)) {
-          bullet.active = false;
-          player.hurt();
-
-          if (!player.isAlive) {
-            this.onMessage(new Message('killed', {
-              killerName: this.players[bullet.playerId].name,
-              killedName: player.name,
-            }));
-            this.playerUpdateKills(bullet.playerId);
-          }
-        }
+      // Check if the bullet can collide with the player
+      if (
+        !player.isAlive ||
+        !player.canBulletHurt(bullet.playerId, bullet.team) ||
+        !Collisions.circleToCircle(bullet.body, player.body)
+      ) {
+        continue;
       }
+
+      bullet.active = false;
+      player.hurt();
+
+      if (!player.isAlive) {
+        this.onMessage(new Message('killed', {
+          killerName: this.players[bullet.playerId].name,
+          killedName: player.name,
+        }));
+        this.playerUpdateKills(bullet.playerId);
+      }
+      return;
     }
 
     // Collisions: Walls
     if (this.walls.collidesWithCircle(bullet.body, 'half')) {
       bullet.active = false;
+      return;
+    }
+
+    // Collisions: Map
+    if (this.map.isCircleOutside(bullet.body)) {
+      bullet.active = false;
+      return;
     }
   }
 
@@ -439,16 +461,16 @@ export class GameState extends Schema {
     for (let i: number = 0; i < quantity; i++) {
       prop = new Prop(
         type,
-        Maths.getRandomInt(this.map.width),
-        Maths.getRandomInt(this.map.height),
+        Maths.getRandomInt(0, this.map.width),
+        Maths.getRandomInt(0, this.map.height),
         size,
         size,
       );
 
       // Update its position if it collides
       while (this.walls.collidesWithRectangle(prop.body)) {
-        prop.x = Maths.getRandomInt(this.map.width);
-        prop.y = Maths.getRandomInt(this.map.height);
+        prop.x = Maths.getRandomInt(0, this.map.width);
+        prop.y = Maths.getRandomInt(0, this.map.height);
       }
 
       // We want the items to snap to the grid

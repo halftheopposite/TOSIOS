@@ -324,7 +324,7 @@ export default class GameManager {
   }
 
   private shoot = () => {
-    if (!this.me || this.state !== 'game' || !this.me.canShoot) {
+    if (!this.me || this.state !== 'game' || !this.me.canShoot()) {
       return;
     }
 
@@ -337,6 +337,7 @@ export default class GameManager {
       bulletY,
       Constants.BULLET_SIZE,
       this.me.playerId,
+      this.me.team,
       this.me.rotation,
       this.me.color,
       this.me.lastShootAt,
@@ -385,20 +386,22 @@ export default class GameManager {
 
       // Collisions: Players
       for (const player of this.playersManager.getAll()) {
-        // We don't want to collide players with their own bullets locally
-        if (bullet.playerId === player.playerId) {
+        // Check if the bullet can collide with the player
+        if (
+          !player.isAlive ||
+          !player.canBulletHurt(bullet.playerId, bullet.team) ||
+          !Collisions.circleToCircle(bullet.body, player.body)
+        ) {
           continue;
         }
 
-        if (player.lives && Collisions.circleToCircle(bullet.body, player.body)) {
-          bullet.active = false;
-          player.hurt();
-          this.spawnImpact(
-            bullet.x,
-            bullet.y,
-          );
-          continue;
-        }
+        bullet.active = false;
+        player.hurt();
+        this.spawnImpact(
+          bullet.x,
+          bullet.y,
+        );
+        continue;
       }
 
       // Collisions: Me
@@ -526,18 +529,19 @@ export default class GameManager {
 
   // COLYSEUS: Me (local position)
   meAdd = (playerId: string, attributes: any) => {
-    this.me = new Player(
+    this.me = new Player({
       playerId,
-      attributes.x,
-      attributes.y,
-      attributes.radius,
-      attributes.rotation,
-      attributes.name,
-      attributes.color,
-      attributes.lives,
-      attributes.maxLives,
-      attributes.kills,
-    );
+      x: attributes.x,
+      y: attributes.y,
+      radius: attributes.radius,
+      rotation: attributes.rotation,
+      name: attributes.name,
+      color: attributes.color,
+      lives: attributes.lives,
+      maxLives: attributes.maxLives,
+      kills: attributes.kills,
+      team: attributes.team,
+    });
 
     this.playersManager.addChild(this.me.weaponSprite);
     this.playersManager.addChild(this.me.sprite);
@@ -564,7 +568,9 @@ export default class GameManager {
 
     this.me.lives = attributes.lives;
     this.me.maxLives = attributes.maxLives;
+    this.me.color = attributes.color;
     this.me.kills = attributes.kills;
+    this.me.team = attributes.team;
 
     // Update Ghost (server computed position)
     this.ghostUpdate(attributes);
@@ -603,18 +609,19 @@ export default class GameManager {
       return;
     }
 
-    this.ghost = new Player(
-      'ghost',
-      attributes.x,
-      attributes.y,
-      attributes.radius,
-      attributes.rotation,
-      'Ghost',
-      '#000000',
-      0,
-      0,
-      0,
-    );
+    this.ghost = new Player({
+      playerId: 'ghost',
+      x: attributes.x,
+      y: attributes.y,
+      radius: attributes.radius,
+      rotation: attributes.rotation,
+      name: 'Ghost',
+      color: '#000000',
+      lives: 0,
+      maxLives: 0,
+      kills: 0,
+      team: '',
+    });
     this.ghost.sprite.alpha = Constants.DEBUG ? 0.2 : 0;
     this.ghost.sprite.zIndex = ZINDEXES.GHOST;
     this.viewport.addChild(this.ghost.sprite);
@@ -647,18 +654,19 @@ export default class GameManager {
 
   // COLYSEUS: Players (others)
   playerAdd = (playerId: string, attributes: any) => {
-    const player = new Player(
+    const player = new Player({
       playerId,
-      attributes.x,
-      attributes.y,
-      attributes.radius,
-      attributes.rotation,
-      attributes.name,
-      attributes.color,
-      attributes.lives,
-      attributes.maxLives,
-      attributes.kills,
-    );
+      x: attributes.x,
+      y: attributes.y,
+      radius: attributes.radius,
+      rotation: attributes.rotation,
+      name: attributes.name,
+      color: attributes.color,
+      lives: attributes.lives,
+      maxLives: attributes.maxLives,
+      kills: attributes.kills,
+      team: attributes.team,
+    });
     this.playersManager.add(playerId, player);
 
     // Add in HUD for leaderboard
@@ -678,7 +686,9 @@ export default class GameManager {
 
     player.lives = attributes.lives;
     player.rotation = attributes.rotation;
+    player.color = attributes.color;
     player.kills = attributes.kills;
+    player.team = attributes.team;
 
     // Set new interpolation values
     player.position = {
@@ -708,14 +718,15 @@ export default class GameManager {
 
   // COLYSEUS: Props
   propAdd = (propId: string, attributes: any) => {
-    this.propsManager.add(propId, new Prop(
-      attributes.type,
-      attributes.x,
-      attributes.y,
-      attributes.width,
-      attributes.height,
-      attributes.active,
-    ));
+    const prop = new Prop({
+      type: attributes.type,
+      x: attributes.x,
+      y: attributes.y,
+      width: attributes.width,
+      height: attributes.height,
+      active: attributes.active,
+    });
+    this.propsManager.add(propId, prop);
   }
 
   propUpdate = (propId: string, attributes: any) => {
@@ -746,6 +757,7 @@ export default class GameManager {
       attributes.fromY,
       attributes.radius,
       attributes.playerId,
+      attributes.team,
       attributes.rotation,
       attributes.color,
       attributes.shotAt,

@@ -1,11 +1,18 @@
 import { type } from '@colyseus/schema';
-import { Maths } from '@tosios/common';
+import { Maths, Types } from '@tosios/common';
 import { Circle } from './Circle';
 
 const validateName = (name: string) => name.trim().slice(0, 16);
 const getRandomColor = () => '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
+const getTeamColor = (team: Types.Teams) => team === 'Blue' ? '#0000FF' : '#FF0000';
 
 export class Player extends Circle {
+
+  @type('string')
+  public playerId: string;
+
+  @type('string')
+  public name: string;
 
   @type('number')
   public lives: number;
@@ -14,7 +21,7 @@ export class Player extends Circle {
   public maxLives: number;
 
   @type('string')
-  public name: string;
+  public team: Types.Teams;
 
   @type('string')
   public color: string;
@@ -29,12 +36,21 @@ export class Player extends Circle {
   public lastShootAt: number;
 
   // Init
-  constructor(x: number, y: number, radius: number, lives: number, maxLives: number, name: string) {
+  constructor(
+    x: number,
+    y: number,
+    radius: number,
+    lives: number,
+    maxLives: number,
+    name: string,
+    team?: Types.Teams,
+  ) {
     super(x, y, radius);
     this.lives = lives;
     this.maxLives = maxLives;
     this.name = validateName(name);
-    this.color = getRandomColor();
+    this.team = team;
+    this.color = team ? getTeamColor(team) : getRandomColor();
     this.kills = 0;
     this.rotation = 0;
     this.lastShootAt = undefined;
@@ -59,6 +75,10 @@ export class Player extends Circle {
     this.lives += 1;
   }
 
+  canBulletHurt(otherPlayerId: string, team?: string): boolean {
+    return otherPlayerId !== this.playerId && (!!team && team !== this.team);
+  }
+
   // Getters
   get isAlive(): boolean {
     return this.lives > 0;
@@ -69,15 +89,6 @@ export class Player extends Circle {
   }
 
   // Setters
-  setLives(lives: number) {
-    if (lives) {
-      this.lives = lives;
-      this.kills = 0;
-    } else {
-      this.lives = 0;
-    }
-  }
-
   setPosition(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -87,8 +98,22 @@ export class Player extends Circle {
     this.rotation = rotation;
   }
 
+  setLives(lives: number) {
+    if (lives) {
+      this.lives = lives;
+      this.kills = 0;
+    } else {
+      this.lives = 0;
+    }
+  }
+
   setName(name: string) {
     this.name = validateName(name);
+  }
+
+  setTeam(team: Types.Teams) {
+    this.team = team;
+    this.color = getTeamColor(team);
   }
 
   setKills(kills: number) {

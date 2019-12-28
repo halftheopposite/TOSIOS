@@ -6,6 +6,9 @@ export class Bullet extends Circle {
   @type('string')
   public playerId: string;
 
+  @type('string')
+  public team: string;
+
   @type('number')
   public rotation: number;
 
@@ -27,6 +30,7 @@ export class Bullet extends Circle {
   // Init
   constructor(
     playerId: string,
+    team: string,
     x: number,
     y: number,
     radius: number,
@@ -35,10 +39,11 @@ export class Bullet extends Circle {
     shotAt: number,
   ) {
     super(x, y, radius);
+    this.playerId = playerId;
+    this.team = team;
+    this.rotation = rotation;
     this.fromX = x;
     this.fromY = y;
-    this.playerId = playerId;
-    this.rotation = rotation;
     this.active = true;
     this.color = color;
     this.shotAt = shotAt;
@@ -52,6 +57,7 @@ export class Bullet extends Circle {
 
   reset(
     playerId: string,
+    team: string,
     x: number,
     y: number,
     radius: number,
@@ -60,6 +66,7 @@ export class Bullet extends Circle {
     shotAt: number,
   ) {
     this.playerId = playerId;
+    this.team = team;
     this.fromX = x;
     this.fromY = y;
     this.x = x;
