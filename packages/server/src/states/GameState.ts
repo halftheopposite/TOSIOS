@@ -363,11 +363,24 @@ export class GameState extends Schema {
   }
 
   private setPlayersTeamsRandomly() {
-    let player: Player;
+    // Add all players' ids into an array
+    let playersIds: string[] = [];
     for (const playerId in this.players) {
-      player = this.players[playerId];
+      playersIds.push(playerId);
+    }
 
-      player.setTeam(Maths.getRandomInt(0, 1) === 0 ? 'Blue' : 'Red');
+    // Shuffle players' ids
+    playersIds = Maths.shuffleArray(playersIds);
+
+    const minimumPlayersPerTeam = Math.floor(playersIds.length / 2);
+    const rest = playersIds.length % 2;
+
+    for (let i = 0; i < playersIds.length; i++) {
+      const playerId = playersIds[i];
+      const player = this.players[playerId];
+      const isBlueTeam = i < (minimumPlayersPerTeam + rest);
+
+      player.setTeam(isBlueTeam ? 'Blue' : 'Red');
     }
   }
 
