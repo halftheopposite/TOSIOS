@@ -22,7 +22,7 @@ interface IState {
 
 export default class Game extends Component<IProps, IState> {
 
-  public state: IState = {
+  public state = {
     playerId: '',
     playersCount: 0,
     maxPlayersCount: 0,
