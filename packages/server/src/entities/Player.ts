@@ -76,7 +76,19 @@ export class Player extends Circle {
   }
 
   canBulletHurt(otherPlayerId: string, team?: string): boolean {
-    return otherPlayerId !== this.playerId && (!!team && team !== this.team);
+    if (!this.isAlive) {
+      return false;
+    }
+
+    if (this.playerId === otherPlayerId) {
+      return false;
+    }
+
+    if (!!team && team === this.team) {
+      return false;
+    }
+
+    return true;
   }
 
   // Getters

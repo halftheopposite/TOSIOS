@@ -11,7 +11,7 @@ const HEAL_COLOR = 0xEFEFEF;
 
 type PlayerDirection = 'left' | 'right';
 
-interface IPlayer {
+export interface IPlayer {
   playerId: string;
   x: number;
   y: number;
@@ -23,6 +23,7 @@ interface IPlayer {
   maxLives: number;
   kills: number;
   team: string;
+  isGhost: boolean;
 }
 
 export default class Player extends CircleSprite {
@@ -38,6 +39,7 @@ export default class Player extends CircleSprite {
   private _rotation: number = 0;
 
   // Computed
+  private _isGhost: boolean = false;
   private _direction: PlayerDirection = 'right';
   private _lastShootAt: number = 0;
   private _toX: number = 0;
@@ -92,6 +94,12 @@ export default class Player extends CircleSprite {
     this.maxLives = attributes.maxLives;
     this.kills = attributes.kills;
     this.team = attributes.team;
+    this.isGhost = attributes.isGhost;
+
+    // Ghost
+    if (attributes.isGhost) {
+      this.sprite.visible = Constants.DEBUG;
+    }
 
     this.updateTextures();
   }
@@ -150,7 +158,23 @@ export default class Player extends CircleSprite {
   }
 
   canBulletHurt(otherPlayerId: string, team?: string): boolean {
-    return otherPlayerId !== this.playerId && (!!team && team !== this.team);
+    if (!this.isAlive) {
+      return false;
+    }
+
+    if (this.isGhost) {
+      return false;
+    }
+
+    if (this.playerId === otherPlayerId) {
+      return false;
+    }
+
+    if (!!team && team === this.team) {
+      return false;
+    }
+
+    return true;
   }
 
   // Setters
@@ -211,6 +235,10 @@ export default class Player extends CircleSprite {
     }
 
     this._weaponSprite.rotation = rotation;
+  }
+
+  set isGhost(isGhost: boolean) {
+    this._isGhost = isGhost;
   }
 
   set direction(direction: PlayerDirection) {
@@ -283,6 +311,10 @@ export default class Player extends CircleSprite {
 
   get rotation() {
     return this._rotation;
+  }
+
+  get isGhost() {
+    return this._isGhost;
   }
 
   get direction() {
