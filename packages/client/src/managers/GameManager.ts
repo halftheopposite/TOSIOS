@@ -3,6 +3,7 @@ import { Emitter } from 'pixi-particles';
 import { Viewport } from 'pixi-viewport';
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { Player, Prop } from '../entities';
+import { IPlayer } from '../entities/Player';
 import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
@@ -15,8 +16,8 @@ settings.SCALE_MODE = SCALE_MODES.NEAREST;
 const ZINDEXES = {
   GROUND: 1,
   PROPS: 2,
-  GHOST: 3,
-  PLAYERS: 4,
+  PLAYERS: 3,
+  ME: 4,
   BULLETS: 5,
 };
 
@@ -74,7 +75,6 @@ export default class GameManager {
 
   // Me (the one playing the game on his computer)
   private me: Player | null = null;
-  private ghost: Player | null = null;
 
 
   // LIFECYCLE
@@ -191,8 +191,6 @@ export default class GameManager {
     // Uncomment if you need to use time for animations
     // const deltaTime: number = this.app.ticker.elapsedMS;
     this.updateInputs();
-    this.updateMe();
-    this.updateGhost();
     this.updatePlayers();
     this.updateBullets();
     this.updateHUD();
@@ -231,26 +229,6 @@ export default class GameManager {
     // Shoot
     if (this.inputs.shoot) {
       this.shoot();
-    }
-  }
-
-  private updateMe = () => {
-    if (!this.me || !this.ghost) {
-      return;
-    }
-
-    const distance = Maths.getDistance(
-      this.me.x,
-      this.me.y,
-      this.ghost.toX,
-      this.ghost.toY,
-    );
-
-    if (distance > TOREMOVE_DISTANCE_LIMIT) {
-      this.me.position = {
-        x: this.ghost.toX,
-        y: this.ghost.toY,
-      };
     }
   }
 
@@ -350,18 +328,6 @@ export default class GameManager {
     });
   }
 
-  private updateGhost = () => {
-    if (!this.ghost) {
-      return;
-    }
-
-    const distance = Maths.getDistance(this.ghost.x, this.ghost.y, this.ghost.toX, this.ghost.toY);
-    if (distance !== 0) {
-      this.ghost.x = Maths.lerp(this.ghost.x, this.ghost.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
-      this.ghost.y = Maths.lerp(this.ghost.y, this.ghost.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
-    }
-  }
-
   private updatePlayers = () => {
     let distance;
 
@@ -386,9 +352,8 @@ export default class GameManager {
 
       // Collisions: Players
       for (const player of this.playersManager.getAll()) {
-        // Check if the bullet can collide with the player
+        // Check if the bullet can hurt the player
         if (
-          !player.isAlive ||
           !player.canBulletHurt(bullet.playerId, bullet.team) ||
           !Collisions.circleToCircle(bullet.body, player.body)
         ) {
@@ -493,7 +458,7 @@ export default class GameManager {
 
   // GETTERS
   get playersCount() {
-    return this.playersManager.getAll().length + 1;
+    return this.playersManager.getAll().length;
   }
 
 
@@ -527,134 +492,9 @@ export default class GameManager {
     }
   }
 
-  // COLYSEUS: Me (local position)
-  meAdd = (playerId: string, attributes: any) => {
-    this.me = new Player({
-      playerId,
-      x: attributes.x,
-      y: attributes.y,
-      radius: attributes.radius,
-      rotation: attributes.rotation,
-      name: attributes.name,
-      color: attributes.color,
-      lives: attributes.lives,
-      maxLives: attributes.maxLives,
-      kills: attributes.kills,
-      team: attributes.team,
-    });
-
-    this.playersManager.addChild(this.me.weaponSprite);
-    this.playersManager.addChild(this.me.sprite);
-    this.playersManager.addChild(this.me.nameTextSprite);
-    this.playersManager.addChild(this.me.livesSprite);
-    this.viewport.follow(this.me.sprite);
-
-    // Create Ghost (server computed position)
-    this.ghostAdd(attributes);
-
-    // Add in HUD for leaderboard
-    this.hudManager.updatePlayer(
-      this.me.playerId,
-      this.me.name,
-      this.me.kills,
-      this.me.color,
-    );
-  }
-
-  meUpdate = (attributes: any) => {
-    if (!this.me) {
-      return;
-    }
-
-    this.me.lives = attributes.lives;
-    this.me.maxLives = attributes.maxLives;
-    this.me.color = attributes.color;
-    this.me.kills = attributes.kills;
-    this.me.team = attributes.team;
-
-    // Update Ghost (server computed position)
-    this.ghostUpdate(attributes);
-
-    // Update in HUD for leaderboard
-    this.hudManager.updatePlayer(
-      this.me.playerId,
-      this.me.name,
-      this.me.kills,
-      this.me.color,
-    );
-  }
-
-  meRemove = () => {
-    if (!this.me) {
-      return;
-    }
-
-    this.playersManager.removeChild(this.me.weaponSprite);
-    this.playersManager.removeChild(this.me.sprite);
-    this.playersManager.removeChild(this.me.nameTextSprite);
-    this.playersManager.removeChild(this.me.livesSprite);
-
-    // Remove Ghost
-    this.ghostRemove();
-
-    // Remove from HUD leaderboard
-    this.hudManager.removePlayer(this.me.playerId);
-
-    delete this.me;
-  }
-
-  // COLYSEUS: Me (server position)
-  private ghostAdd = (attributes: any) => {
-    if (this.ghost) {
-      return;
-    }
-
-    this.ghost = new Player({
-      playerId: 'ghost',
-      x: attributes.x,
-      y: attributes.y,
-      radius: attributes.radius,
-      rotation: attributes.rotation,
-      name: 'Ghost',
-      color: '#000000',
-      lives: 0,
-      maxLives: 0,
-      kills: 0,
-      team: '',
-    });
-    this.ghost.sprite.alpha = Constants.DEBUG ? 0.2 : 0;
-    this.ghost.sprite.zIndex = ZINDEXES.GHOST;
-    this.viewport.addChild(this.ghost.sprite);
-  }
-
-  private ghostUpdate = (attributes: any) => {
-    if (!this.ghost) {
-      return;
-    }
-
-    this.ghost.rotation = attributes.rotation;
-    this.ghost.position = {
-      x: this.ghost.toX,
-      y: this.ghost.toY,
-    };
-    this.ghost.toPosition = {
-      toX: attributes.x,
-      toY: attributes.y,
-    };
-  }
-
-  private ghostRemove = () => {
-    if (!this.ghost) {
-      return;
-    }
-
-    this.viewport.removeChild(this.ghost.sprite);
-    delete this.ghost;
-  }
-
   // COLYSEUS: Players (others)
-  playerAdd = (playerId: string, attributes: any) => {
-    const player = new Player({
+  playerAdd = (playerId: string, attributes: any, isMe: boolean) => {
+    const props: IPlayer = {
       playerId,
       x: attributes.x,
       y: attributes.y,
@@ -666,25 +506,40 @@ export default class GameManager {
       maxLives: attributes.maxLives,
       kills: attributes.kills,
       team: attributes.team,
-    });
+      isGhost: isMe,
+    };
+
+    const player = new Player(props);
     this.playersManager.add(playerId, player);
 
-    // Add in HUD for leaderboard
-    this.hudManager.updatePlayer(
-      playerId,
+    // Add to HUD leaderboard
+    this.hudManager.createOrUpdatePlayer(
+      player.playerId,
       player.name,
       player.kills,
       player.color,
     );
+
+    // If the player is "you"
+    if (isMe) {
+      this.me = new Player(props);
+
+      this.playersManager.addChild(this.me.weaponSprite);
+      this.playersManager.addChild(this.me.sprite);
+      this.playersManager.addChild(this.me.nameTextSprite);
+      this.playersManager.addChild(this.me.livesSprite);
+      this.viewport.follow(this.me.sprite);
+    }
   }
 
-  playerUpdate = (playerId: string, attributes: any) => {
+  playerUpdate = (playerId: string, attributes: any, isMe: boolean) => {
     const player = this.playersManager.get(playerId);
     if (!player) {
       return;
     }
 
     player.lives = attributes.lives;
+    player.maxLives = attributes.maxLives;
     player.rotation = attributes.rotation;
     player.color = attributes.color;
     player.kills = attributes.kills;
@@ -701,19 +556,52 @@ export default class GameManager {
     };
 
     // Update in HUD for leaderboard
-    this.hudManager.updatePlayer(
+    this.hudManager.createOrUpdatePlayer(
       playerId,
       player.name,
       player.kills,
       player.color,
     );
+
+    // If the player is "you"
+    if (isMe && this.me) {
+      this.me.lives = attributes.lives;
+      this.me.maxLives = attributes.maxLives;
+      this.me.color = attributes.color;
+      this.me.kills = attributes.kills;
+      this.me.team = attributes.team;
+
+      const distance = Maths.getDistance(
+        this.me.x,
+        this.me.y,
+        player.toX,
+        player.toY,
+      );
+
+      if (distance > TOREMOVE_DISTANCE_LIMIT) {
+        this.me.position = {
+          x: player.toX,
+          y: player.toY,
+        };
+      }
+    }
   }
 
-  playerRemove = (playerId: string) => {
+  playerRemove = (playerId: string, isMe: boolean) => {
     this.playersManager.remove(playerId);
 
     // Remove from HUD leaderboard
     this.hudManager.removePlayer(playerId);
+
+    // If the player is "you"
+    if (isMe && this.me) {
+      this.playersManager.removeChild(this.me.weaponSprite);
+      this.playersManager.removeChild(this.me.sprite);
+      this.playersManager.removeChild(this.me.nameTextSprite);
+      this.playersManager.removeChild(this.me.livesSprite);
+
+      delete this.me;
+    }
   }
 
   // COLYSEUS: Props

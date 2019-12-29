@@ -452,9 +452,8 @@ export class GameState extends Schema {
     for (const playerKey of Object.keys(this.players)) {
       const player: Player = this.players[playerKey];
 
-      // Check if the bullet can collide with the player
+      // Check if the bullet can hurt the player
       if (
-        !player.isAlive ||
         !player.canBulletHurt(bullet.playerId, bullet.team) ||
         !Collisions.circleToCircle(bullet.body, player.body)
       ) {
