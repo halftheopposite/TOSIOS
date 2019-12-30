@@ -182,7 +182,7 @@ export default class HUDManager extends Container {
     this.renderLogs();
   }
 
-  createOrUpdatePlayer = (playerId: string, name: string, kills: number, color: string) => {
+  createOrUpdatePlayer = (playerId: string, name: string, kills: number, color: string, team?: string) => {
     const player = this._playersList[playerId];
     if (player && player.kills === kills) {
       return;

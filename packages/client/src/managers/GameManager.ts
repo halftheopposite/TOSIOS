@@ -522,7 +522,10 @@ export default class GameManager {
 
     // If the player is "you"
     if (isMe) {
-      this.me = new Player(props);
+      this.me = new Player({
+        ...props,
+        isGhost: false,
+      });
 
       this.playersManager.addChild(this.me.weaponSprite);
       this.playersManager.addChild(this.me.sprite);
@@ -540,10 +543,10 @@ export default class GameManager {
 
     player.lives = attributes.lives;
     player.maxLives = attributes.maxLives;
-    player.rotation = attributes.rotation;
     player.color = attributes.color;
     player.kills = attributes.kills;
     player.team = attributes.team;
+    player.rotation = attributes.rotation;
 
     // Set new interpolation values
     player.position = {
@@ -561,6 +564,7 @@ export default class GameManager {
       player.name,
       player.kills,
       player.color,
+      player.team,
     );
 
     // If the player is "you"
