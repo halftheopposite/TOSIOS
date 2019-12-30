@@ -6,13 +6,13 @@
   "typings": "build/index.d.ts",
   "dependencies": {
     "rbush": "^3.0.1",
-    "react": "^16.8.6"
+    "react": "^16.12.0"
   },
   "devDependencies": {
-    "@types/rbush": "^2.0.2",
-    "@types/react": "^16.8.25",
-    "tslint-react": "^4.0.0",
-    "typescript": "^3.5.3"
+    "@types/rbush": "^3.0.0",
+    "@types/react": "^16.9.17",
+    "tslint-react": "^4.1.0",
+    "typescript": "^3.7.4"
   },
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
