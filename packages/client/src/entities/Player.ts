@@ -99,6 +99,9 @@ export default class Player extends CircleSprite {
     // Ghost
     if (attributes.isGhost) {
       this.sprite.visible = Constants.DEBUG;
+      this._weaponSprite.visible = Constants.DEBUG;
+      this._nameTextSprite.visible = Constants.DEBUG;
+      this._livesSprite.visible = Constants.DEBUG;
     }
 
     this.updateTextures();
@@ -138,7 +141,9 @@ export default class Player extends CircleSprite {
     (this.sprite as AnimatedSprite).play();
 
     // Weapon
-    this.weaponSprite.visible = isAlive;
+    this.weaponSprite.visible = this.isGhost
+      ? isAlive && Constants.DEBUG
+      : isAlive;
 
     // Name
     this.nameTextSprite.alpha = isAlive ? 1.0 : 0.2;
@@ -212,16 +217,33 @@ export default class Player extends CircleSprite {
   }
 
   set team(team: string) {
+    if (this._team === team) {
+      return;
+    }
+
     this._team = team;
   }
 
   set color(color: string) {
+    if (this._color === color) {
+      return;
+    }
+
     this._color = color;
-    this.sprite.tint = utils.string2hex(color);
-    this.weaponSprite.tint = utils.string2hex(color);
+
+    // FIXME: Tints seem not to be apliable directly on a AnimatedSprite.
+    // Therefore, adding a delay fixes the problem for now.
+    setTimeout(() => {
+      this.sprite.tint = utils.string2hex(color);
+      this.weaponSprite.tint = utils.string2hex(color);
+    }, 50);
   }
 
   set kills(kills: number) {
+    if (this._kills === kills) {
+      return;
+    }
+
     this._kills = kills;
   }
 
