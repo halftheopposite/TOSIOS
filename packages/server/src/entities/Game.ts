@@ -18,6 +18,9 @@ export class Game extends Schema {
   @type('number')
   public maxPlayers: number;
 
+  @type('string')
+  public mode: Types.GameMode;
+
   private lobbyDuration: number;
   private gameDuration: number;
 
@@ -28,12 +31,14 @@ export class Game extends Schema {
     gameDuration: number,
     maxPlayers: number,
     state: Types.GameState = 'waiting',
+    mode: Types.GameMode = 'deathmatch',
   ) {
     super();
     this.mapName = mapName;
     this.lobbyDuration = lobbyDuration;
     this.gameDuration = gameDuration;
     this.maxPlayers = maxPlayers;
+    this.mode = mode;
     this.setState(state);
   }
 

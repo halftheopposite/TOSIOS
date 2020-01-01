@@ -13,7 +13,7 @@ const GITHUB: CSSProperties = {
   fontSize: 14,
 };
 
-export default function (props: {
+export function GitHub(props: {
 }): React.ReactElement {
   return (
     <a href={URL}>

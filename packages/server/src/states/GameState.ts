@@ -27,7 +27,8 @@ export class GameState extends Schema {
   constructor(
     mapName: string,
     maxPlayers: number,
-    onMessage: any,
+    mode: Types.GameMode,
+    onMessage: (message: Message) => void,
   ) {
     super();
 
@@ -37,6 +38,8 @@ export class GameState extends Schema {
       Constants.LOBBY_DURATION,
       Constants.GAME_DURATION,
       maxPlayers,
+      'waiting',
+      mode,
     );
 
     // Map
@@ -108,6 +111,11 @@ export class GameState extends Schema {
         // Go on "game" when lobby time is over
         if (this.game.lobbyEndsAt < Date.now()) {
           this.setPlayersPositionRandomly();
+
+          if (this.game.mode === 'team deathmatch') {
+            this.setPlayersTeamsRandomly();
+          }
+
           this.setPlayersActive(true);
           this.propsAdd();
           this.game.setState('game');
@@ -117,16 +125,27 @@ export class GameState extends Schema {
       case 'game': {
         let shouldContinueGame = true;
 
-        // Stop "game" when (all - 1) are dead
-        if (this.getPlayersCountActive() === 1) {
-          const player = this.getPlayersFirstActive();
-          if (player) {
-            this.onMessage(new Message('won', {
-              name: player.name,
-            }));
-          }
+        if (this.game.mode === 'deathmatch') {
+          // Deathmatch
+          if (this.getPlayersCountActive() === 1) {
+            const player = this.getPlayersFirstActive();
+            if (player) {
+              this.onMessage(new Message('won', {
+                name: player.name,
+              }));
+            }
 
-          shouldContinueGame = false;
+            shouldContinueGame = false;
+          }
+        } else {
+          // Team Deathmatch
+          const winningTeam: Types.Teams | null = this.getWinnerTeam();
+          if (winningTeam) {
+            this.onMessage(new Message('won', {
+              name: winningTeam === 'Red' ? 'Red team' : 'Blue team',
+            }));
+            shouldContinueGame = false;
+          }
         }
 
         // Stop "game" when time is over (everyone loses)
@@ -281,6 +300,7 @@ export class GameState extends Schema {
     if (index === -1) {
       this.bullets.push(new Bullet(
         id,
+        player.team,
         bulletX,
         bulletY,
         Constants.BULLET_SIZE,
@@ -291,6 +311,7 @@ export class GameState extends Schema {
     } else {
       this.bullets[index].reset(
         id,
+        player.team,
         bulletX,
         bulletY,
         Constants.BULLET_SIZE,
@@ -341,7 +362,29 @@ export class GameState extends Schema {
     }
   }
 
-  private getPlayersCount() {
+  private setPlayersTeamsRandomly() {
+    // Add all players' ids into an array
+    let playersIds: string[] = [];
+    for (const playerId in this.players) {
+      playersIds.push(playerId);
+    }
+
+    // Shuffle players' ids
+    playersIds = Maths.shuffleArray(playersIds);
+
+    const minimumPlayersPerTeam = Math.floor(playersIds.length / 2);
+    const rest = playersIds.length % 2;
+
+    for (let i = 0; i < playersIds.length; i++) {
+      const playerId = playersIds[i];
+      const player = this.players[playerId];
+      const isBlueTeam = i < (minimumPlayersPerTeam + rest);
+
+      player.setTeam(isBlueTeam ? 'Blue' : 'Red');
+    }
+  }
+
+  private getPlayersCount(): number {
     let count = 0;
     for (const playerId in this.players) {
       count++;
@@ -350,7 +393,7 @@ export class GameState extends Schema {
     return count;
   }
 
-  private getPlayersCountActive() {
+  private getPlayersCountActive(): number {
     let count = 0;
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
@@ -361,7 +404,7 @@ export class GameState extends Schema {
     return count;
   }
 
-  private getPlayersFirstActive() {
+  private getPlayersFirstActive(): Player {
     for (const playerId in this.players) {
       if (this.players[playerId].isAlive) {
         return this.players[playerId];
@@ -369,8 +412,30 @@ export class GameState extends Schema {
     }
   }
 
+  private getWinnerTeam(): Types.Teams | null {
+    let redAlive = false;
+    let blueAlive = false;
+
+    for (const playerId in this.players) {
+      const player = this.players[playerId];
+      if (player.isAlive) {
+        if (player.team === 'Red') {
+          redAlive = true;
+        } else {
+          blueAlive = true;
+        }
+      }
+    }
+
+    if (redAlive && blueAlive) {
+      return null;
+    }
+
+    return redAlive ? 'Red' : 'Blue';
+  }
+
   private getSpawnerRandomly(): Geometry.RectangleBody {
-    return this.spawners[Maths.getRandomInt(this.spawners.length)];
+    return this.spawners[Maths.getRandomInt(0, this.spawners.length - 1)];
   }
 
 
@@ -383,36 +448,41 @@ export class GameState extends Schema {
 
     bullet.move(Constants.BULLET_SPEED);
 
-    // Collisions: Map
-    if (!this.map.isVectorOutside(bullet.x, bullet.y)) {
-      bullet.active = false;
-      return;
-    }
-
     // Collisions: Players
     for (const playerKey of Object.keys(this.players)) {
-      // Only compute collision if the bullet doesn't belong to the Player
-      if (bullet.playerId !== playerKey) {
-        const player = this.players[playerKey];
+      const player: Player = this.players[playerKey];
 
-        if (player.isAlive && Collisions.circleToCircle(bullet.body, player.body)) {
-          bullet.active = false;
-          player.hurt();
-
-          if (!player.isAlive) {
-            this.onMessage(new Message('killed', {
-              killerName: this.players[bullet.playerId].name,
-              killedName: player.name,
-            }));
-            this.playerUpdateKills(bullet.playerId);
-          }
-        }
+      // Check if the bullet can hurt the player
+      if (
+        !player.canBulletHurt(bullet.playerId, bullet.team) ||
+        !Collisions.circleToCircle(bullet.body, player.body)
+      ) {
+        continue;
       }
+
+      bullet.active = false;
+      player.hurt();
+
+      if (!player.isAlive) {
+        this.onMessage(new Message('killed', {
+          killerName: this.players[bullet.playerId].name,
+          killedName: player.name,
+        }));
+        this.playerUpdateKills(bullet.playerId);
+      }
+      return;
     }
 
     // Collisions: Walls
     if (this.walls.collidesWithCircle(bullet.body, 'half')) {
       bullet.active = false;
+      return;
+    }
+
+    // Collisions: Map
+    if (this.map.isCircleOutside(bullet.body)) {
+      bullet.active = false;
+      return;
     }
   }
 
@@ -431,21 +501,21 @@ export class GameState extends Schema {
     this.props.push(...props);
   }
 
-  private propsGenerate = (type: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
+  private propsGenerate = (propType: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
     let prop: Prop;
     for (let i: number = 0; i < quantity; i++) {
       prop = new Prop(
-        type,
-        Maths.getRandomInt(this.map.width),
-        Maths.getRandomInt(this.map.height),
+        propType,
+        Maths.getRandomInt(0, this.map.width),
+        Maths.getRandomInt(0, this.map.height),
         size,
         size,
       );
 
       // Update its position if it collides
       while (this.walls.collidesWithRectangle(prop.body)) {
-        prop.x = Maths.getRandomInt(this.map.width);
-        prop.y = Maths.getRandomInt(this.map.height);
+        prop.x = Maths.getRandomInt(0, this.map.width);
+        prop.y = Maths.getRandomInt(0, this.map.height);
       }
 
       // We want the items to snap to the grid

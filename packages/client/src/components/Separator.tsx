@@ -6,9 +6,7 @@ const SEPARATOR = {
   minHeight: 2,
 };
 
-export default function (props: {
-
-}): React.ReactElement {
+export function Separator(props: {}): React.ReactElement {
   return (
     <div
       style={{

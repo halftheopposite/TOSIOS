@@ -14,24 +14,33 @@ const getTexture = (type: Types.PropType): {
   }
 };
 
+interface IProp {
+  type: Types.PropType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  active: boolean;
+}
+
 export default class Prop extends RectangleSprite {
 
   private _type: Types.PropType;
   private _active: boolean = false;
 
   // Init
-  constructor(type: Types.PropType, x: number, y: number, width: number, height: number, active: boolean) {
+  constructor(attributes: IProp) {
     super(
-      x,
-      y,
-      width,
-      height,
+      attributes.x,
+      attributes.y,
+      attributes.width,
+      attributes.height,
       0,
-      getTexture(type),
+      getTexture(attributes.type),
     );
 
-    this._type = type;
-    this.active = active;
+    this._type = attributes.type;
+    this.active = attributes.active;
   }
 
   // Setters

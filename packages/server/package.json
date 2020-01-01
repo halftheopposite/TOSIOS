@@ -4,21 +4,21 @@
   "private": true,
   "main": "./build/index.js",
   "dependencies": {
-    "@colyseus/monitor": "^0.11.5",
-    "@colyseus/schema": "^0.4.56",
+    "@colyseus/monitor": "^0.11.9",
+    "@colyseus/schema": "^0.5.17",
     "@tosios/common": "0.9.2",
-    "colyseus": "^0.11.14",
+    "colyseus": "^0.11.25",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "path": "^0.12.7"
   },
   "devDependencies": {
     "@types/cors": "^2.8.6",
-    "@types/node": "^10.3.2",
-    "nodemon": "^1.19.2",
-    "ts-node": "^8.3.0",
-    "tslint-react": "^4.0.0",
-    "typescript": "^3.5.3"
+    "@types/node": "^13.1.2",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.5.4",
+    "tslint-react": "^4.1.0",
+    "typescript": "^3.7.4"
   },
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.ts'",

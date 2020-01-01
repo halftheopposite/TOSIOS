@@ -14,7 +14,7 @@ const SIZES = {
 
 type SizeNames = 'thin' | 'xxs' | 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl' | 'giant';
 
-export default function (props: {
+export function Space(props: {
   size: SizeNames;
 }): React.ReactElement {
   const {

@@ -8,6 +8,7 @@ interface IBullet {
   radius: number;
   active: boolean;
   playerId: string;
+  team: string;
   rotation: number;
   color: string;
   shotAt: number;
@@ -16,6 +17,7 @@ interface IBullet {
 export default class Bullet extends CircleSprite {
 
   private _playerId: string = '';
+  private _team: string = '';
   private _active: boolean = false;
   private _color: string = '#FFFFFF';
   private _shotAt: number = 0;
@@ -31,6 +33,7 @@ export default class Bullet extends CircleSprite {
     );
 
     this.playerId = attributes.playerId;
+    this.team = attributes.team;
     this.active = attributes.active;
     this.color = attributes.color;
     this.shotAt = attributes.shotAt;
@@ -38,23 +41,15 @@ export default class Bullet extends CircleSprite {
 
   // Methods
   reset(attributes: IBullet) {
-    const {
-      x,
-      y,
-      active,
-      playerId,
-      rotation,
-      color,
-      shotAt,
-    } = attributes;
-
-    this.x = x;
-    this.y = y;
-    this.active = active;
-    this.playerId = playerId;
-    this.rotation = rotation;
-    this.color = color;
-    this.shotAt = shotAt;
+    this.x = attributes.x;
+    this.y = attributes.y;
+    this.radius = attributes.radius;
+    this.rotation = attributes.rotation;
+    this.playerId = attributes.playerId;
+    this.team = attributes.team;
+    this.active = attributes.active;
+    this.color = attributes.color;
+    this.shotAt = attributes.shotAt;
   }
 
   move = (speed: number) => {
@@ -65,6 +60,10 @@ export default class Bullet extends CircleSprite {
   // Setters
   set playerId(playerId: string) {
     this._playerId = playerId;
+  }
+
+  set team(team: string) {
+    this._team = team;
   }
 
   set active(active: boolean) {
@@ -84,6 +83,10 @@ export default class Bullet extends CircleSprite {
   // Getters
   get playerId() {
     return this._playerId;
+  }
+
+  get team() {
+    return this._team;
   }
 
   get active() {

@@ -131,7 +131,7 @@ export default class HUDManager extends Container {
     this._fpsHUD = new HUDText(
       '--',
       FONTSIZE_FPS,
-      1,
+      0.5,
       1,
     );
     this.addChild(this._fpsHUD);
@@ -182,7 +182,7 @@ export default class HUDManager extends Container {
     this.renderLogs();
   }
 
-  updatePlayer = (playerId: string, name: string, kills: number, color: string) => {
+  createOrUpdatePlayer = (playerId: string, name: string, kills: number, color: string, team?: string) => {
     const player = this._playersList[playerId];
     if (player && player.kills === kills) {
       return;
@@ -285,10 +285,9 @@ export default class HUDManager extends Container {
         ? FONTSIZE_FPS * MOBILE_SIZE_FACTOR
         : FONTSIZE_FPS,
     };
-    this._fpsHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
+    this._fpsHUD.position.set(this._screenWidth / 2, this._screenHeight - HUD_PADDING);
     this._fpsHUD.visible = Constants.DEBUG;
     this._fpsHUD.text = `${this._fps}`;
-
   }
 
   private renderTabSprite = () => {

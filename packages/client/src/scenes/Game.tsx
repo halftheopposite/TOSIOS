@@ -6,8 +6,7 @@ import React, { Component, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
-
-import View from '../components/View';
+import { View } from '../components';
 import GameManager from '../managers/GameManager';
 
 interface IProps extends RouteComponentProps {
@@ -22,7 +21,7 @@ interface IState {
 
 export default class Game extends Component<IProps, IState> {
 
-  public state: IState = {
+  public state = {
     playerId: '',
     playersCount: 0,
     maxPlayersCount: 0,
@@ -157,35 +156,18 @@ export default class Game extends Component<IProps, IState> {
 
   handlePlayerAdd = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
-
-    if (isMe) {
-      this.gameManager.meAdd(playerId, player);
-    } else {
-      this.gameManager.playerAdd(playerId, player);
-    }
-
+    this.gameManager.playerAdd(playerId, player, isMe);
     this.updatePlayersCount();
   }
 
   handlePlayerChange = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
-
-    if (isMe) {
-      this.gameManager.meUpdate(player);
-    } else {
-      this.gameManager.playerUpdate(playerId, player);
-    }
+    this.gameManager.playerUpdate(playerId, player, isMe);
   }
 
   handlePlayerRemove = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
-
-    if (isMe) {
-      this.gameManager.meRemove();
-    } else {
-      this.gameManager.playerRemove(playerId);
-    }
-
+    this.gameManager.playerRemove(playerId, isMe);
     this.updatePlayersCount();
   }
 
@@ -223,10 +205,10 @@ export default class Game extends Component<IProps, IState> {
         this.gameManager.hudLogAdd(`Game ends...`);
         break;
       case 'joined':
-        this.gameManager.hudLogAdd(`"${message.params.name}" joined.`);
+        this.gameManager.hudLogAdd(`"${message.params.name}" joins.`);
         break;
       case 'killed':
-        this.gameManager.hudLogAdd(`"${message.params.killerName}" killed "${message.params.killedName}".`);
+        this.gameManager.hudLogAdd(`"${message.params.killerName}" kills "${message.params.killedName}".`);
         break;
       case 'won':
         this.gameManager.hudLogAdd(`"${message.params.name}" wins!`);

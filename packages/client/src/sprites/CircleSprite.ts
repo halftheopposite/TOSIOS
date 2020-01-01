@@ -51,6 +51,11 @@ export default class CircleSprite {
     this._sprite.rotation = rotation;
   }
 
+  set radius(radius: number) {
+    this._body.radius = radius;
+    this._sprite.width = radius * 2;
+    this._sprite.height = radius * 2;
+  }
 
   // Getters
   get body() {
@@ -71,5 +76,9 @@ export default class CircleSprite {
 
   get rotation() {
     return this._sprite.rotation;
+  }
+
+  get radius() {
+    return this._body.width / 2;
   }
 }

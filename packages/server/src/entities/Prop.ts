@@ -11,10 +11,10 @@ export class Prop extends Rectangle {
   public active: boolean;
 
   // Init
-  constructor(type: Types.PropType, x: number, y: number, width: number, height: number) {
+  constructor(propType: Types.PropType, x: number, y: number, width: number, height: number) {
     super(x, y, width, height);
 
-    this.type = type;
+    this.type = propType;
     this.active = true;
   }
 }

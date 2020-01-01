@@ -2,7 +2,7 @@
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/halftheopposite/tosios/blob/master/LICENSE) [![](https://github.com/halftheopposite/tosios/workflows/Docker%20Publish/badge.svg)](https://hub.docker.com/r/halftheopposite/tosios)
 
-The Open-Source IO Shooter is an open-source multiplayer game in the browser (desktop or browser). It is meant to be hostable and playable by (almost) anyone. This is not an attempt at creating an outstanding gaming experience, but to create an easily understandable and modifiable multiplayer browser game.
+The Open-Source IO Shooter is an open-source multiplayer game in the browser (desktop or browser). It is meant to be hostable and playable by anyone. This is not an attempt at creating an outstanding gaming experience, but to create an easily understandable and modifiable multiplayer browser game.
 
 **Desktop version**
 
@@ -14,16 +14,16 @@ The Open-Source IO Shooter is an open-source multiplayer game in the browser (de
 
 ## 🕹️ Playing
 
-You can play the game by following (and sharing) this link https://tosios-demo.herokuapp.com/.
+Want to play right away? You can play the game by following (and sharing) this link https://tosios-demo.herokuapp.com/.
 
 **Rules**
 
 The game principles are fairly easy to grasp:
 
 1. Every player is positionned randomly on the map during the `lobby`.
-2. When the `game` starts, each player must take down others.
+2. When the `game` starts, each player must take down others (either in death match, or team death match).
 3. There are some `potions` on the map that restore health.
-4. The last one alive wins 🎉.
+4. The last player (or team) alive wins 🎉.
 
 You can see a very small amount of gameplay below (the framerate of this GIF is low):
 
@@ -119,7 +119,7 @@ There are two reserved layers that should be present at all time (although not r
 
 Other than that, you can add as many `layers` as you want and they will be rendered by `PIXI.js` in a WYSIWYG manner (order is maintained).
 
-Although in the `dungeon.png` spritesheet I use colored tiles to represent `collisions` (light red and light blue) and spawners (deep red), you can use any tile you want as it won't be rendered anyway.
+Although in the `dungeon.png` spritesheet I use colored tiles to represent `collisions` (red and blue) and spawners (green), you can use any tile you want as it won't be rendered anyway.
 
 <img src="images/tme-layers.png" alt="drawing"/>
 
@@ -170,7 +170,7 @@ If you want to add your map to the game:
   // ...
   ```
 
-## Roadmap for 1.0.0 (Q4 2019)
+## Roadmap for v1.0.0
 
 This is not an exhaustive, nor final, features list but it will give you a good indication on what I am working on:
 
@@ -183,9 +183,9 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 * ~Implement a R-Tree for performances.~ DONE
 * ~Add players spawner object instead of randomized points.~ DONE
 * ~Add support for JSON TMX format (Tiled).~ DONE
-* Add a Team Death Match mode.
-* Add a force shield to deflect bullets.
-* Add some monsters that attack players.
+* ~Add a Team Death Match mode.~ DONE
+* Add powers up and pickable items. (Q1 2020)
+* Add some monsters. (Q1 2020)
 
 ## Special thanks
 
@@ -201,7 +201,7 @@ Thanks to [@thorbjorn81](https://twitter.com/thorbjorn81) for the many years of 
 
 This project is under the [MIT](https://github.com/halftheopposite/tosios/blob/master/LICENSE) license.
 
-The major libraries and assets used in this project have the following licenses:
+The major libraries and assets used in this project and their licenses:
 
 * Colyseus: [MIT](https://github.com/colyseus/colyseus/blob/master/LICENSE)
 * PIXI.js: [MIT](https://github.com/pixijs/pixi.js/blob/dev/LICENSE)
