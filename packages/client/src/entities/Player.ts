@@ -236,7 +236,7 @@ export default class Player extends CircleSprite {
     setTimeout(() => {
       this.sprite.tint = utils.string2hex(color);
       this.weaponSprite.tint = utils.string2hex(color);
-    }, 50);
+    }, 100);
   }
 
   set kills(kills: number) {
