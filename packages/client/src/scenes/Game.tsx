@@ -6,7 +6,6 @@ import React, { Component, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
-
 import { View } from '../components';
 import GameManager from '../managers/GameManager';
 
