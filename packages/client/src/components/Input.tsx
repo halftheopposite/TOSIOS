@@ -13,7 +13,7 @@ const INPUT: CSSProperties = {
   maxWidth: '100%',
 };
 
-export default function (props: {
+export function Input(props: {
   value?: string;
   placeholder?: string;
   maxLength?: number;

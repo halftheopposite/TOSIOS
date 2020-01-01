@@ -13,7 +13,7 @@ const COLUMN_FLEX: CSSProperties = {
   flexDirection: 'column',
 };
 
-export default function (props: {
+export function View(props: {
   flex?: boolean;
   center?: boolean;
   column?: boolean;

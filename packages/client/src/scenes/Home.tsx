@@ -34,7 +34,7 @@ interface IState {
   roomMap: any;
   roomMaxPlayers: any;
   mode: any;
-  rooms: RoomAvailable<any>[];
+  rooms: Array<RoomAvailable<any>>;
   timer: any;
 }
 

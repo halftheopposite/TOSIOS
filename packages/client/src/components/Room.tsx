@@ -21,7 +21,7 @@ const ROOM_HOVERED = {
   cursor: 'pointer',
 };
 
-export default function (props: {
+export function Room(props: {
   id: string;
   roomName: string;
   roomMap: string;

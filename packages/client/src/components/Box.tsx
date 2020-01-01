@@ -9,7 +9,7 @@ const BOX = {
   overflow: 'hidden',
 };
 
-export default function (props: {
+export function Box(props: {
   style?: CSSProperties;
   children: ReactNode;
 }): React.ReactElement {

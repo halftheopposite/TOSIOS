@@ -31,7 +31,7 @@ const BUTTON_ICON: CSSProperties = {
   height: 20,
 };
 
-export default function (props: {
+export function Button(props: {
   type?: 'button' | 'submit';
   text?: string;
   children?: ReactNode;

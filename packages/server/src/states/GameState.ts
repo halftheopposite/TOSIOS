@@ -501,11 +501,11 @@ export class GameState extends Schema {
     this.props.push(...props);
   }
 
-  private propsGenerate = (type: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
+  private propsGenerate = (propType: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
     let prop: Prop;
     for (let i: number = 0; i < quantity; i++) {
       prop = new Prop(
-        type,
+        propType,
         Maths.getRandomInt(0, this.map.width),
         Maths.getRandomInt(0, this.map.height),
         size,
