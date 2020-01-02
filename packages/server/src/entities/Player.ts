@@ -37,6 +37,7 @@ export class Player extends Circle {
 
   // Init
   constructor(
+    playerId: string,
     x: number,
     y: number,
     radius: number,
@@ -46,6 +47,7 @@ export class Player extends Circle {
     team?: Types.Teams,
   ) {
     super(x, y, radius);
+    this.playerId = playerId;
     this.lives = lives;
     this.maxLives = maxLives;
     this.name = validateName(name);

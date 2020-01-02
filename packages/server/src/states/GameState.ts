@@ -199,6 +199,7 @@ export class GameState extends Schema {
   playerAdd(id: string, name: string) {
     const spawner = this.getSpawnerRandomly();
     const player = new Player(
+      id,
       spawner.x + Constants.PLAYER_SIZE / 2,
       spawner.y + Constants.PLAYER_SIZE / 2,
       Constants.PLAYER_SIZE / 2,
