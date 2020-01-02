@@ -186,6 +186,7 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 * ~Add a Team Death Match mode.~ DONE
 * Add powers up and pickable items. (Q1 2020)
 * Add some monsters. (Q1 2020)
+* Add sound effects. (Q1 2020)
 
 ## Special thanks
 
