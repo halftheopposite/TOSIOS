@@ -1,16 +1,30 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 const SEPARATOR = {
   backgroundColor: '#efefef',
+};
+
+const HORIZONTAL: CSSProperties = {
   height: 2,
   minHeight: 2,
 };
 
-export function Separator(props: {}): React.ReactElement {
+const VERTICAL: CSSProperties = {
+  width: 2,
+  minWidth: 2,
+  height: '100%',
+};
+
+export function Separator(props: {
+  mode?: 'vertical' | 'horizontal';
+}): React.ReactElement {
+  const { mode = 'horizontal' } = props;
+
   return (
     <div
       style={{
         ...SEPARATOR,
+        ...(mode === 'horizontal' ? HORIZONTAL : VERTICAL),
       }}
     />
   );
