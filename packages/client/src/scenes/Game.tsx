@@ -244,17 +244,40 @@ export default class Game extends Component<IProps, IState> {
   handleMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.state.menuOpened) {
+      return;
+    }
+
     this.gameManager.inputs.shoot = true;
   }
 
   handleMouseUp = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.state.menuOpened) {
+      return;
+    }
+
     this.gameManager.inputs.shoot = false;
   }
 
   handleKeyDown = (event: any) => {
     const key = event.code;
+
+    if (Keys.MENU.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const newMenuOpened = !this.state.menuOpened;
+
+      this.setState({ menuOpened: newMenuOpened });
+    }
+
+    if (this.state.menuOpened) {
+      return;
+    }
 
     if (Keys.LEFT.includes(key)) {
       event.preventDefault();
@@ -285,19 +308,14 @@ export default class Game extends Component<IProps, IState> {
       event.stopPropagation();
       this.gameManager.inputs.shoot = true;
     }
-
-    if (Keys.MENU.includes(key)) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const newMenuOpened = !this.state.menuOpened;
-
-      this.setState({ menuOpened: newMenuOpened });
-    }
   }
 
   handleKeyUp = (event: any) => {
     const key = event.code;
+
+    if (this.state.menuOpened) {
+      return;
+    }
 
     if (Keys.LEFT.includes(key)) {
       event.preventDefault();
@@ -371,7 +389,7 @@ export default class Game extends Component<IProps, IState> {
             roomMap="Test map"
             mode="team deathmatch"
             players={this.gameManager.playersList}
-            onLeave={() => this.setState({ menuOpened: false })}
+            onLeave={() => navigate('/')}
             onClose={() => this.setState({ menuOpened: false })}
           />
         )}
@@ -504,7 +522,7 @@ function GameMenu(props: {
         <Space size="xs" />
 
         {/* Leaderboard */}
-        <View style={{ flex: 1 }}>
+        <View style={{ display: 'flex' }}>
           {mode === 'deathmatch'
             ? <PlayersList players={players} />
             : (
