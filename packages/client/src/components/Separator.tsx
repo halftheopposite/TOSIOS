@@ -12,7 +12,7 @@ const HORIZONTAL: CSSProperties = {
 const VERTICAL: CSSProperties = {
   width: 2,
   minWidth: 2,
-  height: '100%',
+  display: 'inline-block',
 };
 
 export function Separator(props: {
