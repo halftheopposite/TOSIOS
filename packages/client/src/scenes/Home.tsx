@@ -5,7 +5,7 @@ import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
 import React, { Component, Fragment } from 'react';
 import { Helmet } from 'react-helmet';
-import { Box, Button, GitHub, IListItem, Inline, Input, Room, Select, Separator, Space, View } from '../components';
+import { Box, Button, GitHub, IListItem, Inline, Input, Room, Select, Separator, Space, Text, View } from '../components';
 import playerImage from '../images/textures/player/player-idle-2.png';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map(value => ({
@@ -192,7 +192,7 @@ export default class Home extends Component<IProps, IState> {
         <View flex={true}>
           <img src={playerImage} alt="player" width={30} />
           <Inline size="thin" />
-          <p>Pick your name:</p>
+          <Text>Pick your name:</Text>
         </View>
         <Space size="xs" />
         <Input
@@ -206,8 +206,8 @@ export default class Home extends Component<IProps, IState> {
             <Space size="xs" />
             <Button
               title="Save"
+              text="Save"
               onClick={this.handleNameSave}
-              text={'Save'}
             />
           </Fragment>
         )}
@@ -253,14 +253,14 @@ export default class Home extends Component<IProps, IState> {
         {!isNewRoom && (
           <Button
             title="Create new room"
+            text="+ New Room"
             onClick={() => this.setState({ isNewRoom: true })}
-            text={'+ New Room'}
           />
         )}
         {isNewRoom && (
           <View style={{ width: '100%' }}>
             {/* Name */}
-            <p>Name:</p>
+            <Text>Name:</Text>
             <Space size="xxs" />
             <Input
               placeholder="Name"
@@ -271,7 +271,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="s" />
 
             {/* Map */}
-            <p>Map:</p>
+            <Text>Map:</Text>
             <Space size="xxs" />
             <Select
               value={roomMap}
@@ -281,7 +281,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="s" />
 
             {/* Players */}
-            <p>Max players:</p>
+            <Text>Max players:</Text>
             <Space size="xxs" />
             <Select
               value={roomMaxPlayers}
@@ -291,7 +291,7 @@ export default class Home extends Component<IProps, IState> {
             <Space size="s" />
 
             {/* Mode */}
-            <p>Game mode:</p>
+            <Text>Game mode:</Text>
             <Space size="xxs" />
             <Select
               value={mode}
@@ -304,15 +304,15 @@ export default class Home extends Component<IProps, IState> {
             <View>
               <Button
                 title="Create room"
+                text="Create"
                 onClick={this.handleCreateRoomClick}
-                text={'Create'}
               />
               <Space size="xs" />
               <Button
                 title="Cancel"
-                onClick={this.handleCancelRoomClick}
-                text={'Cancel'}
+                text="Cancel"
                 reversed={true}
+                onClick={this.handleCancelRoomClick}
               />
             </View>
           </View>
