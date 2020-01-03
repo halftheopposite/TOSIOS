@@ -457,8 +457,29 @@ export default class GameManager {
 
 
   // GETTERS
-  get playersCount() {
+  get playersCount(): number {
     return this.playersManager.getAll().length;
+  }
+
+  get playersList(): IPlayer[] {
+    return this.playersManager.getAll().map(item => {
+      const player: IPlayer = {
+        playerId: item.playerId,
+        x: item.x,
+        y: item.y,
+        radius: item.radius,
+        rotation: item.rotation,
+        name: item.name,
+        color: item.color,
+        lives: item.lives,
+        maxLives: item.maxLives,
+        kills: item.kills,
+        team: item.team,
+        isGhost: item.isGhost,
+      };
+
+      return player;
+    });
   }
 
 
