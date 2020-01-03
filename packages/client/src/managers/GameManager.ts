@@ -33,7 +33,6 @@ interface IInputs {
   up: boolean;
   right: boolean;
   down: boolean;
-  menu: boolean;
   shoot: boolean;
 }
 
@@ -45,7 +44,6 @@ export default class GameManager {
     up: false,
     right: false,
     down: false,
-    menu: false,
     shoot: false,
   };
   public forcedRotation: number = 0; // Used on mobile only
@@ -422,9 +420,6 @@ export default class GameManager {
 
     // FPS
     this.hudManager.fps = Math.floor(this.app.ticker.FPS);
-
-    // Leaderboard
-    this.hudManager.isLeaderboard = this.inputs.menu;
   }
 
 
