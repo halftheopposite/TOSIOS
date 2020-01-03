@@ -1,12 +1,14 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Keys, Maths, Types } from '@tosios/common';
+import { Constants, Keys, Maths, Sorts, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
-import React, { Component, RefObject } from 'react';
+import React, { Component, Fragment, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
-import { View } from '../components';
+import { Box, Button, Inline, RoomFieldItem, Separator, Space, Text, View } from '../components';
+import { IPlayer } from '../entities/Player';
+import { RefreshIcon } from '../images/icons';
 import GameManager from '../managers/GameManager';
 
 interface IProps extends RouteComponentProps {
@@ -17,6 +19,7 @@ interface IState {
   playerId: string;
   playersCount: number;
   maxPlayersCount: number;
+  menuOpened: boolean;
 }
 
 export default class Game extends Component<IProps, IState> {
@@ -25,6 +28,7 @@ export default class Game extends Component<IProps, IState> {
     playerId: '',
     playersCount: 0,
     maxPlayersCount: 0,
+    menuOpened: false,
   };
 
   private gameCanvas: RefObject<HTMLDivElement>;
@@ -285,7 +289,10 @@ export default class Game extends Component<IProps, IState> {
     if (Keys.MENU.includes(key)) {
       event.preventDefault();
       event.stopPropagation();
-      this.gameManager.inputs.menu = true;
+
+      const newMenuOpened = !this.state.menuOpened;
+
+      this.setState({ menuOpened: newMenuOpened });
     }
   }
 
@@ -321,12 +328,6 @@ export default class Game extends Component<IProps, IState> {
       event.stopPropagation();
       this.gameManager.inputs.shoot = false;
     }
-
-    if (Keys.MENU.includes(key)) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.gameManager.inputs.menu = false;
-    }
   }
 
   handleWindowResize = () => {
@@ -344,6 +345,8 @@ export default class Game extends Component<IProps, IState> {
 
   // RENDER
   render() {
+    const { menuOpened } = this.state;
+
     return (
       <View
         style={{
@@ -354,8 +357,24 @@ export default class Game extends Component<IProps, IState> {
         <Helmet>
           <title>{`Death Match (${this.state.playersCount})`}</title>
         </Helmet>
+
+        {/* Where PIXI is injected */}
         <div ref={this.gameCanvas} />
+
+        {/* Joysticks */}
         {isMobile && this.renderJoySticks()}
+
+        {/* Menu */}
+        {menuOpened && (
+          <GameMenu
+            roomTitle="Test room"
+            roomMap="Test map"
+            mode="team deathmatch"
+            players={this.gameManager.playersList}
+            onLeave={() => this.setState({ menuOpened: false })}
+            onClose={() => this.setState({ menuOpened: false })}
+          />
+        )}
       </View>
     );
   }
@@ -411,4 +430,160 @@ export default class Game extends Component<IProps, IState> {
       </View>
     );
   }
+}
+
+function GameMenu(props: {
+  roomTitle: string;
+  roomMap: string;
+  mode: Types.GameMode;
+  players?: IPlayer[];
+  onLeave: () => void;
+  onClose: () => void;
+}): React.ReactElement {
+  const {
+    roomTitle,
+    roomMap,
+    mode,
+    players = [],
+    onLeave,
+    onClose,
+  } = props;
+
+  const firstList: IPlayer[] = [];
+  const secondList: IPlayer[] = [];
+
+  players.forEach(player => {
+    if (mode === 'team deathmatch') {
+      if (player.team === 'Red') {
+        firstList.push(player);
+      } else {
+        secondList.push(player);
+      }
+    } else {
+      firstList.push(player);
+    }
+  });
+
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+      }}
+    >
+      <Box
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          maxWidth: isMobile ? '100%' : '50%',
+        }}
+      >
+        {/* Header */}
+        <View>
+          <RoomFieldItem
+            title="Title"
+            content={`"${roomTitle}"`}
+          />
+          <Space size="xxs" />
+          <RoomFieldItem
+            title="Map"
+            content={`"${roomMap}"`}
+          />
+        </View>
+
+        <Space size="xxs" />
+        <Separator />
+        <Space size="xs" />
+
+        {/* Leaderboard */}
+        <View style={{ flex: 1 }}>
+          {mode === 'deathmatch'
+            ? <PlayersList players={players} />
+            : (
+              <Fragment>
+                <PlayersList
+                  players={players.filter(player => player.team === 'Red')}
+                  team="Red"
+                />
+                <Inline size="xs" />
+                <Separator mode="vertical" />
+                <Inline size="xs" />
+                <PlayersList
+                  players={players.filter(player => player.team === 'Blue')}
+                  team="Blue"
+                />
+              </Fragment>
+            )
+          }
+        </View>
+
+        <Space size="xs" />
+        <Separator />
+        <Space size="xxs" />
+
+        {/* Buttons */}
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'space-between',
+            display: 'flex',
+            ...(isMobile && { flexDirection: 'column' }),
+          }}
+        >
+          <Button
+            icon={<RefreshIcon width={20} height={20} />}
+            title="Leave"
+            onClick={onLeave}
+            text="Leave"
+          />
+          {isMobile
+            ? <Space size="xs" />
+            : <Inline size="xs" />
+          }
+          <Button
+            title="Close"
+            onClick={onClose}
+            text="Close"
+            reversed={true}
+          />
+        </View>
+      </Box>
+    </View>
+  );
+}
+
+function PlayersList(props: {
+  players: IPlayer[];
+  team?: Types.Teams;
+}): React.ReactElement {
+  const { players, team } = props;
+
+  return (
+    <View style={{ flex: 1 }}>
+      {players
+        .sort((a, b) => Sorts.sortNumberDesc(a.kills, b.kills))
+        .map((player, index) => (
+          <View
+            key={player.playerId}
+            style={{
+              height: 36,
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Text>{`${index + 1}`}</Text>
+            <Text>{' - '}</Text>
+            <Text>{`${player.name}`}</Text>
+          </View>
+        ))}
+    </View>
+  )
 }
