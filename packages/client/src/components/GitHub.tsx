@@ -1,10 +1,11 @@
 import React, { CSSProperties } from 'react';
 
-import { githubIcon } from '../images/icons';
+import { GitHubIcon } from '../images/icons';
 import {
   Inline,
   View,
 } from './';
+import { Text } from './Text';
 
 const URL = 'https://github.com/halftheopposite/tosios';
 
@@ -22,12 +23,9 @@ export function GitHub(props: {
         center={true}
         style={GITHUB}
       >
-        <img
-          src={githubIcon}
-          alt="TOSIOS GitHub repository"
-        />
+        <GitHubIcon />
         <Inline size="xxs" />
-        <p>GitHub</p>
+        <Text>GitHub</Text>
       </View>
     </a>
   );

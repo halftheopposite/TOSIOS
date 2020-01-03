@@ -1,10 +1,8 @@
 import React from 'react';
 import { isMobile } from 'react-device-detect';
-import {
-  Button,
-  Space,
-  View,
-} from './';
+import { Button, Space, View } from './';
+import { Inline } from './Inline';
+import { Text } from './Text';
 
 const ROOM = {
   border: '2px solid rgba(9,30,66,.1)',
@@ -53,15 +51,29 @@ export function Room(props: {
       onClick={() => onClick(id)}
     >
       <View>
-        <p><b>{`Name: "${roomName || `Unknown's room`}"`}</b></p>
+        <RoomFieldItem
+          title="Name"
+          content={`"${roomName || `Unknown's room`}"`}
+        />
         <Space size="xxs" />
-        <p><b>{`Players: [${clients}/${maxClients}]`}</b></p>
+        <RoomFieldItem
+          title="Players"
+          content={`"${clients}/${maxClients}"`}
+        />
         <Space size="xxs" />
-        <p><b>{`Map: "${roomMap}"`}</b></p>
+        <RoomFieldItem
+          title="Map"
+          content={`"${roomMap}"`}
+        />
         <Space size="xxs" />
-        <p><b>{`Mode: "${mode}"`}</b></p>
+        <RoomFieldItem
+          title="Mode"
+          content={`"${mode}"`}
+        />
       </View>
       {isMobile && <Space size="xs" />}
+
+      {/* Button */}
       <Button
         type="button"
         style={{
@@ -71,6 +83,21 @@ export function Room(props: {
       >
         Join
       </Button>
+    </View>
+  );
+}
+
+export function RoomFieldItem(props: {
+  title: string;
+  content: string;
+}): React.ReactElement {
+  const { title, content } = props;
+
+  return (
+    <View style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <Text style={{ display: 'inline-block', fontWeight: 'bold' }}>{title}:</Text>
+      <Inline size="thin" />
+      <Text style={{ display: 'inline-block', color: '#A9A9A9' }}>{content}</Text>
     </View>
   );
 }
