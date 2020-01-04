@@ -26,18 +26,19 @@ export default class RectangleSprite {
       (this._sprite as AnimatedSprite).play();
     }
 
+    // Add the boundaries BEFORE scaling the sprite
+    if (Constants.DEBUG) {
+      this._boundaries = new Graphics();
+      this._boundaries.lineStyle(0.5, 0xFF00FF);
+      this._boundaries.drawRect(0, 0, this._sprite.width, this._sprite.height);
+      this._boundaries.endFill();
+      this._sprite.addChild(this._boundaries);
+    }
+
     this._sprite.width = width;
     this._sprite.height = height;
     this._sprite.rotation = rotation;
     this._sprite.position.set(x, y);
-
-    if (Constants.DEBUG) {
-      this._boundaries = new Graphics();
-      this._boundaries.lineStyle(0.5, 0xFF00FF);
-      this._boundaries.drawRect(0, 0, width, height);
-      this._boundaries.endFill();
-      this._sprite.addChild(this._boundaries);
-    }
   }
 
   // Setters

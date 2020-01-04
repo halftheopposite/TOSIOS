@@ -25,19 +25,20 @@ export default class CircleSprite {
       (this._sprite as AnimatedSprite).play();
     }
 
+    // Add the boundaries BEFORE scaling the sprite
+    if (Constants.DEBUG) {
+      this._boundaries = new Graphics();
+      this._boundaries.lineStyle(0.5, 0xFF00FF);
+      this._boundaries.drawCircle(0, 0, this._sprite.width / 2);
+      this._boundaries.endFill();
+      this._sprite.addChild(this._boundaries);
+    }
+
     this._sprite.anchor.set(0.5);
     this._sprite.position.set(x, y);
     this._sprite.width = radius * 2;
     this._sprite.height = radius * 2;
     this._sprite.rotation = rotation;
-
-    if (Constants.DEBUG) {
-      this._boundaries = new Graphics();
-      this._boundaries.lineStyle(0.5, 0xFF00FF);
-      this._boundaries.drawCircle(0, 0, radius);
-      this._boundaries.endFill();
-      this._sprite.addChild(this._boundaries);
-    }
   }
 
   // Setters

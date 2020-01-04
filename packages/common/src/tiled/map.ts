@@ -117,7 +117,7 @@ export class Map {
       return;
     }
 
-    layers.map((layer) => {
+    layers.forEach(layer => {
       this.layers.push({
         name: layer.name,
         tiles: this.parseLayer(layer.data),
