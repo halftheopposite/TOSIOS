@@ -26,7 +26,7 @@ export interface IPlayer {
   isGhost: boolean;
 }
 
-export default class Player extends CircleSprite {
+export class Player extends CircleSprite {
 
   // Server
   private _playerId: string = '';
