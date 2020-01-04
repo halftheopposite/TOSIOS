@@ -1,9 +1,10 @@
-import { Geometry } from '@tosios/common';
-import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
+import { Constants, Geometry } from '@tosios/common';
+import { AnimatedSprite, Graphics, Sprite, Texture } from 'pixi.js';
 
 export default class CircleSprite {
   private _body: Geometry.CircleBody;
   private _sprite: Sprite | AnimatedSprite;
+  private _boundaries?: Graphics;
 
   constructor(
     x: number,
@@ -29,6 +30,14 @@ export default class CircleSprite {
     this._sprite.width = radius * 2;
     this._sprite.height = radius * 2;
     this._sprite.rotation = rotation;
+
+    if (Constants.DEBUG) {
+      this._boundaries = new Graphics();
+      this._boundaries.lineStyle(0.5, 0xFF00FF);
+      this._boundaries.drawCircle(0, 0, radius);
+      this._boundaries.endFill();
+      this._sprite.addChild(this._boundaries);
+    }
   }
 
   // Setters

@@ -1,9 +1,10 @@
-import { Geometry } from '@tosios/common';
-import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
+import { Constants, Geometry } from '@tosios/common';
+import { AnimatedSprite, Graphics, Sprite, Texture } from 'pixi.js';
 
 export default class RectangleSprite {
   private _body: Geometry.RectangleBody;
   private _sprite: Sprite | AnimatedSprite;
+  private _boundaries?: Graphics;
 
   constructor(
     x: number,
@@ -25,10 +26,18 @@ export default class RectangleSprite {
       (this._sprite as AnimatedSprite).play();
     }
 
-    this._sprite.position.set(x, y);
     this._sprite.width = width;
     this._sprite.height = height;
     this._sprite.rotation = rotation;
+    this._sprite.position.set(x, y);
+
+    if (Constants.DEBUG) {
+      this._boundaries = new Graphics();
+      this._boundaries.lineStyle(0.5, 0xFF00FF);
+      this._boundaries.drawRect(0, 0, width, height);
+      this._boundaries.endFill();
+      this._sprite.addChild(this._boundaries);
+    }
   }
 
   // Setters
@@ -48,8 +57,8 @@ export default class RectangleSprite {
   }
 
   set height(height: number) {
-    this._body.y = height;
-    this._sprite.y = height;
+    this._body.height = height;
+    this._sprite.height = height;
   }
 
   set position(position: { x: number; y: number }) {
