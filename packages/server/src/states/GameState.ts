@@ -1,6 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
-import { Bullet, Game, Message, Player, Prop } from '../entities';
+import { Bullet, Game, Message, Player, Prop, Monster } from '../entities';
 
 export class GameState extends Schema {
 
@@ -9,6 +9,9 @@ export class GameState extends Schema {
 
   @type({ map: Player })
   public players: MapSchema<Player> = new MapSchema<Player>();
+
+  @type({ map: Monster })
+  public monsters: MapSchema<Monster> = new MapSchema<Monster>();
 
   @type([Prop])
   public props: ArraySchema<Prop> = new ArraySchema<Prop>();
@@ -84,6 +87,7 @@ export class GameState extends Schema {
   update() {
     this.updateGame();
     this.updateActions();
+    this.updateMonsters();
     this.updateBullets();
   }
 
@@ -188,6 +192,15 @@ export class GameState extends Schema {
     }
   }
 
+  private updateMonsters() {
+    let monster: Monster;
+    for (const monsterId in this.monsters) {
+      monster = this.monsters[monsterId];
+
+      monster.move(0.5, -2.3);
+    }
+  }
+
   private updateBullets() {
     for (let i: number = 0; i < this.bullets.length; i++) {
       this.bulletMove(i);
@@ -214,6 +227,8 @@ export class GameState extends Schema {
     this.onMessage(new Message('joined', {
       name: this.players[id].name,
     }));
+
+    this.monsterAdd();
   }
 
   playerPushAction(action: Types.IAction) {
@@ -440,6 +455,19 @@ export class GameState extends Schema {
   }
 
 
+  // MONSTERS
+  private monsterAdd() {
+    const monster = new Monster(
+      200,
+      200,
+      Constants.MONSTER_SIZE / 2,
+      0,
+    );
+
+    this.monsters['monster'] = monster;
+  }
+
+
   // BULLETS
   private bulletMove(bulletId: number) {
     const bullet = this.bullets[bulletId];
@@ -497,12 +525,15 @@ export class GameState extends Schema {
       'potion-red',
       Constants.FLASKS_COUNT,
       Constants.FLASK_SIZE,
-      true,
+      false,
     );
+
     this.props.push(...props);
   }
 
-  private propsGenerate = (propType: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
+  private propsGenerate = (propType: Types.PropType, quantity: number, size: number, snapToGrid: boolean): Prop[] => {
+    const props: Prop[] = [];
+
     let prop: Prop;
     for (let i: number = 0; i < quantity; i++) {
       prop = new Prop(
@@ -525,10 +556,10 @@ export class GameState extends Schema {
         prop.y += Maths.snapPosition(prop.y, Constants.TILE_SIZE);
       }
 
-      this.props.push(prop);
+      props.push(prop);
     }
 
-    return this.props;
+    return props;
   }
 
   private propsClear() {

@@ -30,6 +30,10 @@ export const PLAYER_SPEED = 3;
 export const PLAYER_MAX_LIVES = 3;
 export const PLAYER_WEAPON_SIZE = 12; // The bigger, the further away a bullet will be shot from.
 
+// Monster
+export const MONSTER_SIZE = 32;
+export const MONSTER_SPEED = 2;
+
 // Props (rectangle)
 export const FLASK_SIZE = 24;
 export const FLASKS_COUNT = 3;
