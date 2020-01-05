@@ -21,6 +21,7 @@ export class Monster extends Circle {
   // Hidden properties
   private mapWidth: number;
   private mapHeight: number;
+  private lives: number = 0;
   private state: State = 'idle';
   private lastActionAt: number = 0;
   private idleDuration: number = 0;
@@ -34,14 +35,16 @@ export class Monster extends Circle {
     radius: number,
     mapWidth: number,
     mapHeight: number,
+    lives: number,
   ) {
     super(x, y, radius);
 
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
+    this.lives = lives;
   }
 
-  // Methods
+  // Update
   update(players: MapSchema<Player>) {
     switch (this.state) {
       case 'idle':
@@ -141,6 +144,8 @@ export class Monster extends Circle {
     this.lastActionAt = Date.now();
   }
 
+
+  // Methods
   lookForPlayer(players: MapSchema<Player>): boolean {
     if (!this.targetPlayerId) {
       const playerId = getClosestPlayerId(this.x, this.y, players);
@@ -153,9 +158,18 @@ export class Monster extends Circle {
     return false;
   }
 
+  hurt() {
+    this.lives -= 1;
+  }
+
   move(speed: number, rotation: number) {
     this.x = this.x + Math.cos(rotation) * speed;
     this.y = this.y + Math.sin(rotation) * speed;
+  }
+
+  // Getters
+  get isAlive(): boolean {
+    return this.lives > 0;
   }
 }
 

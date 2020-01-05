@@ -1,6 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
-import { Bullet, Game, Message, Player, Prop, Monster } from '../entities';
+import { Bullet, Game, Message, Monster, Player, Prop } from '../entities';
 
 export class GameState extends Schema {
 
@@ -465,6 +465,7 @@ export class GameState extends Schema {
         Constants.MONSTER_SIZE / 2,
         this.map.width,
         this.map.height,
+        Constants.MONSTER_LIVES,
       );
 
       this.monsters[Maths.getRandomInt(0, 1000)] = monster;
@@ -496,8 +497,8 @@ export class GameState extends Schema {
     bullet.move(Constants.BULLET_SPEED);
 
     // Collisions: Players
-    for (const playerKey of Object.keys(this.players)) {
-      const player: Player = this.players[playerKey];
+    for (const playerId in this.players) {
+      const player: Player = this.players[playerId];
 
       // Check if the bullet can hurt the player
       if (
@@ -516,6 +517,24 @@ export class GameState extends Schema {
           killedName: player.name,
         }));
         this.playerUpdateKills(bullet.playerId);
+      }
+      return;
+    }
+
+    // Collisions: Players
+    for (const monsterId in this.monsters) {
+      const monster: Monster = this.monsters[monsterId];
+
+      // Check if the bullet can hurt the player
+      if (!Collisions.circleToCircle(bullet.body, monster.body)) {
+        continue;
+      }
+
+      bullet.active = false;
+      monster.hurt();
+
+      if (!monster.isAlive) {
+        this.monsterRemove(monsterId)
       }
       return;
     }
