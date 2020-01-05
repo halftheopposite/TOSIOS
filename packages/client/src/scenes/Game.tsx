@@ -110,6 +110,7 @@ export default class Game extends Component<IProps, IState> {
     this.room.state.players.onRemove = this.handlePlayerRemove;
     this.room.state.monsters.onAdd = this.handleMonsterAdd;
     this.room.state.monsters.onChange = this.handleMonsterUpdate;
+    this.room.state.monsters.onRemove = this.handleMonsterRemove;
     this.room.state.props.onAdd = this.handlePropAdd;
     this.room.state.props.onChange = this.handlePropUpdate;
     this.room.state.props.onRemove = this.handlePropRemove;
@@ -179,6 +180,10 @@ export default class Game extends Component<IProps, IState> {
 
   handleMonsterUpdate = (monster: any, monsterId: string) => {
     this.gameManager.monsterUpdate(monsterId, monster);
+  }
+
+  handleMonsterRemove = (monster: any, monsterId: string) => {
+    this.gameManager.monsterRemove(monsterId);
   }
 
   handlePropAdd = (prop: any, propId: string) => {

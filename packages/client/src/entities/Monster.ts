@@ -1,5 +1,7 @@
 import { MonstersTextures } from '../images/textures';
-import { CircleSprite } from '../sprites';
+import { CircleSprite, Effects } from '../sprites';
+
+const HURT_COLOR = 0xFF0000;
 
 export interface IMonster {
   x: number;
@@ -28,6 +30,10 @@ export class Monster extends CircleSprite {
   move = (speed: number) => {
     this.x = this.x + Math.cos(this.rotation) * speed;
     this.y = this.y + Math.sin(this.rotation) * speed;
+  }
+
+  hurt() {
+    Effects.flash(this.sprite, HURT_COLOR, 0xFFFFFF);
   }
 
   // Setters

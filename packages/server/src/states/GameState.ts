@@ -122,6 +122,8 @@ export class GameState extends Schema {
 
           this.setPlayersActive(true);
           this.propsAdd();
+          this.monstersAdd(3);
+
           this.game.setState('game');
           this.onMessage(new Message('start'));
         }
@@ -160,6 +162,7 @@ export class GameState extends Schema {
         }
 
         if (!shouldContinueGame) {
+          this.monstersClear();
           this.onMessage(new Message('stop'));
           this.game.setState('lobby');
         }
@@ -197,7 +200,7 @@ export class GameState extends Schema {
     for (const monsterId in this.monsters) {
       monster = this.monsters[monsterId];
 
-      monster.move(0.5, -2.3);
+      monster.update(this.players);
     }
   }
 
@@ -227,8 +230,6 @@ export class GameState extends Schema {
     this.onMessage(new Message('joined', {
       name: this.players[id].name,
     }));
-
-    this.monsterAdd();
   }
 
   playerPushAction(action: Types.IAction) {
@@ -456,15 +457,32 @@ export class GameState extends Schema {
 
 
   // MONSTERS
-  private monsterAdd() {
-    const monster = new Monster(
-      200,
-      200,
-      Constants.MONSTER_SIZE / 2,
-      0,
-    );
+  private monstersAdd = (count: number) => {
+    for (let i = 0; i < count; i++) {
+      const monster = new Monster(
+        this.map.width / 2,
+        this.map.height / 2,
+        Constants.MONSTER_SIZE / 2,
+        this.map.width,
+        this.map.height,
+      );
 
-    this.monsters['monster'] = monster;
+      this.monsters[Maths.getRandomInt(0, 1000)] = monster;
+    }
+  }
+
+  private monsterRemove = (id: string) => {
+    delete this.monsters[id];
+  }
+
+  private monstersClear = () => {
+    const monstersIds: string[] = [];
+
+    for (const monsterId in this.monsters) {
+      monstersIds.push(monsterId);
+    }
+
+    monstersIds.forEach(this.monsterRemove);
   }
 
 

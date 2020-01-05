@@ -401,6 +401,21 @@ export default class GameManager {
         continue;
       }
 
+      // Collisions: Monsters
+      for (const monster of this.monstersManager.getAll()) {
+        if (!Collisions.circleToCircle(bullet.body, monster.body)) {
+          continue;
+        }
+
+        bullet.active = false;
+        monster.hurt();
+        this.spawnImpact(
+          bullet.x,
+          bullet.y,
+        );
+        continue;
+      }
+
       // Collisions: Walls
       if (this.walls.collidesWithCircle(bullet.body, 'half')) {
         bullet.active = false;
@@ -648,11 +663,17 @@ export default class GameManager {
       return;
     }
 
+    monster.rotation = attributes.rotation;
+
     // Set new interpolation values
     monster.x = monster.toX;
     monster.y = monster.toY;
     monster.toX = attributes.x;
     monster.toY = attributes.y;
+  }
+
+  monsterRemove = (monsterId: string) => {
+    this.monstersManager.remove(monsterId);
   }
 
   // COLYSEUS: Props

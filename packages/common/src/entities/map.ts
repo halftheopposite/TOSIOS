@@ -1,5 +1,5 @@
-import { CircleBody, RectangleBody, Vector } from '../geometry';
 import { Maths } from '..';
+import { CircleBody, RectangleBody, Vector } from '../geometry';
 
 export class Map {
 

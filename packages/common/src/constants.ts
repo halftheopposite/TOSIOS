@@ -32,7 +32,9 @@ export const PLAYER_WEAPON_SIZE = 12; // The bigger, the further away a bullet w
 
 // Monster
 export const MONSTER_SIZE = 32;
-export const MONSTER_SPEED = 2;
+export const MONSTER_SPEED_PATROL = 0.75;
+export const MONSTER_SPEED_CHASE = 1.25;
+export const MONSTER_SIGHT = 128;
 
 // Props (rectangle)
 export const FLASK_SIZE = 24;
