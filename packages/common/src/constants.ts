@@ -4,7 +4,7 @@ export const APP_TITLE = 'TOSIOS';
 export const WS_PORT = 3001;
 export const ROOM_NAME = 'game'; // Colyseus Room<T>'s name (no need to change)
 export const ROOM_REFRESH = 5000;
-export const DEBUG = false;
+export const DEBUG = true;
 
 // Game
 export const MAPS_NAMES = ['small', 'gigantic'];
@@ -36,6 +36,11 @@ export const MONSTER_SPEED_PATROL = 0.75;
 export const MONSTER_SPEED_CHASE = 1.25;
 export const MONSTER_SIGHT = 128;
 export const MONSTER_LIVES = 3;
+export const MONSTER_IDLE_DURATION_MIN = 1000;
+export const MONSTER_IDLE_DURATION_MAX = 3000;
+export const MONSTER_PATROL_DURATION_MIN = 1000;
+export const MONSTER_PATROL_DURATION_MAX = 3000;
+export const MONSTER_ATTACK_BACKOFF = 3000;
 
 // Props (rectangle)
 export const FLASK_SIZE = 24;

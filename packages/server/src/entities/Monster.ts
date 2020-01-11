@@ -7,12 +7,6 @@ import { Circle } from './Circle';
 
 type State = 'idle' | 'patrol' | 'chase';
 
-const IDLE_DURATION_MIN = 1000;
-const IDLE_DURATION_MAX = 3000;
-
-const PATROL_DURATION_MIN = 1000;
-const PATROL_DURATION_MAX = 3000;
-
 export class Monster extends Circle {
 
   @type('number')
@@ -24,6 +18,7 @@ export class Monster extends Circle {
   private lives: number = 0;
   private state: State = 'idle';
   private lastActionAt: number = 0;
+  private lastAttackAt: number = 0;
   private idleDuration: number = 0;
   private patrolDuration: number = 0;
   private targetPlayerId: string = null;
@@ -126,14 +121,20 @@ export class Monster extends Circle {
     this.state = 'idle';
     this.rotation = 0;
     this.targetPlayerId = null;
-    this.idleDuration = Maths.getRandomInt(IDLE_DURATION_MIN, IDLE_DURATION_MAX);
+    this.idleDuration = Maths.getRandomInt(
+      Constants.MONSTER_IDLE_DURATION_MIN,
+      Constants.MONSTER_IDLE_DURATION_MAX,
+    );
     this.lastActionAt = Date.now();
   }
 
   startPatrol() {
     this.state = 'patrol';
     this.targetPlayerId = null;
-    this.patrolDuration = Maths.getRandomInt(PATROL_DURATION_MIN, PATROL_DURATION_MAX);
+    this.patrolDuration = Maths.getRandomInt(
+      Constants.MONSTER_PATROL_DURATION_MIN,
+      Constants.MONSTER_PATROL_DURATION_MAX,
+    );
     this.rotation = Maths.getRandomInt(-3, 3);
     this.lastActionAt = Date.now();
   }
@@ -167,9 +168,18 @@ export class Monster extends Circle {
     this.y = this.y + Math.sin(rotation) * speed;
   }
 
+  attack() {
+    this.lastAttackAt = Date.now();
+  }
+
   // Getters
   get isAlive(): boolean {
     return this.lives > 0;
+  }
+
+  get canAttack(): boolean {
+    const delta = Math.abs(this.lastAttackAt - Date.now());
+    return this.state === 'chase' && delta > Constants.MONSTER_ATTACK_BACKOFF;
   }
 }
 

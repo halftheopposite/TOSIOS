@@ -196,17 +196,14 @@ export class GameState extends Schema {
   }
 
   private updateMonsters() {
-    let monster: Monster;
     for (const monsterId in this.monsters) {
-      monster = this.monsters[monsterId];
-
-      monster.update(this.players);
+      this.monsterUpdate(monsterId);
     }
   }
 
   private updateBullets() {
     for (let i: number = 0; i < this.bullets.length; i++) {
-      this.bulletMove(i);
+      this.bulletUpdate(i);
     }
   }
 
@@ -472,6 +469,41 @@ export class GameState extends Schema {
     }
   }
 
+  private monsterUpdate = (id: string) => {
+    const monster: Monster = this.monsters[id];
+    if (!monster || !monster.isAlive) {
+      return;
+    }
+
+    // Update monster
+    monster.update(this.players);
+
+    // Collisions: Players
+    for (const playerId in this.players) {
+      const player: Player = this.players[playerId];
+
+      // Check if the monster can hurt the player
+      if (
+        !player.isAlive ||
+        !monster.canAttack ||
+        !Collisions.circleToCircle(monster.body, player.body)
+      ) {
+        continue;
+      }
+
+      monster.attack();
+      player.hurt();
+
+      if (!player.isAlive) {
+        this.onMessage(new Message('killed', {
+          killerName: 'A bat',
+          killedName: player.name,
+        }));
+      }
+      return;
+    }
+  }
+
   private monsterRemove = (id: string) => {
     delete this.monsters[id];
   }
@@ -488,7 +520,7 @@ export class GameState extends Schema {
 
 
   // BULLETS
-  private bulletMove(bulletId: number) {
+  private bulletUpdate(bulletId: number) {
     const bullet = this.bullets[bulletId];
     if (!bullet || !bullet.active) {
       return;
@@ -521,7 +553,7 @@ export class GameState extends Schema {
       return;
     }
 
-    // Collisions: Players
+    // Collisions: Monsters
     for (const monsterId in this.monsters) {
       const monster: Monster = this.monsters[monsterId];
 
@@ -534,7 +566,7 @@ export class GameState extends Schema {
       monster.hurt();
 
       if (!monster.isAlive) {
-        this.monsterRemove(monsterId)
+        this.monsterRemove(monsterId);
       }
       return;
     }
