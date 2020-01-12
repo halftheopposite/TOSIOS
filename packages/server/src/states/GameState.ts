@@ -47,6 +47,13 @@ export class GameState extends Schema {
     });
 
     // Map
+    this.initializeMap(mapName);
+
+    // Callback
+    this.onMessage = onMessage;
+  }
+
+  initializeMap = (mapName: string) => {
     const data = Maps.List[mapName];
     const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
@@ -78,16 +85,13 @@ export class GameState extends Schema {
         ));
       }
     });
-
-    // Callback
-    this.onMessage = onMessage;
   }
 
 
   // UPDATES
   update() {
     this.updateGame();
-    this.updateActions();
+    this.updatePlayers();
     this.updateMonsters();
     this.updateBullets();
   }
@@ -96,7 +100,7 @@ export class GameState extends Schema {
     this.game.update(this.players);
   }
 
-  private updateActions() {
+  private updatePlayers() {
     let action: Types.IAction;
 
     while (this.actions.length > 0) {
@@ -149,8 +153,8 @@ export class GameState extends Schema {
 
     this.setPlayersPositionRandomly();
     this.setPlayersActive(true);
-    this.propsAdd();
-    this.monstersAdd(3);
+    this.propsAdd(Constants.FLASKS_COUNT);
+    this.monstersAdd(Constants.MONSTERS_COUNT);
     this.onMessage(new Message('start'));
   }
 
@@ -258,6 +262,7 @@ export class GameState extends Schema {
     // Check if player can shoot
     const delta = ts - player.lastShootAt;
     if (player.lastShootAt && delta < Constants.BULLET_RATE) {
+      console.log('Dropping "shoot" action as too early:', delta, 'ms')
       return;
     }
     player.lastShootAt = ts;
@@ -333,6 +338,30 @@ export class GameState extends Schema {
     }
   }
 
+  private getPositionRandomly(
+    body: Geometry.RectangleBody,
+    snapToGrid: boolean,
+    withCollisions: true,
+  ): Geometry.RectangleBody {
+    body.x = Maths.getRandomInt(0, this.map.width);
+    body.y = Maths.getRandomInt(0, this.map.height);
+
+    if (!withCollisions) {
+      while (this.walls.collidesWithRectangle(body)) {
+        body.x = Maths.getRandomInt(0, this.map.width);
+        body.y = Maths.getRandomInt(0, this.map.height);
+      }
+    }
+
+    // We want the items to snap to the grid
+    if (snapToGrid) {
+      body.x += Maths.snapPosition(body.x, Constants.TILE_SIZE);
+      body.y += Maths.snapPosition(body.y, Constants.TILE_SIZE);
+    }
+
+    return body;
+  }
+
   private setPlayersTeamsRandomly() {
     // Add all players' ids into an array
     let playersIds: string[] = [];
@@ -363,10 +392,15 @@ export class GameState extends Schema {
   // MONSTERS
   private monstersAdd = (count: number) => {
     for (let i = 0; i < count; i++) {
+      const body = this.getPositionRandomly(
+        new Geometry.CircleBody(0, 0, Constants.MONSTER_SIZE / 2).box,
+        true,
+        true,
+      );
       const monster = new Monster(
-        this.map.width / 2,
-        this.map.height / 2,
-        Constants.MONSTER_SIZE / 2,
+        body.x,
+        body.y,
+        body.width / 2,
         this.map.width,
         this.map.height,
         Constants.MONSTER_LIVES,
@@ -493,49 +527,24 @@ export class GameState extends Schema {
 
 
   // PROPS
-  private propsAdd() {
-    this.propsClear();
-
-    // Add random red flasks
-    const props = this.propsGenerate(
-      'potion-red',
-      Constants.FLASKS_COUNT,
-      Constants.FLASK_SIZE,
-      false,
-    );
-
-    this.props.push(...props);
-  }
-
-  private propsGenerate = (propType: Types.PropType, quantity: number, size: number, snapToGrid: boolean): Prop[] => {
-    const props: Prop[] = [];
-
-    let prop: Prop;
-    for (let i: number = 0; i < quantity; i++) {
-      prop = new Prop(
-        propType,
-        Maths.getRandomInt(0, this.map.width),
-        Maths.getRandomInt(0, this.map.height),
-        size,
-        size,
+  private propsAdd(count: number) {
+    for (let i = 0; i < count; i++) {
+      const body = this.getPositionRandomly(
+        new Geometry.RectangleBody(0, 0, Constants.FLASK_SIZE, Constants.FLASK_SIZE),
+        false,
+        true,
       );
 
-      // Update its position if it collides
-      while (this.walls.collidesWithRectangle(prop.body)) {
-        prop.x = Maths.getRandomInt(0, this.map.width);
-        prop.y = Maths.getRandomInt(0, this.map.height);
-      }
+      const prop = new Prop(
+        'potion-red',
+        body.x,
+        body.y,
+        body.width,
+        body.height,
+      );
 
-      // We want the items to snap to the grid
-      if (snapToGrid) {
-        prop.x += Maths.snapPosition(prop.x, Constants.TILE_SIZE);
-        prop.y += Maths.snapPosition(prop.y, Constants.TILE_SIZE);
-      }
-
-      props.push(prop);
+      this.props.push(prop);
     }
-
-    return props;
   }
 
   private propsClear() {
