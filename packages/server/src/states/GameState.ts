@@ -341,15 +341,16 @@ export class GameState extends Schema {
   private getPositionRandomly(
     body: Geometry.RectangleBody,
     snapToGrid: boolean,
-    withCollisions: true,
+    withCollisions: boolean,
   ): Geometry.RectangleBody {
-    body.x = Maths.getRandomInt(0, this.map.width);
-    body.y = Maths.getRandomInt(0, this.map.height);
+    body.x = Maths.getRandomInt(Constants.TILE_SIZE, this.map.width - Constants.TILE_SIZE);
+    body.y = Maths.getRandomInt(Constants.TILE_SIZE, this.map.height - Constants.TILE_SIZE);
 
-    if (!withCollisions) {
+    // Should we compute collisions?
+    if (withCollisions) {
       while (this.walls.collidesWithRectangle(body)) {
-        body.x = Maths.getRandomInt(0, this.map.width);
-        body.y = Maths.getRandomInt(0, this.map.height);
+        body.x = Maths.getRandomInt(Constants.TILE_SIZE, this.map.width - Constants.TILE_SIZE);
+        body.y = Maths.getRandomInt(Constants.TILE_SIZE, this.map.height - Constants.TILE_SIZE);
       }
     }
 
@@ -394,8 +395,8 @@ export class GameState extends Schema {
     for (let i = 0; i < count; i++) {
       const body = this.getPositionRandomly(
         new Geometry.CircleBody(0, 0, Constants.MONSTER_SIZE / 2).box,
-        true,
-        true,
+        false,
+        false,
       );
       const monster = new Monster(
         body.x,
@@ -534,7 +535,6 @@ export class GameState extends Schema {
         false,
         true,
       );
-
       const prop = new Prop(
         'potion-red',
         body.x,
