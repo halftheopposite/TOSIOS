@@ -184,9 +184,9 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 - [x] Add players spawner object instead of randomized points.
 - [x] Add support for JSON TMX format (Tiled).
 - [x] Add a Team Death Match mode.
+- [x] Add some monsters. (Q1 2020)
 - [ ] Make it possible to choose team. (Q1 2020)
 - [ ] Improve the UI of the game menu. (Q1 2020)
-- [ ] Add some monsters. (Q1 2020)
 - [ ] Add powers up and pickable items. (Q1 2020)
 - [ ] Add sound effects. (Q1 2020)
 
