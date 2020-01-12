@@ -8,6 +8,7 @@ const NAME_OFFSET = 4;
 const LIVES_OFFSET = 10;
 const HURT_COLOR = 0xEFEFEF;
 const HEAL_COLOR = 0xEFEFEF;
+const BULLET_DELAY_FACTOR = 1.1; // Add 10% to delay as server may lag behind sometimes (rarely)
 
 type PlayerDirection = 'left' | 'right';
 
@@ -154,7 +155,7 @@ export class Player extends CircleSprite {
 
   canShoot(): boolean {
     const now: number = Date.now();
-    if ((now - this.lastShootAt) < Constants.BULLET_RATE) {
+    if ((now - this.lastShootAt) < (Constants.BULLET_RATE * BULLET_DELAY_FACTOR)) {
       return false;
     }
 
