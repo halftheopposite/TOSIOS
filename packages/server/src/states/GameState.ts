@@ -36,14 +36,15 @@ export class GameState extends Schema {
     super();
 
     // Game
-    this.game = new Game(
+    this.game = new Game({
       mapName,
-      Constants.LOBBY_DURATION,
-      Constants.GAME_DURATION,
       maxPlayers,
-      'waiting',
       mode,
-    );
+      onWaitingStart: this.handleWaitingStart,
+      onLobbyStart: this.handleLobbyStart,
+      onGameStart: this.handleGameStart,
+      onGameEnd: this.handleGameEnd,
+    });
 
     // Map
     const data = Maps.List[mapName];
@@ -92,84 +93,7 @@ export class GameState extends Schema {
   }
 
   private updateGame() {
-    const gameState = this.game.state;
-
-    // Waiting for other players
-    if (gameState === 'waiting') {
-      if (this.getPlayersCount() > 1) {
-        this.setPlayersActive(false);
-        this.game.setState('lobby');
-      }
-      return;
-    }
-
-    // If a player is alone, the "game" ends
-    if (this.getPlayersCount() === 1) {
-      this.game.setState('waiting');
-      this.onMessage(new Message('waiting'));
-      return;
-    }
-
-    switch (gameState) {
-      case 'lobby':
-        // Go on "game" when lobby time is over
-        if (this.game.lobbyEndsAt < Date.now()) {
-          this.setPlayersPositionRandomly();
-
-          if (this.game.mode === 'team deathmatch') {
-            this.setPlayersTeamsRandomly();
-          }
-
-          this.setPlayersActive(true);
-          this.propsAdd();
-          this.monstersAdd(3);
-
-          this.game.setState('game');
-          this.onMessage(new Message('start'));
-        }
-        break;
-      case 'game': {
-        let shouldContinueGame = true;
-
-        if (this.game.mode === 'deathmatch') {
-          // Deathmatch
-          if (this.getPlayersCountActive() === 1) {
-            const player = this.getPlayersFirstActive();
-            if (player) {
-              this.onMessage(new Message('won', {
-                name: player.name,
-              }));
-            }
-
-            shouldContinueGame = false;
-          }
-        } else {
-          // Team Deathmatch
-          const winningTeam: Types.Teams | null = this.getWinnerTeam();
-          if (winningTeam) {
-            this.onMessage(new Message('won', {
-              name: winningTeam === 'Red' ? 'Red team' : 'Blue team',
-            }));
-            shouldContinueGame = false;
-          }
-        }
-
-        // Stop "game" when time is over (everyone loses)
-        if (this.game.gameEndsAt < Date.now()) {
-          this.onMessage(new Message('timeout'));
-          this.setPlayersActive(false);
-          shouldContinueGame = false;
-        }
-
-        if (!shouldContinueGame) {
-          this.monstersClear();
-          this.onMessage(new Message('stop'));
-          this.game.setState('lobby');
-        }
-      } break;
-      default:
-        break;
-    }
+    this.game.update(this.players);
   }
 
   private updateActions() {
@@ -205,6 +129,39 @@ export class GameState extends Schema {
     for (let i: number = 0; i < this.bullets.length; i++) {
       this.bulletUpdate(i);
     }
+  }
+
+
+  // GAME: State changes
+  private handleWaitingStart = () => {
+    this.setPlayersActive(false);
+    this.onMessage(new Message('waiting'));
+  }
+
+  private handleLobbyStart = () => {
+    this.setPlayersActive(false);
+  }
+
+  private handleGameStart = () => {
+    if (this.game.mode === 'team deathmatch') {
+      this.setPlayersTeamsRandomly();
+    }
+
+    this.setPlayersPositionRandomly();
+    this.setPlayersActive(true);
+    this.propsAdd();
+    this.monstersAdd(3);
+    this.onMessage(new Message('start'));
+  }
+
+  private handleGameEnd = (message?: Message) => {
+    if (message) {
+      this.onMessage(message);
+    }
+
+    this.propsClear();
+    this.monstersClear();
+    this.onMessage(new Message('stop'));
   }
 
 
@@ -396,56 +353,6 @@ export class GameState extends Schema {
 
       player.setTeam(isBlueTeam ? 'Blue' : 'Red');
     }
-  }
-
-  private getPlayersCount(): number {
-    let count = 0;
-    for (const playerId in this.players) {
-      count++;
-    }
-
-    return count;
-  }
-
-  private getPlayersCountActive(): number {
-    let count = 0;
-    for (const playerId in this.players) {
-      if (this.players[playerId].isAlive) {
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  private getPlayersFirstActive(): Player {
-    for (const playerId in this.players) {
-      if (this.players[playerId].isAlive) {
-        return this.players[playerId];
-      }
-    }
-  }
-
-  private getWinnerTeam(): Types.Teams | null {
-    let redAlive = false;
-    let blueAlive = false;
-
-    for (const playerId in this.players) {
-      const player = this.players[playerId];
-      if (player.isAlive) {
-        if (player.team === 'Red') {
-          redAlive = true;
-        } else {
-          blueAlive = true;
-        }
-      }
-    }
-
-    if (redAlive && blueAlive) {
-      return null;
-    }
-
-    return redAlive ? 'Red' : 'Blue';
   }
 
   private getSpawnerRandomly(): Geometry.RectangleBody {

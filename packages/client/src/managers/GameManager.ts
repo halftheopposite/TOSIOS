@@ -506,10 +506,6 @@ export default class GameManager {
         break;
       case 'state':
         this.state = value;
-        // Hide props when not in "game" state
-        this.state === 'game'
-          ? this.propsManager.show()
-          : this.propsManager.hide();
         break;
       case 'maxPlayers':
         this.maxPlayers = value;

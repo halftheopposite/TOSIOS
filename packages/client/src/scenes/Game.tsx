@@ -194,15 +194,15 @@ export default class Game extends Component<IProps, IState> {
     this.gameManager.propUpdate(propId, prop);
   }
 
-  handlePropRemove = (propId: string) => {
+  handlePropRemove = (prop: any, propId: string) => {
     this.gameManager.propRemove(propId);
   }
 
-  handleBulletAdd = (bullet: any) => {
+  handleBulletAdd = (bullet: any, bulletId: string) => {
     this.gameManager.bulletAdd(bullet);
   }
 
-  handleBulletRemove = (bulletId: string) => {
+  handleBulletRemove = (bullet: any, bulletId: string) => {
     this.gameManager.bulletRemove(bulletId);
   }
 
