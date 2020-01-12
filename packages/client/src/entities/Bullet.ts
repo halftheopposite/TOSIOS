@@ -2,7 +2,7 @@ import { utils } from 'pixi.js';
 import { WeaponTextures } from '../images/textures';
 import { CircleSprite } from '../sprites';
 
-interface IBullet {
+export interface IBullet {
   x: number;
   y: number;
   radius: number;
@@ -14,7 +14,7 @@ interface IBullet {
   shotAt: number;
 }
 
-export default class Bullet extends CircleSprite {
+export class Bullet extends CircleSprite {
 
   private _playerId: string = '';
   private _team: string = '';

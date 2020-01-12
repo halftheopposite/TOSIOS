@@ -1,5 +1,5 @@
 /**
- * Get the distance between two points
+ * Get the angle in radiant between two points
  * @param x1
  * @param y1
  * @param x2

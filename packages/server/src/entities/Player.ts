@@ -3,7 +3,6 @@ import { Maths, Types } from '@tosios/common';
 import { Circle } from './Circle';
 
 const validateName = (name: string) => name.trim().slice(0, 16);
-const getRandomColor = () => '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
 const getTeamColor = (team: Types.Teams) => team === 'Blue' ? '#0000FF' : '#FF0000';
 
 export class Player extends Circle {
@@ -52,7 +51,7 @@ export class Player extends Circle {
     this.maxLives = maxLives;
     this.name = validateName(name);
     this.team = team;
-    this.color = team ? getTeamColor(team) : getRandomColor();
+    this.color = team ? getTeamColor(team) : '#FFFFFF';
     this.kills = 0;
     this.rotation = 0;
     this.lastShootAt = undefined;

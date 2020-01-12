@@ -1,9 +1,10 @@
-import { Geometry } from '@tosios/common';
-import { AnimatedSprite, Sprite, Texture } from 'pixi.js';
+import { Constants, Geometry } from '@tosios/common';
+import { AnimatedSprite, Graphics, Sprite, Texture } from 'pixi.js';
 
 export default class CircleSprite {
   private _body: Geometry.CircleBody;
   private _sprite: Sprite | AnimatedSprite;
+  private _boundaries?: Graphics;
 
   constructor(
     x: number,
@@ -22,6 +23,15 @@ export default class CircleSprite {
       this._sprite = new AnimatedSprite(texture.array || [], true);
       (this._sprite as AnimatedSprite).animationSpeed = 0.1;
       (this._sprite as AnimatedSprite).play();
+    }
+
+    // Add the boundaries BEFORE scaling the sprite
+    if (Constants.DEBUG) {
+      this._boundaries = new Graphics();
+      this._boundaries.lineStyle(0.5, 0xFF00FF);
+      this._boundaries.drawCircle(0, 0, this._sprite.width / 2);
+      this._boundaries.endFill();
+      this._sprite.addChild(this._boundaries);
     }
 
     this._sprite.anchor.set(0.5);

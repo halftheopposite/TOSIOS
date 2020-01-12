@@ -106,14 +106,17 @@ export default class Game extends Component<IProps, IState> {
     // Listen for state changes
     this.room.state.game.onChange = this.handleGameChange;
     this.room.state.players.onAdd = this.handlePlayerAdd;
-    this.room.state.players.onChange = this.handlePlayerChange;
+    this.room.state.players.onChange = this.handlePlayerUpdate;
     this.room.state.players.onRemove = this.handlePlayerRemove;
-    this.room.state.bullets.onAdd = this.handleBulletAdd;
-    this.room.state.bullets.onChange = this.handleBulletAdd;
-    this.room.state.bullets.onRemove = this.handleBulletRemove;
+    this.room.state.monsters.onAdd = this.handleMonsterAdd;
+    this.room.state.monsters.onChange = this.handleMonsterUpdate;
+    this.room.state.monsters.onRemove = this.handleMonsterRemove;
     this.room.state.props.onAdd = this.handlePropAdd;
     this.room.state.props.onChange = this.handlePropUpdate;
     this.room.state.props.onRemove = this.handlePropRemove;
+    this.room.state.bullets.onAdd = this.handleBulletAdd;
+    this.room.state.bullets.onChange = this.handleBulletAdd;
+    this.room.state.bullets.onRemove = this.handleBulletRemove;
 
     // Listen for Messages
     this.room.onMessage(this.handleMessage);
@@ -160,7 +163,7 @@ export default class Game extends Component<IProps, IState> {
     this.updatePlayersCount();
   }
 
-  handlePlayerChange = (player: any, playerId: string) => {
+  handlePlayerUpdate = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
     this.gameManager.playerUpdate(playerId, player, isMe);
   }
@@ -171,12 +174,16 @@ export default class Game extends Component<IProps, IState> {
     this.updatePlayersCount();
   }
 
-  handleBulletAdd = (bullet: any) => {
-    this.gameManager.bulletAdd(bullet);
+  handleMonsterAdd = (monster: any, monsterId: string) => {
+    this.gameManager.monsterAdd(monsterId, monster);
   }
 
-  handleBulletRemove = (bulletId: string) => {
-    this.gameManager.bulletRemove(bulletId);
+  handleMonsterUpdate = (monster: any, monsterId: string) => {
+    this.gameManager.monsterUpdate(monsterId, monster);
+  }
+
+  handleMonsterRemove = (monster: any, monsterId: string) => {
+    this.gameManager.monsterRemove(monsterId);
   }
 
   handlePropAdd = (prop: any, propId: string) => {
@@ -187,8 +194,16 @@ export default class Game extends Component<IProps, IState> {
     this.gameManager.propUpdate(propId, prop);
   }
 
-  handlePropRemove = (propId: string) => {
+  handlePropRemove = (prop: any, propId: string) => {
     this.gameManager.propRemove(propId);
+  }
+
+  handleBulletAdd = (bullet: any, bulletId: string) => {
+    this.gameManager.bulletAdd(bullet);
+  }
+
+  handleBulletRemove = (bullet: any, bulletId: string) => {
+    this.gameManager.bulletRemove(bulletId);
   }
 
   handleMessage = (message: any) => {
