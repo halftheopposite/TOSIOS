@@ -17,8 +17,8 @@ export class Monster extends Circle {
   private mapHeight: number;
   private lives: number = 0;
   private state: State = 'idle';
-  private lastActionAt: number = 0;
-  private lastAttackAt: number = 0;
+  private lastActionAt: number = Date.now();
+  private lastAttackAt: number = Date.now();
   private idleDuration: number = 0;
   private patrolDuration: number = 0;
   private targetPlayerId: string = null;
