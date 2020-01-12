@@ -6,8 +6,8 @@ import { CircleSprite, Effects } from '../sprites';
 
 const NAME_OFFSET = 4;
 const LIVES_OFFSET = 10;
-const HURT_COLOR = 0xEFEFEF;
-const HEAL_COLOR = 0xEFEFEF;
+const HURT_COLOR = 0xFF0000;
+const HEAL_COLOR = 0x00FF00;
 const BULLET_DELAY_FACTOR = 1.1; // Add 10% to delay as server may lag behind sometimes (rarely)
 
 type PlayerDirection = 'left' | 'right';
