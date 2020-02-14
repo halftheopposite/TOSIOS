@@ -1,6 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
-import { Bullet, Game, Message, Player, Prop } from '../entities';
+import { Bullet, Game, Message, Monster, Player, Prop } from '../entities';
 
 export class GameState extends Schema {
 
@@ -9,6 +9,9 @@ export class GameState extends Schema {
 
   @type({ map: Player })
   public players: MapSchema<Player> = new MapSchema<Player>();
+
+  @type({ map: Monster })
+  public monsters: MapSchema<Monster> = new MapSchema<Monster>();
 
   @type([Prop])
   public props: ArraySchema<Prop> = new ArraySchema<Prop>();
@@ -33,16 +36,24 @@ export class GameState extends Schema {
     super();
 
     // Game
-    this.game = new Game(
+    this.game = new Game({
       mapName,
-      Constants.LOBBY_DURATION,
-      Constants.GAME_DURATION,
       maxPlayers,
-      'waiting',
       mode,
-    );
+      onWaitingStart: this.handleWaitingStart,
+      onLobbyStart: this.handleLobbyStart,
+      onGameStart: this.handleGameStart,
+      onGameEnd: this.handleGameEnd,
+    });
 
     // Map
+    this.initializeMap(mapName);
+
+    // Callback
+    this.onMessage = onMessage;
+  }
+
+  initializeMap = (mapName: string) => {
     const data = Maps.List[mapName];
     const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
 
@@ -74,98 +85,22 @@ export class GameState extends Schema {
         ));
       }
     });
-
-    // Callback
-    this.onMessage = onMessage;
   }
 
 
   // UPDATES
   update() {
     this.updateGame();
-    this.updateActions();
+    this.updatePlayers();
+    this.updateMonsters();
     this.updateBullets();
   }
 
   private updateGame() {
-    const gameState = this.game.state;
-
-    // Waiting for other players
-    if (gameState === 'waiting') {
-      if (this.getPlayersCount() > 1) {
-        this.setPlayersActive(false);
-        this.game.setState('lobby');
-      }
-      return;
-    }
-
-    // If a player is alone, the "game" ends
-    if (this.getPlayersCount() === 1) {
-      this.game.setState('waiting');
-      this.onMessage(new Message('waiting'));
-      return;
-    }
-
-    switch (gameState) {
-      case 'lobby':
-        // Go on "game" when lobby time is over
-        if (this.game.lobbyEndsAt < Date.now()) {
-          this.setPlayersPositionRandomly();
-
-          if (this.game.mode === 'team deathmatch') {
-            this.setPlayersTeamsRandomly();
-          }
-
-          this.setPlayersActive(true);
-          this.propsAdd();
-          this.game.setState('game');
-          this.onMessage(new Message('start'));
-        }
-        break;
-      case 'game': {
-        let shouldContinueGame = true;
-
-        if (this.game.mode === 'deathmatch') {
-          // Deathmatch
-          if (this.getPlayersCountActive() === 1) {
-            const player = this.getPlayersFirstActive();
-            if (player) {
-              this.onMessage(new Message('won', {
-                name: player.name,
-              }));
-            }
-
-            shouldContinueGame = false;
-          }
-        } else {
-          // Team Deathmatch
-          const winningTeam: Types.Teams | null = this.getWinnerTeam();
-          if (winningTeam) {
-            this.onMessage(new Message('won', {
-              name: winningTeam === 'Red' ? 'Red team' : 'Blue team',
-            }));
-            shouldContinueGame = false;
-          }
-        }
-
-        // Stop "game" when time is over (everyone loses)
-        if (this.game.gameEndsAt < Date.now()) {
-          this.onMessage(new Message('timeout'));
-          this.setPlayersActive(false);
-          shouldContinueGame = false;
-        }
-
-        if (!shouldContinueGame) {
-          this.onMessage(new Message('stop'));
-          this.game.setState('lobby');
-        }
-      } break;
-      default:
-        break;
-    }
+    this.game.update(this.players);
   }
 
-  private updateActions() {
+  private updatePlayers() {
     let action: Types.IAction;
 
     while (this.actions.length > 0) {
@@ -188,10 +123,49 @@ export class GameState extends Schema {
     }
   }
 
+  private updateMonsters() {
+    for (const monsterId in this.monsters) {
+      this.monsterUpdate(monsterId);
+    }
+  }
+
   private updateBullets() {
     for (let i: number = 0; i < this.bullets.length; i++) {
-      this.bulletMove(i);
+      this.bulletUpdate(i);
     }
+  }
+
+
+  // GAME: State changes
+  private handleWaitingStart = () => {
+    this.setPlayersActive(false);
+    this.onMessage(new Message('waiting'));
+  }
+
+  private handleLobbyStart = () => {
+    this.setPlayersActive(false);
+  }
+
+  private handleGameStart = () => {
+    if (this.game.mode === 'team deathmatch') {
+      this.setPlayersTeamsRandomly();
+    }
+
+    this.setPlayersPositionRandomly();
+    this.setPlayersActive(true);
+    this.propsAdd(Constants.FLASKS_COUNT);
+    this.monstersAdd(Constants.MONSTERS_COUNT);
+    this.onMessage(new Message('start'));
+  }
+
+  private handleGameEnd = (message?: Message) => {
+    if (message) {
+      this.onMessage(message);
+    }
+
+    this.propsClear();
+    this.monstersClear();
+    this.onMessage(new Message('stop'));
   }
 
 
@@ -288,6 +262,7 @@ export class GameState extends Schema {
     // Check if player can shoot
     const delta = ts - player.lastShootAt;
     if (player.lastShootAt && delta < Constants.BULLET_RATE) {
+      console.log('Dropping "shoot" action as too early:', delta, 'ms')
       return;
     }
     player.lastShootAt = ts;
@@ -363,6 +338,31 @@ export class GameState extends Schema {
     }
   }
 
+  private getPositionRandomly(
+    body: Geometry.RectangleBody,
+    snapToGrid: boolean,
+    withCollisions: boolean,
+  ): Geometry.RectangleBody {
+    body.x = Maths.getRandomInt(Constants.TILE_SIZE, this.map.width - Constants.TILE_SIZE);
+    body.y = Maths.getRandomInt(Constants.TILE_SIZE, this.map.height - Constants.TILE_SIZE);
+
+    // Should we compute collisions?
+    if (withCollisions) {
+      while (this.walls.collidesWithRectangle(body)) {
+        body.x = Maths.getRandomInt(Constants.TILE_SIZE, this.map.width - Constants.TILE_SIZE);
+        body.y = Maths.getRandomInt(Constants.TILE_SIZE, this.map.height - Constants.TILE_SIZE);
+      }
+    }
+
+    // We want the items to snap to the grid
+    if (snapToGrid) {
+      body.x += Maths.snapPosition(body.x, Constants.TILE_SIZE);
+      body.y += Maths.snapPosition(body.y, Constants.TILE_SIZE);
+    }
+
+    return body;
+  }
+
   private setPlayersTeamsRandomly() {
     // Add all players' ids into an array
     let playersIds: string[] = [];
@@ -385,63 +385,84 @@ export class GameState extends Schema {
     }
   }
 
-  private getPlayersCount(): number {
-    let count = 0;
-    for (const playerId in this.players) {
-      count++;
-    }
-
-    return count;
-  }
-
-  private getPlayersCountActive(): number {
-    let count = 0;
-    for (const playerId in this.players) {
-      if (this.players[playerId].isAlive) {
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  private getPlayersFirstActive(): Player {
-    for (const playerId in this.players) {
-      if (this.players[playerId].isAlive) {
-        return this.players[playerId];
-      }
-    }
-  }
-
-  private getWinnerTeam(): Types.Teams | null {
-    let redAlive = false;
-    let blueAlive = false;
-
-    for (const playerId in this.players) {
-      const player = this.players[playerId];
-      if (player.isAlive) {
-        if (player.team === 'Red') {
-          redAlive = true;
-        } else {
-          blueAlive = true;
-        }
-      }
-    }
-
-    if (redAlive && blueAlive) {
-      return null;
-    }
-
-    return redAlive ? 'Red' : 'Blue';
-  }
-
   private getSpawnerRandomly(): Geometry.RectangleBody {
     return this.spawners[Maths.getRandomInt(0, this.spawners.length - 1)];
   }
 
 
+  // MONSTERS
+  private monstersAdd = (count: number) => {
+    for (let i = 0; i < count; i++) {
+      const body = this.getPositionRandomly(
+        new Geometry.CircleBody(0, 0, Constants.MONSTER_SIZE / 2).box,
+        false,
+        false,
+      );
+      const monster = new Monster(
+        body.x,
+        body.y,
+        body.width / 2,
+        this.map.width,
+        this.map.height,
+        Constants.MONSTER_LIVES,
+      );
+
+      this.monsters[Maths.getRandomInt(0, 1000)] = monster;
+    }
+  }
+
+  private monsterUpdate = (id: string) => {
+    const monster: Monster = this.monsters[id];
+    if (!monster || !monster.isAlive) {
+      return;
+    }
+
+    // Update monster
+    monster.update(this.players);
+
+    // Collisions: Players
+    for (const playerId in this.players) {
+      const player: Player = this.players[playerId];
+
+      // Check if the monster can hurt the player
+      if (
+        !player.isAlive ||
+        !monster.canAttack ||
+        !Collisions.circleToCircle(monster.body, player.body)
+      ) {
+        continue;
+      }
+
+      monster.attack();
+      player.hurt();
+
+      if (!player.isAlive) {
+        this.onMessage(new Message('killed', {
+          killerName: 'A bat',
+          killedName: player.name,
+        }));
+      }
+      return;
+    }
+  }
+
+  private monsterRemove = (id: string) => {
+    delete this.monsters[id];
+  }
+
+  private monstersClear = () => {
+    const monstersIds: string[] = [];
+
+    for (const monsterId in this.monsters) {
+      monstersIds.push(monsterId);
+    }
+
+    monstersIds.forEach(this.monsterRemove);
+  }
+
+
   // BULLETS
-  private bulletMove(bulletId: number) {
+  private bulletUpdate(bulletId: number) {
     const bullet = this.bullets[bulletId];
     if (!bullet || !bullet.active) {
       return;
@@ -450,8 +471,8 @@ export class GameState extends Schema {
     bullet.move(Constants.BULLET_SPEED);
 
     // Collisions: Players
-    for (const playerKey of Object.keys(this.players)) {
-      const player: Player = this.players[playerKey];
+    for (const playerId in this.players) {
+      const player: Player = this.players[playerId];
 
       // Check if the bullet can hurt the player
       if (
@@ -474,6 +495,24 @@ export class GameState extends Schema {
       return;
     }
 
+    // Collisions: Monsters
+    for (const monsterId in this.monsters) {
+      const monster: Monster = this.monsters[monsterId];
+
+      // Check if the bullet can hurt the player
+      if (!Collisions.circleToCircle(bullet.body, monster.body)) {
+        continue;
+      }
+
+      bullet.active = false;
+      monster.hurt();
+
+      if (!monster.isAlive) {
+        this.monsterRemove(monsterId);
+      }
+      return;
+    }
+
     // Collisions: Walls
     if (this.walls.collidesWithCircle(bullet.body, 'half')) {
       bullet.active = false;
@@ -489,46 +528,23 @@ export class GameState extends Schema {
 
 
   // PROPS
-  private propsAdd() {
-    this.propsClear();
-
-    // Add random red flasks
-    const props = this.propsGenerate(
-      'potion-red',
-      Constants.FLASKS_COUNT,
-      Constants.FLASK_SIZE,
-      true,
-    );
-    this.props.push(...props);
-  }
-
-  private propsGenerate = (propType: Types.PropType, quantity: number, size: number, snapToGrid: boolean) => {
-    let prop: Prop;
-    for (let i: number = 0; i < quantity; i++) {
-      prop = new Prop(
-        propType,
-        Maths.getRandomInt(0, this.map.width),
-        Maths.getRandomInt(0, this.map.height),
-        size,
-        size,
+  private propsAdd(count: number) {
+    for (let i = 0; i < count; i++) {
+      const body = this.getPositionRandomly(
+        new Geometry.RectangleBody(0, 0, Constants.FLASK_SIZE, Constants.FLASK_SIZE),
+        false,
+        true,
       );
-
-      // Update its position if it collides
-      while (this.walls.collidesWithRectangle(prop.body)) {
-        prop.x = Maths.getRandomInt(0, this.map.width);
-        prop.y = Maths.getRandomInt(0, this.map.height);
-      }
-
-      // We want the items to snap to the grid
-      if (snapToGrid) {
-        prop.x += Maths.snapPosition(prop.x, Constants.TILE_SIZE);
-        prop.y += Maths.snapPosition(prop.y, Constants.TILE_SIZE);
-      }
+      const prop = new Prop(
+        'potion-red',
+        body.x,
+        body.y,
+        body.width,
+        body.height,
+      );
 
       this.props.push(prop);
     }
-
-    return this.props;
   }
 
   private propsClear() {

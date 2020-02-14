@@ -38,7 +38,7 @@ export class GameRoom extends Room<GameState> {
 
   onJoin(client: Client, options: Types.IPlayerOptions) {
     this.state.playerAdd(client.sessionId, options.playerName);
-    console.log('Player joined:', client.sessionId, options.playerName);
+    console.log(`Player joined: id=${client.sessionId} name=${options.playerName}`);
   }
 
   onMessage(client: Client, data: any) {
@@ -64,7 +64,7 @@ export class GameRoom extends Room<GameState> {
 
   onLeave(client: Client) {
     this.state.playerRemove(client.sessionId);
-    console.log('Player left:', client.sessionId);
+    console.log(`Player joined: id=${client.sessionId}`);
   }
 
   onDispose() {

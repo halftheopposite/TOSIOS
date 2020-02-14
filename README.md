@@ -174,19 +174,21 @@ If you want to add your map to the game:
 
 This is not an exhaustive, nor final, features list but it will give you a good indication on what I am working on:
 
-* ~Let users select the number of players in a room.~ DONE
-* ~Publish the docker image onto a registry and add a `docker-compose` file.~ DONE
-* ~Add a playable demo website for anyone to test and play the game.~ DONE
-* ~Add mobile mode (updated GUI and virtual joysticks).~ DONE
-* ~Add visual feedback when a player gets hit.~ DONE
-* ~Add smoother bullets.~ DONE
-* ~Implement a R-Tree for performances.~ DONE
-* ~Add players spawner object instead of randomized points.~ DONE
-* ~Add support for JSON TMX format (Tiled).~ DONE
-* ~Add a Team Death Match mode.~ DONE
-* Add powers up and pickable items. (Q1 2020)
-* Add some monsters. (Q1 2020)
-* Add sound effects. (Q1 2020)
+- [x] Let users select the number of players in a room.
+- [x] Publish the docker image onto a registry and add a `docker-compose` file.
+- [x] Add a playable demo website for anyone to test and play the game.
+- [x] Add mobile mode (updated GUI and virtual joysticks).
+- [x] Add visual feedback when a player gets hit.
+- [x] Add smoother bullets.
+- [x] Implement a R-Tree for performances.
+- [x] Add players spawner object instead of randomized points.
+- [x] Add support for JSON TMX format (Tiled).
+- [x] Add a Team Death Match mode.
+- [x] Add some monsters. (Q1 2020)
+- [ ] Make it possible to choose team. (Q1 2020)
+- [ ] Improve the UI of the game menu. (Q1 2020)
+- [ ] Add powers up and pickable items. (Q1 2020)
+- [ ] Add sound effects. (Q1 2020)
 
 ## Special thanks
 

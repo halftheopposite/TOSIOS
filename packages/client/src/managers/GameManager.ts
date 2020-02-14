@@ -2,13 +2,12 @@ import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } 
 import { Emitter } from 'pixi-particles';
 import { Viewport } from 'pixi-viewport';
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
-import { Player, Prop } from '../entities';
-import { IPlayer } from '../entities/Player';
+import { IMonster, IPlayer, Monster, Player, Prop } from '../entities';
 import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
 import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
-import { BulletsManager, HUDManager, PlayersManager, PropsManager } from './';
+import { BulletsManager, HUDManager, MonstersManager, PlayersManager, PropsManager } from './';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -18,7 +17,8 @@ const ZINDEXES = {
   PROPS: 2,
   PLAYERS: 3,
   ME: 4,
-  BULLETS: 5,
+  MONSTERS: 5,
+  BULLETS: 6,
 };
 
 // These two constants should be calculated automatically.
@@ -57,6 +57,7 @@ export default class GameManager {
   private viewport: Viewport;
   private hudManager: HUDManager;
   private playersManager: PlayersManager;
+  private monstersManager: MonstersManager;
   private propsManager: PropsManager;
   private bulletsManager: BulletsManager;
 
@@ -112,15 +113,20 @@ export default class GameManager {
     );
     this.app.stage.addChild(this.hudManager);
 
-    // Props
-    this.propsManager = new PropsManager();
-    this.propsManager.zIndex = ZINDEXES.PROPS;
-    this.viewport.addChild(this.propsManager);
-
     // Players
     this.playersManager = new PlayersManager();
     this.playersManager.zIndex = ZINDEXES.PLAYERS;
     this.viewport.addChild(this.playersManager);
+
+    // Monsters
+    this.monstersManager = new MonstersManager();
+    this.monstersManager.zIndex = ZINDEXES.MONSTERS;
+    this.viewport.addChild(this.monstersManager);
+
+    // Props
+    this.propsManager = new PropsManager();
+    this.propsManager.zIndex = ZINDEXES.PROPS;
+    this.viewport.addChild(this.propsManager);
 
     // Bullets
     this.bulletsManager = new BulletsManager();
@@ -190,6 +196,7 @@ export default class GameManager {
     // const deltaTime: number = this.app.ticker.elapsedMS;
     this.updateInputs();
     this.updatePlayers();
+    this.updateMonsters();
     this.updateBullets();
     this.updateHUD();
 
@@ -340,6 +347,20 @@ export default class GameManager {
     }
   }
 
+  private updateMonsters = () => {
+    let distance;
+
+    for (const monster of this.monstersManager.getAll()) {
+      distance = Maths.getDistance(monster.x, monster.y, monster.toX, monster.toY);
+      if (distance !== 0) {
+        monster.position = {
+          x: Maths.lerp(monster.x, monster.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG),
+          y: Maths.lerp(monster.y, monster.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG),
+        };
+      }
+    }
+  }
+
   private updateBullets = () => {
     for (const bullet of this.bulletsManager.getAll()) {
       if (!bullet.active) {
@@ -371,6 +392,21 @@ export default class GameManager {
       if (this.me && this.me.lives && Collisions.circleToCircle(bullet.body, this.me.body)) {
         bullet.active = false;
         this.me.hurt();
+        this.spawnImpact(
+          bullet.x,
+          bullet.y,
+        );
+        continue;
+      }
+
+      // Collisions: Monsters
+      for (const monster of this.monstersManager.getAll()) {
+        if (!Collisions.circleToCircle(bullet.body, monster.body)) {
+          continue;
+        }
+
+        bullet.active = false;
+        monster.hurt();
         this.spawnImpact(
           bullet.x,
           bullet.y,
@@ -486,10 +522,6 @@ export default class GameManager {
         break;
       case 'state':
         this.state = value;
-        // Hide props when not in "game" state
-        this.state === 'game'
-          ? this.propsManager.show()
-          : this.propsManager.hide();
         break;
       case 'maxPlayers':
         this.maxPlayers = value;
@@ -508,7 +540,7 @@ export default class GameManager {
     }
   }
 
-  // COLYSEUS: Players (others)
+  // COLYSEUS: Players
   playerAdd = (playerId: string, attributes: any, isMe: boolean) => {
     const props: IPlayer = {
       playerId,
@@ -622,6 +654,38 @@ export default class GameManager {
 
       delete this.me;
     }
+  }
+
+  // COLYSEUS: Monster
+  monsterAdd = (monsterId: string, attributes: any) => {
+    const props: IMonster = {
+      x: attributes.x,
+      y: attributes.y,
+      radius: attributes.radius,
+      rotation: attributes.rotation,
+    };
+
+    const monster = new Monster(props);
+    this.monstersManager.add(monsterId, monster);
+  }
+
+  monsterUpdate = (monsterId: string, attributes: any) => {
+    const monster = this.monstersManager.get(monsterId);
+    if (!monster) {
+      return;
+    }
+
+    monster.rotation = attributes.rotation;
+
+    // Set new interpolation values
+    monster.x = monster.toX;
+    monster.y = monster.toY;
+    monster.toX = attributes.x;
+    monster.toY = attributes.y;
+  }
+
+  monsterRemove = (monsterId: string) => {
+    this.monstersManager.remove(monsterId);
   }
 
   // COLYSEUS: Props

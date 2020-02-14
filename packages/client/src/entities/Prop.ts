@@ -10,11 +10,11 @@ const getTexture = (type: Types.PropType): {
     case 'potion-red':
       return { array: PropTextures.potionRedTextures };
     default:
-      return {};
+      return { array: PropTextures.potionRedTextures };
   }
 };
 
-interface IProp {
+export interface IProp {
   type: Types.PropType;
   x: number;
   y: number;
@@ -23,7 +23,7 @@ interface IProp {
   active: boolean;
 }
 
-export default class Prop extends RectangleSprite {
+export class Prop extends RectangleSprite {
 
   private _type: Types.PropType;
   private _active: boolean = false;
