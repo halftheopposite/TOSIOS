@@ -6,6 +6,10 @@
       "es6",
       "dom"
     ],
+    "baseUrl": "./src",
+    "paths": {
+      "@tosios/*": "../common/*"
+    },
     "target": "es2016",
     "declaration": true,
     "noImplicitAny": false,

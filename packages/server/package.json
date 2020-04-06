@@ -6,7 +6,6 @@
   "dependencies": {
     "@colyseus/monitor": "^0.11.9",
     "@colyseus/schema": "^0.5.17",
-    "@tosios/common": "0.11.0",
     "colyseus": "^0.11.25",
     "cors": "^2.8.5",
     "express": "^4.17.1",

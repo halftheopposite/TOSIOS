@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@reach/router": "^1.2.1",
-    "@tosios/common": "0.11.0",
     "colyseus.js": "^0.11.7",
     "pixi-particles": "^4.2.0",
     "pixi-viewport": "^4.5.0",
