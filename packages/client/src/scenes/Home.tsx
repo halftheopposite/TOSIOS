@@ -35,7 +35,7 @@ interface IState {
   roomMaxPlayers: any;
   mode: any;
   rooms: Array<RoomAvailable<any>>;
-  timer: any;
+  timer: NodeJS.Timeout | null;
 }
 
 export default class Home extends Component<IProps, IState> {
