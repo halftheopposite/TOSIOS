@@ -1,14 +1,13 @@
 import { navigate, RouteComponentProps } from '@reach/router';
-import { Constants, Keys, Maths, Sorts, Types } from '@tosios/common';
+import { Constants, Keys, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus.js';
 import qs from 'querystringify';
-import React, { Component, Fragment, RefObject } from 'react';
+import React, { Component, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
-import { Box, Button, Inline, RoomFieldItem, Separator, Space, Text, View } from '../components';
+import { Menu, View } from '../components';
 import { IPlayer } from '../entities/Player';
-import { RefreshIcon } from '../images/icons';
 import GameManager from '../managers/GameManager';
 
 interface IProps extends RouteComponentProps {
@@ -16,8 +15,11 @@ interface IProps extends RouteComponentProps {
 }
 
 interface IState {
-  playerId: string;
-  playersCount: number;
+  playerId: string; // Current player Id
+  roomName: string;
+  mapName: string;
+  mode: string;
+  playersList: IPlayer[];
   maxPlayersCount: number;
   menuOpened: boolean;
 }
@@ -26,7 +28,10 @@ export default class Game extends Component<IProps, IState> {
 
   public state = {
     playerId: '',
-    playersCount: 0,
+    playersList: [],
+    roomName: '',
+    mapName: '',
+    mode: '',
     maxPlayersCount: 0,
     menuOpened: false,
   };
@@ -35,7 +40,7 @@ export default class Game extends Component<IProps, IState> {
   private gameManager: GameManager;
   private client?: Client;
   private room?: Room;
-
+  private timer: NodeJS.Timeout | null = null;
 
   // BASE
   constructor(props: IProps) {
@@ -134,6 +139,9 @@ export default class Game extends Component<IProps, IState> {
     window.document.addEventListener('keydown', this.handleKeyDown);
     window.document.addEventListener('keyup', this.handleKeyUp);
     window.addEventListener('resize', this.handleWindowResize);
+
+    // Start players refresh listeners
+    this.timer = setInterval(this.updateRoom, Constants.PLAYERS_REFRESH);
   }
 
   stop = () => {
@@ -151,6 +159,11 @@ export default class Game extends Component<IProps, IState> {
     window.document.removeEventListener('keydown', this.handleKeyDown);
     window.document.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('resize', this.handleWindowResize);
+
+    // Start players refresh listeners
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
 
@@ -164,7 +177,7 @@ export default class Game extends Component<IProps, IState> {
   handlePlayerAdd = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
     this.gameManager.playerAdd(playerId, player, isMe);
-    this.updatePlayersCount();
+    this.updateRoom();
   }
 
   handlePlayerUpdate = (player: any, playerId: string) => {
@@ -175,7 +188,7 @@ export default class Game extends Component<IProps, IState> {
   handlePlayerRemove = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
     this.gameManager.playerRemove(playerId, isMe);
-    this.updatePlayersCount();
+    this.updateRoom();
   }
 
   handleMonsterAdd = (monster: any, monsterId: string) => {
@@ -291,6 +304,12 @@ export default class Game extends Component<IProps, IState> {
     }
 
     if (this.state.menuOpened) {
+      this.gameManager.inputs.left = false;
+      this.gameManager.inputs.up = false;
+      this.gameManager.inputs.right = false;
+      this.gameManager.inputs.down = false;
+      this.gameManager.inputs.shoot = false;
+
       return;
     }
 
@@ -327,10 +346,6 @@ export default class Game extends Component<IProps, IState> {
 
   handleKeyUp = (event: any) => {
     const key = event.code;
-
-    if (this.state.menuOpened) {
-      return;
-    }
 
     if (Keys.LEFT.includes(key)) {
       event.preventDefault();
@@ -369,17 +384,22 @@ export default class Game extends Component<IProps, IState> {
 
 
   // METHODS
-  updatePlayersCount = () => {
+  updateRoom = () => {
+    const { roomName, mapName, mode } = this.gameManager.roomInfo;
+
     this.setState({
-      playersCount: this.gameManager.playersCount,
+      roomName,
+      mapName,
+      mode,
+      playersList: this.gameManager.playersList,
     });
   }
 
 
   // RENDER
   render() {
-    const { menuOpened } = this.state;
-
+    const { menuOpened, roomName, mapName, mode, playersList } = this.state;
+   
     return (
       <View
         style={{
@@ -387,8 +407,9 @@ export default class Game extends Component<IProps, IState> {
           height: '100%',
         }}
       >
+        {/* Set page's title */}
         <Helmet>
-          <title>{`Death Match (${this.state.playersCount})`}</title>
+          <title>{`${roomName} [${this.state.playersList.length}]`}</title>
         </Helmet>
 
         {/* Where PIXI is injected */}
@@ -398,16 +419,16 @@ export default class Game extends Component<IProps, IState> {
         {isMobile && this.renderJoySticks()}
 
         {/* Menu */}
-        {menuOpened && (
-          <GameMenu
-            roomTitle="Test room"
-            roomMap="Test map"
-            mode="team deathmatch"
-            players={this.gameManager.playersList}
+        {menuOpened ? (
+          <Menu
+            roomName={roomName}
+            mapName={mapName}
+            mode={mode}
+            players={playersList}
             onLeave={() => navigate('/')}
             onClose={() => this.setState({ menuOpened: false })}
           />
-        )}
+        ) : null}
       </View>
     );
   }
@@ -463,160 +484,4 @@ export default class Game extends Component<IProps, IState> {
       </View>
     );
   }
-}
-
-function GameMenu(props: {
-  roomTitle: string;
-  roomMap: string;
-  mode: Types.GameMode;
-  players?: IPlayer[];
-  onLeave: () => void;
-  onClose: () => void;
-}): React.ReactElement {
-  const {
-    roomTitle,
-    roomMap,
-    mode,
-    players = [],
-    onLeave,
-    onClose,
-  } = props;
-
-  const firstList: IPlayer[] = [];
-  const secondList: IPlayer[] = [];
-
-  players.forEach(player => {
-    if (mode === 'team deathmatch') {
-      if (player.team === 'Red') {
-        firstList.push(player);
-      } else {
-        secondList.push(player);
-      }
-    } else {
-      firstList.push(player);
-    }
-  });
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
-    >
-      <Box
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          maxWidth: isMobile ? '100%' : '50%',
-        }}
-      >
-        {/* Header */}
-        <View>
-          <RoomFieldItem
-            title="Title"
-            content={`"${roomTitle}"`}
-          />
-          <Space size="xxs" />
-          <RoomFieldItem
-            title="Map"
-            content={`"${roomMap}"`}
-          />
-        </View>
-
-        <Space size="xxs" />
-        <Separator />
-        <Space size="xs" />
-
-        {/* Leaderboard */}
-        <View style={{ display: 'flex' }}>
-          {mode === 'deathmatch'
-            ? <PlayersList players={players} />
-            : (
-              <Fragment>
-                <PlayersList
-                  players={players.filter(player => player.team === 'Red')}
-                  team="Red"
-                />
-                <Inline size="xs" />
-                <Separator mode="vertical" />
-                <Inline size="xs" />
-                <PlayersList
-                  players={players.filter(player => player.team === 'Blue')}
-                  team="Blue"
-                />
-              </Fragment>
-            )
-          }
-        </View>
-
-        <Space size="xs" />
-        <Separator />
-        <Space size="xxs" />
-
-        {/* Buttons */}
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'space-between',
-            display: 'flex',
-            ...(isMobile && { flexDirection: 'column' }),
-          }}
-        >
-          <Button
-            icon={<RefreshIcon width={20} height={20} />}
-            title="Leave"
-            onClick={onLeave}
-            text="Leave"
-          />
-          {isMobile
-            ? <Space size="xs" />
-            : <Inline size="xs" />
-          }
-          <Button
-            title="Close"
-            onClick={onClose}
-            text="Close"
-            reversed={true}
-          />
-        </View>
-      </Box>
-    </View>
-  );
-}
-
-function PlayersList(props: {
-  players: IPlayer[];
-  team?: Types.Teams;
-}): React.ReactElement {
-  const { players, team } = props;
-
-  return (
-    <View style={{ flex: 1 }}>
-      {players
-        .sort((a, b) => Sorts.sortNumberDesc(a.kills, b.kills))
-        .map((player, index) => (
-          <View
-            key={player.playerId}
-            style={{
-              height: 36,
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Text>{`${index + 1}`}</Text>
-            <Text>{' - '}</Text>
-            <Text>{`${player.name}`}</Text>
-          </View>
-        ))}
-    </View>
-  )
 }

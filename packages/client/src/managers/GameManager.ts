@@ -21,7 +21,7 @@ const ZINDEXES = {
   BULLETS: 6,
 };
 
-// These two constants should be calculated automatically.
+// TODO: These two constants should be calculated automatically.
 // They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
@@ -65,6 +65,7 @@ export default class GameManager {
   private walls: Collisions.TreeCollider;
 
   // Game
+  private roomName?: string;
   private mapName?: string;
   private maxPlayers: number = 0;
   private state: string | null = null;
@@ -155,6 +156,7 @@ export default class GameManager {
 
   // METHODS
   private initializeMap = (mapName: string) => {
+    // Don't do anything if map is already set
     if (this.mapName) {
       return;
     }
@@ -492,6 +494,14 @@ export default class GameManager {
     return this.playersManager.getAll().length;
   }
 
+  get roomInfo(): { roomName: string; mapName: string; mode: string } {
+    return {
+      roomName: this.roomName || '',
+      mapName: this.mapName || '',
+      mode: this.mode || '',
+    };
+  }
+
   get playersList(): IPlayer[] {
     return this.playersManager.getAll().map(item => {
       const player: IPlayer = {
@@ -517,6 +527,9 @@ export default class GameManager {
   // COLYSEUS: Game
   gameUpdate = (name: string, value: any) => {
     switch (name) {
+      case 'roomName':
+        this.roomName = value;
+        break;
       case 'mapName':
         this.initializeMap(value);
         break;
@@ -539,6 +552,10 @@ export default class GameManager {
         break;
     }
   }
+
+  //
+  // All methods below are called by Colyseus change listeners.
+  // 
 
   // COLYSEUS: Players
   playerAdd = (playerId: string, attributes: any, isMe: boolean) => {

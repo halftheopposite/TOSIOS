@@ -184,6 +184,11 @@ export class GameState extends Schema {
       name || id,
     );
 
+    // Add the user to the "red" team by default
+    if (this.game.mode === 'team deathmatch') {
+      player.setTeam('Red')
+    }
+
     this.players[id] = player;
 
     // Broadcast message to other players
