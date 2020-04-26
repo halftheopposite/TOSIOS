@@ -4,6 +4,7 @@ import { Message } from '.';
 import { Player } from './Player';
 
 export interface IGame {
+  roomName: string;
   mapName: string;
   maxPlayers: number;
   mode: Types.GameMode;
@@ -17,6 +18,9 @@ export class Game extends Schema {
 
   @type('string')
   public state: Types.GameState = 'lobby';
+
+  @type('string')
+  public roomName: string;
 
   @type('string')
   public mapName: string;
@@ -44,6 +48,7 @@ export class Game extends Schema {
   // Init
   constructor(attributes: IGame) {
     super();
+    this.roomName = attributes.roomName;
     this.mapName = attributes.mapName;
     this.maxPlayers = attributes.maxPlayers;
     this.mode = attributes.mode;

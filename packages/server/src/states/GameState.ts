@@ -28,6 +28,7 @@ export class GameState extends Schema {
 
   // INIT
   constructor(
+    roomName: string,
     mapName: string,
     maxPlayers: number,
     mode: Types.GameMode,
@@ -37,6 +38,7 @@ export class GameState extends Schema {
 
     // Game
     this.game = new Game({
+      roomName,
       mapName,
       maxPlayers,
       mode,
