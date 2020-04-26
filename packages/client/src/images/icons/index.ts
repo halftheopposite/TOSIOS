@@ -1,14 +1,16 @@
 
-import accountMultipleIcon from './account-multiple.svg';
-import githubIcon from './github.svg';
-import lockOpenIcon from './lock-open.svg';
-import lockIcon from './lock.svg';
-import refreshIcon from './refresh.svg';
+import { ReactComponent as AccountMultiple } from './account-multiple.svg';
+import { ReactComponent as ArrowLeft } from './arrow-left.svg';
+import { ReactComponent as GitHubIcon } from './github.svg';
+import { ReactComponent as LockOpenIcon } from './lock-open.svg';
+import { ReactComponent as LockClosedIcon } from './lock.svg';
+import { ReactComponent as RefreshIcon } from './refresh.svg';
 
 export {
-  accountMultipleIcon,
-  githubIcon,
-  lockOpenIcon,
-  lockIcon,
-  refreshIcon,
+  AccountMultiple,
+  ArrowLeft,
+  GitHubIcon,
+  LockOpenIcon,
+  LockClosedIcon,
+  RefreshIcon,
 };

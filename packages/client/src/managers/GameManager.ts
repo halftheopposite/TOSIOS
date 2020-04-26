@@ -21,7 +21,7 @@ const ZINDEXES = {
   BULLETS: 6,
 };
 
-// These two constants should be calculated automatically.
+// TODO: These two constants should be calculated automatically.
 // They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
@@ -33,7 +33,6 @@ interface IInputs {
   up: boolean;
   right: boolean;
   down: boolean;
-  menu: boolean;
   shoot: boolean;
 }
 
@@ -45,7 +44,6 @@ export default class GameManager {
     up: false,
     right: false,
     down: false,
-    menu: false,
     shoot: false,
   };
   public forcedRotation: number = 0; // Used on mobile only
@@ -67,6 +65,7 @@ export default class GameManager {
   private walls: Collisions.TreeCollider;
 
   // Game
+  private roomName?: string;
   private mapName?: string;
   private maxPlayers: number = 0;
   private state: string | null = null;
@@ -157,6 +156,7 @@ export default class GameManager {
 
   // METHODS
   private initializeMap = (mapName: string) => {
+    // Don't do anything if map is already set
     if (this.mapName) {
       return;
     }
@@ -458,9 +458,6 @@ export default class GameManager {
 
     // FPS
     this.hudManager.fps = Math.floor(this.app.ticker.FPS);
-
-    // Leaderboard
-    this.hudManager.isLeaderboard = this.inputs.menu;
   }
 
 
@@ -493,14 +490,46 @@ export default class GameManager {
 
 
   // GETTERS
-  get playersCount() {
+  get playersCount(): number {
     return this.playersManager.getAll().length;
+  }
+
+  get roomInfo(): { roomName: string; mapName: string; mode: string } {
+    return {
+      roomName: this.roomName || '',
+      mapName: this.mapName || '',
+      mode: this.mode || '',
+    };
+  }
+
+  get playersList(): IPlayer[] {
+    return this.playersManager.getAll().map(item => {
+      const player: IPlayer = {
+        playerId: item.playerId,
+        x: item.x,
+        y: item.y,
+        radius: item.radius,
+        rotation: item.rotation,
+        name: item.name,
+        color: item.color,
+        lives: item.lives,
+        maxLives: item.maxLives,
+        kills: item.kills,
+        team: item.team,
+        isGhost: item.isGhost,
+      };
+
+      return player;
+    });
   }
 
 
   // COLYSEUS: Game
   gameUpdate = (name: string, value: any) => {
     switch (name) {
+      case 'roomName':
+        this.roomName = value;
+        break;
       case 'mapName':
         this.initializeMap(value);
         break;
@@ -523,6 +552,10 @@ export default class GameManager {
         break;
     }
   }
+
+  //
+  // All methods below are called by Colyseus change listeners.
+  // 
 
   // COLYSEUS: Players
   playerAdd = (playerId: string, attributes: any, isMe: boolean) => {

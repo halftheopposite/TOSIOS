@@ -1,4 +1,5 @@
 import React, { CSSProperties, ReactNode } from 'react';
+import { Inline } from './Inline';
 
 const BUTTON_COLOR = '#375a7f';
 
@@ -14,6 +15,9 @@ const BUTTON: CSSProperties = {
   minHeight: 48,
   width: '100%',
   maxWidth: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 };
 
 const BUTTON_HOVERED: CSSProperties = {
@@ -26,17 +30,12 @@ const BUTTON_REVERSED: CSSProperties = {
   border: `2px solid ${BUTTON_COLOR}`,
 };
 
-const BUTTON_ICON: CSSProperties = {
-  width: 20,
-  height: 20,
-};
-
 export function Button(props: {
   type?: 'button' | 'submit';
   text?: string;
   children?: ReactNode;
   style?: CSSProperties;
-  icon?: string;
+  icon?: React.ReactElement;
   title?: string;
   reversed?: boolean;
   onClick?: () => void;
@@ -67,10 +66,16 @@ export function Button(props: {
       title={title}
       onClick={onClick}
     >
-      {icon ?
-        <img src={icon} alt="icon" style={BUTTON_ICON} /> :
-        text || children
-      }
+      {/* Icon */}
+      {icon && (
+        <>
+          {icon}
+          <Inline size="xxs" />
+        </>
+      )}
+
+      {/* Content */}
+      {text || children}
     </button>
   );
 }

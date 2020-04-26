@@ -1,7 +1,7 @@
-import { Constants, Sorts } from '@tosios/common';
+import { Constants } from '@tosios/common';
 import { Container } from 'pixi.js';
 
-import { HUDInputTab, HUDLeaderboard, HUDLives, HUDText } from '../HUD';
+import { HUDInputTab, HUDLives, HUDText } from '../HUD';
 
 const HUD_PADDING = 24;
 const FONTSIZE_TIME = 25;
@@ -39,7 +39,6 @@ export default class HUDManager extends Container {
   private _screenWidth: number;
   private _screenHeight: number;
   private _isMobile: boolean;
-  private _isLeaderboard: boolean;
 
   // Data
   private _lives: number;
@@ -60,7 +59,6 @@ export default class HUDManager extends Container {
   private _fpsHUD: HUDText;
   private _announceHUD: HUDText;
   private _tabHUD: HUDInputTab;
-  private _leaderboardHUD: HUDLeaderboard;
 
   // Base
   constructor(
@@ -76,7 +74,6 @@ export default class HUDManager extends Container {
     this._screenWidth = screenWidth;
     this._screenHeight = screenHeight;
     this._isMobile = mobile;
-    this._isLeaderboard = leaderboard;
 
     // Data
     this._lives = 0;
@@ -154,13 +151,6 @@ export default class HUDManager extends Container {
     this._tabHUD = new HUDInputTab();
     this.addChild(this._tabHUD);
 
-    // Leaderboard
-    this._leaderboardHUD = new HUDLeaderboard(
-      this._screenWidth,
-      this._screenHeight,
-    );
-    this.addChild(this._leaderboardHUD);
-
     // Render the HUD
     this.renderAll();
   }
@@ -195,14 +185,12 @@ export default class HUDManager extends Container {
     };
 
     this.renderPlayers();
-    this.renderLeaderboard();
   }
 
   removePlayer = (playerId: string) => {
     delete this._playersList[playerId];
 
     this.renderPlayers();
-    this.renderLeaderboard();
   }
 
   private renderAll = () => {
@@ -212,7 +200,6 @@ export default class HUDManager extends Container {
     this.renderLogs();
     this.renderAnnounce();
     this.renderFPS();
-    this.renderLeaderboard();
     this.renderTabSprite();
   }
 
@@ -291,35 +278,13 @@ export default class HUDManager extends Container {
   }
 
   private renderTabSprite = () => {
-    if (this._isLeaderboard || this._isMobile) {
+    if (this._isMobile) {
       this._tabHUD.visible = false;
     } else {
       this._tabHUD.position.set(this._screenWidth - HUD_PADDING, this._screenHeight - HUD_PADDING);
       this._tabHUD.visible = true;
     }
   }
-
-  private renderLeaderboard = () => {
-    if (this._isLeaderboard) {
-      this._leaderboardHUD.visible = true;
-      this._leaderboardHUD.resize(this._screenWidth, this._screenHeight);
-
-      // Concat list of players and their rank
-      const list = [];
-      for (const playerId in this._playersList) {
-        const item = this._playersList[playerId];
-        list.push(item);
-      }
-
-      this._leaderboardHUD.content = list
-        .sort((a, b) => Sorts.sortNumberDesc(a.kills, b.kills))
-        .map((item, index) => `${index} - ${item.name} ⚔ ${item.kills}`)
-        .join('\n');
-    } else {
-      this._leaderboardHUD.visible = false;
-    }
-  }
-
 
   // Setters
   set isMobile(mobile: boolean) {
@@ -329,16 +294,6 @@ export default class HUDManager extends Container {
 
     this._isMobile = mobile;
     this.renderAll();
-  }
-
-  set isLeaderboard(leaderboard: boolean) {
-    if (this._isLeaderboard === leaderboard) {
-      return;
-    }
-
-    this._isLeaderboard = leaderboard;
-    this.renderLeaderboard();
-    this.renderTabSprite();
   }
 
   set lives(lives: number) {

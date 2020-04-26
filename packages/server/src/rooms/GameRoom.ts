@@ -14,10 +14,13 @@ export class GameRoom extends Room<GameState> {
       Constants.ROOM_PLAYERS_MAX,
     );
 
+    const playerName = options.playerName.slice(0, Constants.PLAYER_NAME_MAX);
+    const roomName = options.roomName.slice(0, Constants.ROOM_NAME_MAX);
+
     // Init Metadata
     this.setMetadata({
-      playerName: options.playerName.slice(0, Constants.PLAYER_NAME_MAX),
-      roomName: options.roomName.slice(0, Constants.ROOM_NAME_MAX),
+      playerName,
+      roomName,
       roomMap: options.roomMap,
       roomMaxPlayers: this.maxClients,
       mode: options.mode,
@@ -25,6 +28,7 @@ export class GameRoom extends Room<GameState> {
 
     // Init State
     this.setState(new GameState(
+      roomName,
       options.roomMap,
       this.maxClients,
       options.mode,

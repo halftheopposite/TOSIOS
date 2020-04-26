@@ -6,7 +6,8 @@ import React, { Component, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
-import { View } from '../components';
+import { Menu, View } from '../components';
+import { IPlayer } from '../entities/Player';
 import GameManager from '../managers/GameManager';
 
 interface IProps extends RouteComponentProps {
@@ -14,24 +15,32 @@ interface IProps extends RouteComponentProps {
 }
 
 interface IState {
-  playerId: string;
-  playersCount: number;
+  playerId: string; // Current player Id
+  roomName: string;
+  mapName: string;
+  mode: string;
+  playersList: IPlayer[];
   maxPlayersCount: number;
+  menuOpened: boolean;
 }
 
 export default class Game extends Component<IProps, IState> {
 
   public state = {
     playerId: '',
-    playersCount: 0,
+    playersList: [],
+    roomName: '',
+    mapName: '',
+    mode: '',
     maxPlayersCount: 0,
+    menuOpened: false,
   };
 
   private gameCanvas: RefObject<HTMLDivElement>;
   private gameManager: GameManager;
   private client?: Client;
   private room?: Room;
-
+  private timer: NodeJS.Timeout | null = null;
 
   // BASE
   constructor(props: IProps) {
@@ -130,6 +139,9 @@ export default class Game extends Component<IProps, IState> {
     window.document.addEventListener('keydown', this.handleKeyDown);
     window.document.addEventListener('keyup', this.handleKeyUp);
     window.addEventListener('resize', this.handleWindowResize);
+
+    // Start players refresh listeners
+    this.timer = setInterval(this.updateRoom, Constants.PLAYERS_REFRESH);
   }
 
   stop = () => {
@@ -147,6 +159,11 @@ export default class Game extends Component<IProps, IState> {
     window.document.removeEventListener('keydown', this.handleKeyDown);
     window.document.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('resize', this.handleWindowResize);
+
+    // Start players refresh listeners
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
 
@@ -160,7 +177,7 @@ export default class Game extends Component<IProps, IState> {
   handlePlayerAdd = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
     this.gameManager.playerAdd(playerId, player, isMe);
-    this.updatePlayersCount();
+    this.updateRoom();
   }
 
   handlePlayerUpdate = (player: any, playerId: string) => {
@@ -171,7 +188,7 @@ export default class Game extends Component<IProps, IState> {
   handlePlayerRemove = (player: any, playerId: string) => {
     const isMe = playerId === this.state.playerId;
     this.gameManager.playerRemove(playerId, isMe);
-    this.updatePlayersCount();
+    this.updateRoom();
   }
 
   handleMonsterAdd = (monster: any, monsterId: string) => {
@@ -255,17 +272,46 @@ export default class Game extends Component<IProps, IState> {
   handleMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.state.menuOpened) {
+      return;
+    }
+
     this.gameManager.inputs.shoot = true;
   }
 
   handleMouseUp = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.state.menuOpened) {
+      return;
+    }
+
     this.gameManager.inputs.shoot = false;
   }
 
   handleKeyDown = (event: any) => {
     const key = event.code;
+
+    if (Keys.MENU.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const newMenuOpened = !this.state.menuOpened;
+
+      this.setState({ menuOpened: newMenuOpened });
+    }
+
+    if (this.state.menuOpened) {
+      this.gameManager.inputs.left = false;
+      this.gameManager.inputs.up = false;
+      this.gameManager.inputs.right = false;
+      this.gameManager.inputs.down = false;
+      this.gameManager.inputs.shoot = false;
+
+      return;
+    }
 
     if (Keys.LEFT.includes(key)) {
       event.preventDefault();
@@ -295,12 +341,6 @@ export default class Game extends Component<IProps, IState> {
       event.preventDefault();
       event.stopPropagation();
       this.gameManager.inputs.shoot = true;
-    }
-
-    if (Keys.MENU.includes(key)) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.gameManager.inputs.menu = true;
     }
   }
 
@@ -336,12 +376,6 @@ export default class Game extends Component<IProps, IState> {
       event.stopPropagation();
       this.gameManager.inputs.shoot = false;
     }
-
-    if (Keys.MENU.includes(key)) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.gameManager.inputs.menu = false;
-    }
   }
 
   handleWindowResize = () => {
@@ -350,15 +384,22 @@ export default class Game extends Component<IProps, IState> {
 
 
   // METHODS
-  updatePlayersCount = () => {
+  updateRoom = () => {
+    const { roomName, mapName, mode } = this.gameManager.roomInfo;
+
     this.setState({
-      playersCount: this.gameManager.playersCount,
+      roomName,
+      mapName,
+      mode,
+      playersList: this.gameManager.playersList,
     });
   }
 
 
   // RENDER
   render() {
+    const { menuOpened, roomName, mapName, mode, playersList } = this.state;
+   
     return (
       <View
         style={{
@@ -366,11 +407,28 @@ export default class Game extends Component<IProps, IState> {
           height: '100%',
         }}
       >
+        {/* Set page's title */}
         <Helmet>
-          <title>{`Death Match (${this.state.playersCount})`}</title>
+          <title>{`${roomName} [${this.state.playersList.length}]`}</title>
         </Helmet>
+
+        {/* Where PIXI is injected */}
         <div ref={this.gameCanvas} />
+
+        {/* Joysticks */}
         {isMobile && this.renderJoySticks()}
+
+        {/* Menu */}
+        {menuOpened ? (
+          <Menu
+            roomName={roomName}
+            mapName={mapName}
+            mode={mode}
+            players={playersList}
+            onLeave={() => navigate('/')}
+            onClose={() => this.setState({ menuOpened: false })}
+          />
+        ) : null}
       </View>
     );
   }

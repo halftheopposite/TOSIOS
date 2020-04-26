@@ -28,6 +28,7 @@ export class GameState extends Schema {
 
   // INIT
   constructor(
+    roomName: string,
     mapName: string,
     maxPlayers: number,
     mode: Types.GameMode,
@@ -37,6 +38,7 @@ export class GameState extends Schema {
 
     // Game
     this.game = new Game({
+      roomName,
       mapName,
       maxPlayers,
       mode,
@@ -181,6 +183,11 @@ export class GameState extends Schema {
       Constants.PLAYER_MAX_LIVES,
       name || id,
     );
+
+    // Add the user to the "red" team by default
+    if (this.game.mode === 'team deathmatch') {
+      player.setTeam('Red')
+    }
 
     this.players[id] = player;
 

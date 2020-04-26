@@ -154,6 +154,10 @@ export class Player extends CircleSprite {
   }
 
   canShoot(): boolean {
+    if (!this.isAlive) {
+      return false;
+    }
+
     const now: number = Date.now();
     if ((now - this.lastShootAt) < (Constants.BULLET_RATE * BULLET_DELAY_FACTOR)) {
       return false;
