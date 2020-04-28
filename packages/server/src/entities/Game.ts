@@ -1,6 +1,5 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { Constants, Types } from '@tosios/common';
-import { Message } from '.';
 import { Player } from './Player';
 
 export interface IGame {
@@ -8,10 +7,10 @@ export interface IGame {
   mapName: string;
   maxPlayers: number;
   mode: Types.GameMode;
-  onWaitingStart: (message?: Message) => void;
-  onLobbyStart: (message?: Message) => void;
-  onGameStart: (message?: Message) => void;
-  onGameEnd: (message?: Message) => void;
+  onWaitingStart: (message?: Types.Message) => void;
+  onLobbyStart: (message?: Types.Message) => void;
+  onGameStart: (message?: Types.Message) => void;
+  onGameEnd: (message?: Types.Message) => void;
 }
 
 export class Game extends Schema {
@@ -39,10 +38,10 @@ export class Game extends Schema {
 
 
   // Hidden fields
-  private onWaitingStart: (message?: Message) => void;
-  private onLobbyStart: (message?: Message) => void;
-  private onGameStart: (message?: Message) => void;
-  private onGameEnd: (message?: Message) => void;
+  private onWaitingStart: (message?: Types.Message) => void;
+  private onLobbyStart: (message?: Types.Message) => void;
+  private onGameStart: (message?: Types.Message) => void;
+  private onGameEnd: (message?: Types.Message) => void;
 
 
   // Init
@@ -105,8 +104,12 @@ export class Game extends Schema {
 
     // If the time is out, the game stops.
     if (this.gameEndsAt < Date.now()) {
-      const message = new Message('timeout');
-      this.onGameEnd(message);
+      this.onGameEnd({
+        type: 'timeout',
+        from: 'server',
+        ts: Date.now(),
+        params: {},
+      });
       this.startLobby();
 
       return;
@@ -117,10 +120,14 @@ export class Game extends Schema {
       // Check to see if only one player is alive
       const player: Player | null = getWinningPlayer(players);
       if (player) {
-        const message = new Message('won', {
-          name: player.name,
+        this.onGameEnd({
+          type: 'won',
+          from: 'server',
+          ts: Date.now(),
+          params: {
+            name: player.name,
+          },
         });
-        this.onGameEnd(message);
         this.startLobby();
 
         return;
@@ -132,10 +139,14 @@ export class Game extends Schema {
       // Check to see if only one team is alive
       const team: Types.Teams | null = getWinningTeam(players);
       if (team) {
-        const message = new Message('won', {
-          name: team === 'Red' ? 'Red team' : 'Blue team',
+        this.onGameEnd({
+          type: 'won',
+          from: 'server',
+          ts: Date.now(),
+          params: {
+            name: team === 'Red' ? 'Red team' : 'Blue team',
+          },
         });
-        this.onGameEnd(message);
         this.startLobby();
 
         return;

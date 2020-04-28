@@ -1,6 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
-import { Bullet, Game, Message, Monster, Player, Prop } from '../entities';
+import { Bullet, Game, Monster, Player, Prop } from '../entities';
 
 export class GameState extends Schema {
 
@@ -23,7 +23,7 @@ export class GameState extends Schema {
   private walls: Collisions.TreeCollider;
   private spawners: Geometry.RectangleBody[] = [];
   private actions: Types.IAction[] = [];
-  private onMessage: (message: Message) => void;
+  private onMessage: (message: Types.Message) => void;
 
 
   // INIT
@@ -32,7 +32,7 @@ export class GameState extends Schema {
     mapName: string,
     maxPlayers: number,
     mode: Types.GameMode,
-    onMessage: (message: Message) => void,
+    onMessage: (message: Types.Message) => void,
   ) {
     super();
 
@@ -141,7 +141,12 @@ export class GameState extends Schema {
   // GAME: State changes
   private handleWaitingStart = () => {
     this.setPlayersActive(false);
-    this.onMessage(new Message('waiting'));
+    this.onMessage({
+      type: 'waiting',
+      from: 'server',
+      ts: Date.now(),
+      params: {},
+    });
   }
 
   private handleLobbyStart = () => {
@@ -157,17 +162,27 @@ export class GameState extends Schema {
     this.setPlayersActive(true);
     this.propsAdd(Constants.FLASKS_COUNT);
     this.monstersAdd(Constants.MONSTERS_COUNT);
-    this.onMessage(new Message('start'));
+    this.onMessage({
+      type: 'start',
+      from: 'server',
+      ts: Date.now(),
+      params: {},
+    });
   }
 
-  private handleGameEnd = (message?: Message) => {
+  private handleGameEnd = (message?: Types.Message) => {
     if (message) {
       this.onMessage(message);
     }
 
     this.propsClear();
     this.monstersClear();
-    this.onMessage(new Message('stop'));
+    this.onMessage({
+      type: 'stop',
+      from: 'server',
+      ts: Date.now(),
+      params: {},
+    });
   }
 
 
@@ -192,9 +207,14 @@ export class GameState extends Schema {
     this.players[id] = player;
 
     // Broadcast message to other players
-    this.onMessage(new Message('joined', {
-      name: this.players[id].name,
-    }));
+    this.onMessage({
+      type: 'joined',
+      from: 'server',
+      ts: Date.now(),
+      params: {
+        name: this.players[id].name,
+      },
+    });
   }
 
   playerPushAction(action: Types.IAction) {
@@ -315,9 +335,15 @@ export class GameState extends Schema {
   }
 
   playerRemove(id: string) {
-    this.onMessage(new Message('left', {
-      name: this.players[id].name,
-    }));
+    this.onMessage({
+      type: 'left',
+      from: 'server',
+      ts: Date.now(),
+      params: {
+        name: this.players[id].name,
+      },
+    });
+
     delete this.players[id];
   }
 
@@ -444,10 +470,15 @@ export class GameState extends Schema {
       player.hurt();
 
       if (!player.isAlive) {
-        this.onMessage(new Message('killed', {
-          killerName: 'A bat',
-          killedName: player.name,
-        }));
+        this.onMessage({
+          type: 'killed',
+          from: 'server',
+          ts: Date.now(),
+          params: {
+            killerName: 'A bat',
+            killedName: player.name,
+          },
+        });
       }
       return;
     }
@@ -493,10 +524,15 @@ export class GameState extends Schema {
       player.hurt();
 
       if (!player.isAlive) {
-        this.onMessage(new Message('killed', {
-          killerName: this.players[bullet.playerId].name,
-          killedName: player.name,
-        }));
+        this.onMessage({
+          type: 'killed',
+          from: 'server',
+          ts: Date.now(),
+          params: {
+            killerName: this.players[bullet.playerId].name,
+            killedName: player.name,
+          },
+        });
         this.playerUpdateKills(bullet.playerId);
       }
       return;

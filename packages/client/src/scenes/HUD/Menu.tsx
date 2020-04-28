@@ -1,9 +1,9 @@
 import { Sorts, Types } from '@tosios/common';
 import React, { Fragment } from 'react';
 import { isMobile } from 'react-device-detect';
-import { Box, Button, Inline, RoomFieldItem, Separator, Space, Text, View } from '.';
-import { IPlayer } from '../entities/Player';
-import { ArrowLeft } from '../images/icons';
+import { Box, Button, Inline, RoomFieldItem, Separator, Space, Text, View } from '../../components';
+import { IPlayer } from '../../entities/Player';
+import { ArrowLeft } from '../../images/icons';
 
 /**
  * A menu to display important room actions and informations and list players.

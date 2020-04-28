@@ -33,3 +33,12 @@ export interface IAction {
   type: ActionType;
   value: any;
 }
+
+/**
+ * Represent a server log from a Player or the Server itself.
+ */
+export interface Message {
+  type: MessageType;
+  ts: number;
+  params: any;
+}

@@ -6,9 +6,10 @@ import React, { Component, RefObject } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
-import { Menu, View } from '../components';
+import { View } from '../components';
 import { IPlayer } from '../entities/Player';
 import GameManager from '../managers/GameManager';
+import { Menu, HUD } from './HUD';
 
 interface IProps extends RouteComponentProps {
   roomId?: string;
@@ -16,24 +17,28 @@ interface IProps extends RouteComponentProps {
 
 interface IState {
   playerId: string; // Current player Id
+  playerName: string; // Current player Id
   roomName: string;
   mapName: string;
   mode: string;
   playersList: IPlayer[];
   maxPlayersCount: number;
   menuOpened: boolean;
+  messages: Types.Message[];
 }
 
 export default class Game extends Component<IProps, IState> {
 
   public state = {
     playerId: '',
+    playerName: '',
     playersList: [],
     roomName: '',
     mapName: '',
     mode: '',
     maxPlayersCount: 0,
     menuOpened: false,
+    messages: [],
   };
 
   private gameCanvas: RefObject<HTMLDivElement>;
@@ -223,38 +228,44 @@ export default class Game extends Component<IProps, IState> {
     this.gameManager.bulletRemove(bulletId);
   }
 
-  handleMessage = (message: any) => {
-    switch (message.type) {
-      case 'waiting':
-        this.gameManager.hudLogAdd(`Waiting for other players...`);
-        this.gameManager.hudAnnounceAdd(`Waiting for other players...`);
-        break;
-      case 'start':
-        this.gameManager.hudLogAdd(`Game starts!`);
-        this.gameManager.hudAnnounceAdd(`Game starts!`);
-        break;
-      case 'stop':
-        this.gameManager.hudLogAdd(`Game ends...`);
-        break;
-      case 'joined':
-        this.gameManager.hudLogAdd(`"${message.params.name}" joins.`);
-        break;
-      case 'killed':
-        this.gameManager.hudLogAdd(`"${message.params.killerName}" kills "${message.params.killedName}".`);
-        break;
-      case 'won':
-        this.gameManager.hudLogAdd(`"${message.params.name}" wins!`);
-        this.gameManager.hudAnnounceAdd(`${message.params.name} wins!`);
-        break;
-      case 'left':
-        this.gameManager.hudLogAdd(`"${message.params.name}" left.`);
-        break;
-      case 'timeout':
-        this.gameManager.hudAnnounceAdd(`Timeout...`);
-        break;
-      default:
-        break;
-    }
+  handleMessage = (message: Types.Message) => {
+    const { messages } = this.state;
+
+    // switch (message.type) {
+    //   case 'waiting':
+    //     this.gameManager.hudLogAdd(`Waiting for other players...`);
+    //     this.gameManager.hudAnnounceAdd(`Waiting for other players...`);
+    //     break;
+    //   case 'start':
+    //     this.gameManager.hudLogAdd(`Game starts!`);
+    //     this.gameManager.hudAnnounceAdd(`Game starts!`);
+    //     break;
+    //   case 'stop':
+    //     this.gameManager.hudLogAdd(`Game ends...`);
+    //     break;
+    //   case 'joined':
+    //     this.gameManager.hudLogAdd(`"${message.params.name}" joins.`);
+    //     break;
+    //   case 'killed':
+    //     this.gameManager.hudLogAdd(`"${message.params.killerName}" kills "${message.params.killedName}".`);
+    //     break;
+    //   case 'won':
+    //     this.gameManager.hudLogAdd(`"${message.params.name}" wins!`);
+    //     this.gameManager.hudAnnounceAdd(`${message.params.name} wins!`);
+    //     break;
+    //   case 'left':
+    //     this.gameManager.hudLogAdd(`"${message.params.name}" left.`);
+    //     break;
+    //   case 'timeout':
+    //     this.gameManager.hudAnnounceAdd(`Timeout...`);
+    //     break;
+    //   default:
+    //     break;
+    // }
+
+    this.setState({
+      messages: [...messages, message]
+    })
   }
 
 
@@ -398,7 +409,7 @@ export default class Game extends Component<IProps, IState> {
 
   // RENDER
   render() {
-    const { menuOpened, roomName, mapName, mode, playersList } = this.state;
+    const { menuOpened, roomName, mapName, mode, playersList, messages } = this.state;
    
     return (
       <View
@@ -414,6 +425,11 @@ export default class Game extends Component<IProps, IState> {
 
         {/* Where PIXI is injected */}
         <div ref={this.gameCanvas} />
+
+        <HUD
+          gameMode={mode}
+          messages={messages}
+        />
 
         {/* Joysticks */}
         {isMobile && this.renderJoySticks()}

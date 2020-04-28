@@ -1,6 +1,5 @@
 import { Constants, Maths, Types } from '@tosios/common';
 import { Client, Room } from 'colyseus';
-import { Message } from '../entities/Message';
 import { GameState } from '../states/GameState';
 
 export class GameRoom extends Room<GameState> {
@@ -81,7 +80,7 @@ export class GameRoom extends Room<GameState> {
     this.state.update();
   }
 
-  handleMessage = (message: Message) => {
-    this.broadcast(message.JSON);
+  handleMessage = (message: Types.Message) => {
+    this.broadcast(message);
   }
 }

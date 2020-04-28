@@ -94,7 +94,7 @@ export default class HUDManager extends Container {
       0,
       0,
     );
-    this.addChild(this._livesHUD);
+    // this.addChild(this._livesHUD);
 
     // Time
     this._timeHUD = new HUDText(
@@ -104,7 +104,7 @@ export default class HUDManager extends Container {
       0,
       { textAlign: 'center' },
     );
-    this.addChild(this._timeHUD);
+    // this.addChild(this._timeHUD);
 
     // Players
     this._playersHUD = new HUDText(
@@ -113,7 +113,7 @@ export default class HUDManager extends Container {
       1,
       0,
     );
-    this.addChild(this._playersHUD);
+    // this.addChild(this._playersHUD);
 
     // Logs
     this._logsHUD = new HUDText(
@@ -149,7 +149,7 @@ export default class HUDManager extends Container {
 
     // Inputs: Tab
     this._tabHUD = new HUDInputTab();
-    this.addChild(this._tabHUD);
+    // this.addChild(this._tabHUD);
 
     // Render the HUD
     this.renderAll();
