@@ -260,8 +260,8 @@ export default class Game extends Component<IProps, IState> {
     this.setState(prev => ({
       stats: {
         ...prev.stats,
-        // Only set the last 10 messages (negative value on slice() is reverse)
-        messages: [...messages, message].slice(-10),
+        // Only set the last n messages (negative value on slice() is reverse)
+        messages: [...messages, message].slice(Constants.LOG_LINES_MAX),
         announce,
       }
     }));
