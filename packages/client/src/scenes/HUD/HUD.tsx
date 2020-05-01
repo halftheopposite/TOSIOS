@@ -42,8 +42,6 @@ export const HUD = React.memo((props: HUDProps): React.ReactElement => {
         announce,
     } = props;
 
-    console.log('HUD:', props);
-    
     return (
         <View style={styles.hud}>
             <Health 

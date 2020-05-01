@@ -10,7 +10,7 @@ export const Players = React.memo((props: {
     count?: number;
     maxCount?: number;
     style?: CSSProperties;
-}) => {
+}): React.ReactElement => {
     const { count, maxCount, style } = props;
     const playersText = `Players (${count}/${maxCount})`
 

@@ -239,42 +239,30 @@ export default class Game extends Component<IProps, IState> {
   handleMessage = (message: Types.Message) => {
     const { messages } = this.state.stats;
 
-    // switch (message.type) {
-    //   case 'waiting':
-    //     this.gameManager.hudLogAdd(`Waiting for other players...`);
-    //     this.gameManager.hudAnnounceAdd(`Waiting for other players...`);
-    //     break;
-    //   case 'start':
-    //     this.gameManager.hudLogAdd(`Game starts!`);
-    //     this.gameManager.hudAnnounceAdd(`Game starts!`);
-    //     break;
-    //   case 'stop':
-    //     this.gameManager.hudLogAdd(`Game ends...`);
-    //     break;
-    //   case 'joined':
-    //     this.gameManager.hudLogAdd(`"${message.params.name}" joins.`);
-    //     break;
-    //   case 'killed':
-    //     this.gameManager.hudLogAdd(`"${message.params.killerName}" kills "${message.params.killedName}".`);
-    //     break;
-    //   case 'won':
-    //     this.gameManager.hudLogAdd(`"${message.params.name}" wins!`);
-    //     this.gameManager.hudAnnounceAdd(`${message.params.name} wins!`);
-    //     break;
-    //   case 'left':
-    //     this.gameManager.hudLogAdd(`"${message.params.name}" left.`);
-    //     break;
-    //   case 'timeout':
-    //     this.gameManager.hudAnnounceAdd(`Timeout...`);
-    //     break;
-    //   default:
-    //     break;
-    // }
+    let announce = '';
+    switch (message.type) {
+      case 'waiting':
+        announce = `Waiting for other players...`;
+        break;
+      case 'start':
+        announce = `Game starts`;
+        break;
+      case 'won':
+        announce = `${message.params.name} wins!`;
+        break;
+      case 'timeout':
+        announce = `Timeout...`;
+        break;
+      default:
+        break;
+    }
 
     this.setState(prev => ({
       stats: {
         ...prev.stats,
-        messages: [...messages, message]
+        // Only set the last 10 messages (negative value on slice() is reverse)
+        messages: [...messages, message].slice(-10),
+        announce,
       }
     }));
  

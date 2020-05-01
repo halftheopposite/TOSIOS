@@ -10,7 +10,7 @@ export const Time = React.memo((props: {
     mode: string;
     endsAt: number;
     style?: CSSProperties;
-}) => {
+}): React.ReactElement => {
     const { mode, endsAt, style } = props;
     const [timeText, setTimeText] = React.useState('00:00');
 

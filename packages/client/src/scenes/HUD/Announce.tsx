@@ -13,7 +13,7 @@ const TICK = ANNOUNCE_ANIM_TICK / ANNOUNCE_LIFETIME;
 export const Announce = React.memo((props: { 
     announce: string;
     style?: CSSProperties;
-}) => {
+}): React.ReactElement => {
     const { announce, style } = props;
     const [opacity, setOpacity] = React.useState(0)
 

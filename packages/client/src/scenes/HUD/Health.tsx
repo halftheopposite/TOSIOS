@@ -15,7 +15,7 @@ export const Health = React.memo((props: {
     lives: number;
     maxLives: number;
     style?: CSSProperties;
-}) => {
+}): React.ReactElement => {
     const { name, lives, maxLives = 3, style } = props;
 
     // Create list of hearts

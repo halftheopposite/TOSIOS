@@ -5,13 +5,17 @@ import { Container } from '.'
 import { Types } from '@tosios/common';
 
 /**
- * Render the health of the player.
+ * Render the messages from the server.
  */
 export const Messages = React.memo((props: { 
     messages: Types.Message[];
     style?: CSSProperties;
-}) => {
+}): React.ReactElement | null => {
     const { messages, style } = props;
+
+    if (!messages.length) {
+        return null;
+    }
 
     return (
         <Container 
@@ -32,6 +36,9 @@ export const Messages = React.memo((props: {
     )
 })
 
+/**
+ * Render a single message.
+ */
 function Message(props: {
     message: Types.Message;
 }): React.ReactElement {
