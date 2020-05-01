@@ -1,3 +1,4 @@
+export * from './Announce';
 export * from './Container';
 export * from './Health';
 export * from './HUD';

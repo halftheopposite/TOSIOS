@@ -7,6 +7,7 @@ export default class PlayersManager extends ManagerContainer<Player> {
     super('PLAYERS');
   }
 
+  // Entities
   public add = (playerId: string, player: Player) => {
     this.entities[playerId] = player;
     this.addChild(player.weaponSprite);

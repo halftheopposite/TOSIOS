@@ -2,8 +2,26 @@ import React, { CSSProperties } from 'react';
 import { View } from '../../components';
 import { Health, Messages, Players, Time } from './';
 import { Types } from '@tosios/common';
+import { Announce } from './Announce';
+import { IPlayer } from '../../entities';
 
 const HUD_PADDING = 24;
+
+export interface HUDProps {
+    gameMode: string;
+    gameMap: string;
+    gameModeEndsAt: number;
+    roomName: string;
+    playerId: string;
+    playerName: string;
+    playerLives: number;
+    playerMaxLives: number;
+    players: IPlayer[];
+    playersCount: number;
+    playersMaxCount: number;
+    messages: Types.Message[];
+    announce: string;
+}
 
 /**
  * The interface displaying important information to the user:
@@ -11,26 +29,20 @@ const HUD_PADDING = 24;
  * - Time left
  * - Chat
  */
-export function HUD(props: {
-    gameMode?: string;
-    gameModeEndsAt?: number;
-    playerName?: string;
-    playerLives?: number;
-    playerMaxLives?: number;
-    playersCount?: number;
-    playersMaxCount?: number;
-    messages: Types.Message[];
-}): React.ReactElement {
+export const HUD = React.memo((props: HUDProps): React.ReactElement => {
     const { 
-        gameMode = 'team deathmatch',
-        gameModeEndsAt = (new Date()).setMinutes(59),
-        playerName = 'HalfTheOpposite', 
-        playerLives = 2, 
-        playerMaxLives = 5,
-        playersCount = 3,
-        playersMaxCount = 8,
-        messages = [],
+        gameMode,
+        gameModeEndsAt,
+        playerName, 
+        playerLives, 
+        playerMaxLives,
+        playersCount,
+        playersMaxCount,
+        messages,
+        announce,
     } = props;
+
+    console.log('HUD:', props);
     
     return (
         <View style={styles.hud}>
@@ -54,9 +66,13 @@ export function HUD(props: {
                 messages={messages}
                 style={styles.messages}
             />
+            <Announce
+                announce={announce}
+                style={styles.announce}
+            />
         </View>
     )
-}
+});
 
 const styles: { [key: string]: CSSProperties } = {
     hud: {
@@ -89,5 +105,8 @@ const styles: { [key: string]: CSSProperties } = {
         position: 'absolute',
         left: HUD_PADDING,
         bottom: HUD_PADDING,
+    },
+    announce: {
+        position: 'absolute',
     },
 }

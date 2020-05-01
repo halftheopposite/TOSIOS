@@ -39,6 +39,7 @@ export interface IAction {
  */
 export interface Message {
   type: MessageType;
+  from: string;
   ts: number;
   params: any;
 }

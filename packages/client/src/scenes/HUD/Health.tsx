@@ -16,7 +16,7 @@ export const Health = React.memo((props: {
     maxLives: number;
     style?: CSSProperties;
 }) => {
-    const { name, lives, maxLives, style } = props;
+    const { name, lives, maxLives = 3, style } = props;
 
     // Create list of hearts
     const hearts = [];
@@ -24,8 +24,9 @@ export const Health = React.memo((props: {
         const isFull = i < lives;
 
         hearts.push(
-            <img 
-                src={isFull ? heartFull : heartEmpty} 
+            <img
+                key={i}
+                src={isFull ? heartFull : heartEmpty}
                 alt={isFull ? 'full-heart' : 'empty-heart'}
                 width={HEART_SIZE}
                 height={HEART_SIZE}

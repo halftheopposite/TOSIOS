@@ -7,7 +7,7 @@ import { SpriteSheets } from '../images/maps';
 import { ParticleTextures } from '../images/textures';
 import particleConfig from '../particles/impact.json';
 import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
-import { BulletsManager, HUDManager, MonstersManager, PlayersManager, PropsManager } from './';
+import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -36,6 +36,19 @@ interface IInputs {
   shoot: boolean;
 }
 
+export interface Stats {
+  gameMode: string;
+  gameModeEndsAt: number;
+  gameMap: string;
+  roomName: string;
+  playerName: string;
+  playerLives: number;
+  playerMaxLives: number;
+  players: IPlayer[];
+  playersCount: number;
+  playersMaxCount: number;
+}
+
 export default class GameManager {
 
   // Inputs
@@ -55,7 +68,6 @@ export default class GameManager {
   private app: Application;
   private map: Entities.Map;
   private viewport: Viewport;
-  private hudManager: HUDManager;
   private playersManager: PlayersManager;
   private monstersManager: MonstersManager;
   private propsManager: PropsManager;
@@ -71,7 +83,7 @@ export default class GameManager {
   private state: string | null = null;
   private lobbyEndsAt: number = 0;
   private gameEndsAt: number = 0;
-  private mode?: string;
+  private mode?: Types.GameMode;
 
   // Me (the one playing the game on his computer)
   private me: Player | null = null;
@@ -104,15 +116,6 @@ export default class GameManager {
 
     // Walls R-Tree
     this.walls = new Collisions.TreeCollider();
-
-    // HUD
-    this.hudManager = new HUDManager(
-      screenWidth,
-      screenHeight,
-      utils.isMobile.any,
-      false,
-    );
-    this.app.stage.addChild(this.hudManager);
 
     // Players
     this.playersManager = new PlayersManager();
@@ -200,7 +203,6 @@ export default class GameManager {
     this.updatePlayers();
     this.updateMonsters();
     this.updateBullets();
-    this.updateHUD();
 
     this.playersManager.sortChildren();
   }
@@ -435,31 +437,6 @@ export default class GameManager {
     }
   }
 
-  private updateHUD = () => {
-    // Lives
-    this.hudManager.lives = this.me ? this.me.lives : 0;
-    this.hudManager.maxLives = this.me ? this.me.maxLives : 0;
-
-    // Time
-    switch (this.state) {
-      case 'lobby':
-        this.hudManager.time = this.lobbyEndsAt - Date.now();
-        break;
-      case 'game':
-        this.hudManager.time = this.gameEndsAt - Date.now();
-        break;
-      default:
-        this.hudManager.time = 0;
-        break;
-    }
-
-    // Players
-    this.hudManager.maxPlayersCount = this.maxPlayers;
-
-    // FPS
-    this.hudManager.fps = Math.floor(this.app.ticker.FPS);
-  }
-
 
   // SPAWNERS
   private spawnImpact = (x: number, y: number, color = '#ffffff') => {
@@ -485,26 +462,12 @@ export default class GameManager {
   setScreenSize = (screenWidth: number, screenHeight: number) => {
     this.app.renderer.resize(screenWidth, screenHeight);
     this.viewport.resize(screenWidth, screenHeight, this.map.width, this.map.height);
-    this.hudManager.resize(screenWidth, screenHeight);
   }
 
 
   // GETTERS
-  get playersCount(): number {
-    return this.playersManager.getAll().length;
-  }
-
-  get roomInfo(): { roomName: string; mapName: string; mode: string } {
-    return {
-      roomName: this.roomName || '',
-      mapName: this.mapName || '',
-      mode: this.mode || '',
-    };
-  }
-
-  get playersList(): IPlayer[] {
-    return this.playersManager.getAll().map(item => {
-      const player: IPlayer = {
+  getStats = (): Stats => {
+    const players = this.playersManager.getAll().map(item => ({
         playerId: item.playerId,
         x: item.x,
         y: item.y,
@@ -517,12 +480,26 @@ export default class GameManager {
         kills: item.kills,
         team: item.team,
         isGhost: item.isGhost,
-      };
+      }));
 
-      return player;
-    });
+    return {
+      gameMode: this.mode || '',
+      gameModeEndsAt: this.lobbyEndsAt || this.gameEndsAt,
+      gameMap: this.mapName || '',
+      roomName: this.roomName || '',
+      playerName: this.me ? this.me.name : '',
+      playerLives: this.me ? this.me.lives : 0,
+      playerMaxLives: this.me ? this.me.maxLives : 0,
+      players,
+      playersCount: players.length,
+      playersMaxCount: this.maxPlayers,
+    };
   }
 
+
+  //
+  // All methods below are called by Colyseus change listeners.
+  //
 
   // COLYSEUS: Game
   gameUpdate = (name: string, value: any) => {
@@ -553,10 +530,6 @@ export default class GameManager {
     }
   }
 
-  //
-  // All methods below are called by Colyseus change listeners.
-  // 
-
   // COLYSEUS: Players
   playerAdd = (playerId: string, attributes: any, isMe: boolean) => {
     const props: IPlayer = {
@@ -576,14 +549,6 @@ export default class GameManager {
 
     const player = new Player(props);
     this.playersManager.add(playerId, player);
-
-    // Add to HUD leaderboard
-    this.hudManager.createOrUpdatePlayer(
-      player.playerId,
-      player.name,
-      player.kills,
-      player.color,
-    );
 
     // If the player is "you"
     if (isMe) {
@@ -623,15 +588,6 @@ export default class GameManager {
       toY: attributes.y,
     };
 
-    // Update in HUD for leaderboard
-    this.hudManager.createOrUpdatePlayer(
-      playerId,
-      player.name,
-      player.kills,
-      player.color,
-      player.team,
-    );
-
     // If the player is "you"
     if (isMe && this.me) {
       this.me.lives = attributes.lives;
@@ -658,9 +614,6 @@ export default class GameManager {
 
   playerRemove = (playerId: string, isMe: boolean) => {
     this.playersManager.remove(playerId);
-
-    // Remove from HUD leaderboard
-    this.hudManager.removePlayer(playerId);
 
     // If the player is "you"
     if (isMe && this.me) {
@@ -755,14 +708,5 @@ export default class GameManager {
 
   bulletRemove = (bulletId: string) => {
     this.bulletsManager.remove(bulletId);
-  }
-
-  // COLYSEUS: HUD
-  hudLogAdd = (message: string) => {
-    this.hudManager.addLog(`[${new Date().toLocaleTimeString()}] ${message}`);
-  }
-
-  hudAnnounceAdd = (announce: string) => {
-    this.hudManager.announce = announce;
   }
 }

@@ -7,21 +7,29 @@ import { Container } from './'
  * Render the time left in current game mode.
  */
 export const Time = React.memo((props: { 
-    mode?: string;
-    endsAt?: number;
+    mode: string;
+    endsAt: number;
     style?: CSSProperties;
 }) => {
     const { mode, endsAt, style } = props;
+    const [timeText, setTimeText] = React.useState('00:00');
 
-    // Compute time left
-    const delta = endsAt ? endsAt - Date.now() : 0;
-    let timeText = '00:00';
-    if (delta > 0) {
-        const minutesLeft = getMinutes(delta / 1000);
-        const secondsLeft = getSeconds(delta / 1000);
-  
-        timeText = `${getPadded(minutesLeft)}:${getPadded(secondsLeft)}`;
-    }
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            const delta = endsAt ? endsAt - Date.now() : 0;
+            if (delta > 0) {
+                const minutesLeft = getMinutes(delta / 1000);
+                const secondsLeft = getSeconds(delta / 1000);
+                
+                setTimeText(`${getPadded(minutesLeft)}:${getPadded(secondsLeft)}`);
+            } else {
+                setTimeText('00:00');
+                clearInterval(interval);
+            }
+        }, 500);
+
+        return () => clearInterval(interval);
+    }, [endsAt]);
 
     return (
         <Container 

@@ -7,38 +7,37 @@ import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
 import { View } from '../components';
-import { IPlayer } from '../entities/Player';
 import GameManager from '../managers/GameManager';
-import { Menu, HUD } from './HUD';
+import { Menu, HUD, HUDProps } from './HUD';
 
 interface IProps extends RouteComponentProps {
   roomId?: string;
 }
 
 interface IState {
-  playerId: string; // Current player Id
-  playerName: string; // Current player Id
-  roomName: string;
-  mapName: string;
-  mode: string;
-  playersList: IPlayer[];
-  maxPlayersCount: number;
+  stats: HUDProps;
   menuOpened: boolean;
-  messages: Types.Message[];
 }
 
 export default class Game extends Component<IProps, IState> {
 
-  public state = {
-    playerId: '',
-    playerName: '',
-    playersList: [],
-    roomName: '',
-    mapName: '',
-    mode: '',
-    maxPlayersCount: 0,
+  public state: IState = {
+    stats: {
+      gameMode: '',
+      gameMap: '',
+      gameModeEndsAt: 0,
+      roomName: '',
+      playerId: '',
+      playerName: '',
+      playerLives: 0,
+      playerMaxLives: 0,
+      players: [],
+      playersCount: 0,
+      playersMaxCount: 0,
+      messages: [],
+      announce: '',
+    },
     menuOpened: false,
-    messages: [],
   };
 
   private gameCanvas: RefObject<HTMLDivElement>;
@@ -113,9 +112,14 @@ export default class Game extends Component<IProps, IState> {
       return;
     }
 
-    this.setState({
-      playerId: this.room.sessionId,
-    });
+    // Set the current player id
+    this.setState(prev => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        playerId: this.room ? this.room.sessionId : '',
+      }
+    }));
 
     // Listen for state changes
     this.room.state.game.onChange = this.handleGameChange;
@@ -180,18 +184,22 @@ export default class Game extends Component<IProps, IState> {
   }
 
   handlePlayerAdd = (player: any, playerId: string) => {
-    const isMe = playerId === this.state.playerId;
+    const isMe = this.isPlayerIdMe(playerId);
     this.gameManager.playerAdd(playerId, player, isMe);
     this.updateRoom();
   }
 
   handlePlayerUpdate = (player: any, playerId: string) => {
-    const isMe = playerId === this.state.playerId;
+    const isMe = this.isPlayerIdMe(playerId);
     this.gameManager.playerUpdate(playerId, player, isMe);
+ 
+    if (isMe) {
+      this.updateRoom();
+    }
   }
 
   handlePlayerRemove = (player: any, playerId: string) => {
-    const isMe = playerId === this.state.playerId;
+    const isMe = this.isPlayerIdMe(playerId);
     this.gameManager.playerRemove(playerId, isMe);
     this.updateRoom();
   }
@@ -229,7 +237,7 @@ export default class Game extends Component<IProps, IState> {
   }
 
   handleMessage = (message: Types.Message) => {
-    const { messages } = this.state;
+    const { messages } = this.state.stats;
 
     // switch (message.type) {
     //   case 'waiting':
@@ -263,11 +271,15 @@ export default class Game extends Component<IProps, IState> {
     //     break;
     // }
 
-    this.setState({
-      messages: [...messages, message]
-    })
+    this.setState(prev => ({
+      stats: {
+        ...prev.stats,
+        messages: [...messages, message]
+      }
+    }));
+ 
+    this.updateRoom();
   }
-
 
   // HANDLERS: GameManager
   handleActionSend = (action: Types.IAction) => {
@@ -395,21 +407,26 @@ export default class Game extends Component<IProps, IState> {
 
 
   // METHODS
-  updateRoom = () => {
-    const { roomName, mapName, mode } = this.gameManager.roomInfo;
+  isPlayerIdMe = (playerId: string) => {
+    return this.state.stats.playerId === playerId;
+  }
 
-    this.setState({
-      roomName,
-      mapName,
-      mode,
-      playersList: this.gameManager.playersList,
-    });
+  updateRoom = () => {
+    const stats = this.gameManager.getStats();
+
+    this.setState(prev => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        ...stats,
+      },
+    }));
   }
 
 
   // RENDER
   render() {
-    const { menuOpened, roomName, mapName, mode, playersList, messages } = this.state;
+    const { menuOpened, stats } = this.state;
    
     return (
       <View
@@ -420,16 +437,13 @@ export default class Game extends Component<IProps, IState> {
       >
         {/* Set page's title */}
         <Helmet>
-          <title>{`${roomName} [${this.state.playersList.length}]`}</title>
+          <title>{`${stats.roomName} [${stats.playersCount}]`}</title>
         </Helmet>
 
         {/* Where PIXI is injected */}
         <div ref={this.gameCanvas} />
 
-        <HUD
-          gameMode={mode}
-          messages={messages}
-        />
+        <HUD {...stats} />
 
         {/* Joysticks */}
         {isMobile && this.renderJoySticks()}
@@ -437,10 +451,10 @@ export default class Game extends Component<IProps, IState> {
         {/* Menu */}
         {menuOpened ? (
           <Menu
-            roomName={roomName}
-            mapName={mapName}
-            mode={mode}
-            players={playersList}
+            roomName={stats.roomName}
+            mapName={stats.gameMap}
+            mode={stats.gameMode}
+            players={stats.players}
             onLeave={() => navigate('/')}
             onClose={() => this.setState({ menuOpened: false })}
           />

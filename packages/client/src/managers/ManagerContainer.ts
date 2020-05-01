@@ -5,7 +5,6 @@ export class ManagerContainer<T> extends Container {
 
   protected entities: { [key: string]: T & (CircleSprite | RectangleSprite) };
 
-  // CTOR
   constructor(name: string) {
     super();
     this.name = name;

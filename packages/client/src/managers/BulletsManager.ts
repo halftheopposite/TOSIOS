@@ -7,7 +7,6 @@ export default class BulletsManager extends ManagerContainer<Bullet> {
     super('BULLETS');
   }
 
-
   // Methods
   private isSameBullet(playerId: string, shotAt: number) {
     return this.getAll().find(item => item.playerId === playerId && item.shotAt === shotAt);
