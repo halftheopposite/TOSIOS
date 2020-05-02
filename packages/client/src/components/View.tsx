@@ -1,28 +1,15 @@
 import React, { CSSProperties, ReactNode } from 'react';
 
-const FLEX: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-};
-
-const CENTER_FLEX: CSSProperties = {
-  justifyContent: 'center',
-};
-
-const COLUMN_FLEX: CSSProperties = {
-  flexDirection: 'column',
-};
-
-export function View(props: {
-  flex?: boolean;
-  center?: boolean;
-  column?: boolean;
-  children: ReactNode;
-  style?: CSSProperties;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onClick?: () => void;
-}): React.ReactElement {
+export const View = React.forwardRef((props: {
+    flex?: boolean;
+    center?: boolean;
+    column?: boolean;
+    children: ReactNode;
+    style?: CSSProperties;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+    onClick?: () => void;
+}, ref: React.Ref<HTMLDivElement>): React.ReactElement => {
   const {
     flex = false,
     center = false,
@@ -36,17 +23,31 @@ export function View(props: {
 
   return (
     <div
-      style={{
+        ref={ref}
+        style={{
         ...(flex && FLEX),
         ...(center && CENTER_FLEX),
         ...(column && COLUMN_FLEX),
         ...style,
-      }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onClick={onClick}
+        }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onClick={onClick}
     >
-      {children}
+        {children}
     </div>
   );
-}
+});
+
+const FLEX: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+};
+
+const CENTER_FLEX: CSSProperties = {
+  justifyContent: 'center',
+};
+
+const COLUMN_FLEX: CSSProperties = {
+  flexDirection: 'column',
+};
