@@ -2,6 +2,7 @@ export * from './Announce';
 export * from './Container';
 export * from './Health';
 export * from './HUD';
+export * from './IconButton';
 export * from './Menu';
 export * from './Messages';
 export * from './Players';
