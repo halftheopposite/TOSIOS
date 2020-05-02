@@ -1,7 +1,9 @@
 import React, { CSSProperties } from 'react';
-import { Text } from '../../components';
+import { Text, Inline } from '../../components';
 
 import { Container } from './'
+import { IconButton } from './IconButton';
+import { MagicWand } from '../../images/icons';
 
 /**
  * Render the players count.
@@ -22,15 +24,20 @@ export const Players = React.memo((props: {
             }}
         >
             <Text style={styles.playersText}>{playersText}</Text>
+            <Inline size="xs" />
+            <IconButton icon={MagicWand} onClick={() => {}} style={styles.menuButton} />
         </Container>
     );
 })
 
 const styles: { [key: string]: CSSProperties } = {
     players: {
+        flexDirection: 'row',
     },
     playersText: {
         color: 'white',
         fontSize: 16,
+    },
+    menuButton: {
     },
 }
