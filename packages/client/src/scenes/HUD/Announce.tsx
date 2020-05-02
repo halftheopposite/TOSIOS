@@ -16,6 +16,7 @@ export const Announce = React.memo((props: {
 }): React.ReactElement => {
     const { announce, style } = props;
     const [opacity, setOpacity] = React.useState(0)
+    const [display, setDisplay] = React.useState<'none' | 'flex'>('none');
 
     // Whenever the announce changes
     React.useEffect(() => {
@@ -24,6 +25,7 @@ export const Announce = React.memo((props: {
         }
 
         setOpacity(1);
+        setDisplay('flex');
         const startedAt = Date.now();
 
         // Calculate how much we must take off each tick
@@ -32,6 +34,7 @@ export const Announce = React.memo((props: {
             const delta = Date.now() - startedAt;
             if (delta > ANNOUNCE_LIFETIME) {
                 setOpacity(0);
+                setDisplay('none');
                 clearInterval(intervalId);
                 return;
             }
@@ -46,6 +49,7 @@ export const Announce = React.memo((props: {
                 ...styles.announce,
                 ...style,
                 opacity,
+                display,
             }}
         >
             <Text style={styles.announceText}>{announce}</Text>
