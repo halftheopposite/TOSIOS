@@ -192,10 +192,6 @@ export default class Game extends Component<IProps, IState> {
   handlePlayerUpdate = (player: any, playerId: string) => {
     const isMe = this.isPlayerIdMe(playerId);
     this.gameManager.playerUpdate(playerId, player, isMe);
- 
-    if (isMe) {
-      this.updateRoom();
-    }
   }
 
   handlePlayerRemove = (player: any, playerId: string) => {
@@ -261,7 +257,7 @@ export default class Game extends Component<IProps, IState> {
       stats: {
         ...prev.stats,
         // Only set the last n messages (negative value on slice() is reverse)
-        messages: [...messages, message].slice(Constants.LOG_LINES_MAX),
+        messages: [...messages, message].slice(-Constants.LOG_LINES_MAX),
         announce,
       }
     }));
