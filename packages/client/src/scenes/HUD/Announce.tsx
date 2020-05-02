@@ -62,6 +62,6 @@ const styles: { [key: string]: CSSProperties } = {
     },
     announceText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 24,
     },
 }
