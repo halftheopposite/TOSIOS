@@ -4,8 +4,9 @@ import { Health, Messages, Players, Time } from './';
 import { Types } from '@tosios/common';
 import { Announce } from './Announce';
 import { IPlayer } from '../../entities';
+import { isMobile } from 'react-device-detect';
 
-const HUD_PADDING = 24;
+const HUD_PADDING = isMobile ? 16 : 24;
 
 export interface HUDProps {
     gameMode: string;
