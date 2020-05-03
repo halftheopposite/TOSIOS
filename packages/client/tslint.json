@@ -22,7 +22,12 @@
     "member-ordering": false,
     "forin": false,
     "prefer-for-of": false,
-    "quotemark": false
+    "quotemark": false,
+    "indent": [
+      true,
+      "spaces",
+      4
+    ]
   },
   "linterOptions": {
     "exclude": [
