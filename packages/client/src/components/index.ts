@@ -7,5 +7,6 @@ export * from './Room';
 export * from './Select';
 export * from './Separator';
 export * from './Space';
+export * from './Table';
 export * from './Text';
 export * from './View';
