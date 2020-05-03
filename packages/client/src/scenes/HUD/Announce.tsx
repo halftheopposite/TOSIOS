@@ -21,7 +21,7 @@ export const Announce = React.memo((props: {
 
     // Whenever the announce changes
     React.useEffect(() => {
-        if (!announce) {
+        if (!announce || !announce.length) {
             return;
         }
 
