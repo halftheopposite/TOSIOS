@@ -4,8 +4,9 @@ import { View, Text, Space } from '../../components';
 import { Container } from './'
 import heartEmpty from '../../images/textures/gui/heart-empty.png'
 import heartFull from '../../images/textures/gui/heart-full.png'
+import { isMobile } from 'react-device-detect';
 
-const HEART_SIZE = 36;
+const HEART_SIZE = isMobile ? 24 : 36;
 
 /**
  * Render the health of the player.
@@ -57,7 +58,7 @@ const styles: { [key: string]: CSSProperties } = {
     },
     nameText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: isMobile ? 14 : 16,
     },
     hearts: {
         display: 'flex',

@@ -2,6 +2,7 @@ import React, { CSSProperties } from 'react';
 import { Text, Space } from '../../components';
 
 import { Container } from './'
+import { isMobile } from 'react-device-detect';
 
 /**
  * Render the time left in current game mode.
@@ -65,11 +66,11 @@ const styles: { [key: string]: CSSProperties } = {
     },
     modeText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: isMobile ? 14 : 16,
         textTransform: 'capitalize',
     },
     timeText: {
         color: 'white',
-        fontSize: 25,
+        fontSize: isMobile ? 16 : 24,
     },
 }

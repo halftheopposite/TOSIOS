@@ -2,6 +2,7 @@ import React, { CSSProperties } from 'react';
 import { Text } from '../../components';
 
 import { Container } from './'
+import { isMobile } from 'react-device-detect';
 
 const ANNOUNCE_LIFETIME = 3000;
 const ANNOUNCE_ANIM_TICK = 50;
@@ -62,6 +63,6 @@ const styles: { [key: string]: CSSProperties } = {
     },
     announceText: {
         color: 'white',
-        fontSize: 24,
+        fontSize: isMobile ? 16 : 24,
     },
 }

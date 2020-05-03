@@ -3,6 +3,7 @@ import { View, Text, Inline, Space } from '../../components';
 
 import { Container } from '.'
 import { Types } from '@tosios/common';
+import { isMobile } from 'react-device-detect';
 
 /**
  * Render the messages from the server.
@@ -24,14 +25,12 @@ export const Messages = React.memo((props: {
                 ...style,
             }}
         >
-            <View style={styles.hearts}>
-                {messages.map((message, index) => (
-                    <Fragment>
-                        <Message key={message.ts} message={message} />
-                        {messages.length > 1 && index < messages.length - 1 ? <Space size="xs" /> : null}
-                    </Fragment>
-                ))}
-            </View>
+            {messages.map((message, index) => (
+                <Fragment key={index}>
+                    <Message key={message.ts} message={message} />
+                    {messages.length > 1 && index < messages.length - 1 ? <Space size="xs" /> : null}
+                </Fragment>
+            ))}
         </Container>
     )
 })
@@ -80,19 +79,21 @@ function getFormattedMessage(message: Types.Message): string {
 const styles: { [key: string]: CSSProperties } = {
     messages: {
         flexDirection: 'column',
+        alignItems: 'flex-start',
     },
     message: {
         display: 'flex',
         flexDirection: 'row',
+        opacity: isMobile ? 0.5 : 1,
     },
     messageAuthorText: {
         color: 'darkgray',
-        fontSize: 16,
+        fontSize: isMobile ? 12 : 16,
         textTransform: 'capitalize',
     },
     messageText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: isMobile ? 12 : 16,
         alignItems: 'center',
     },
 };

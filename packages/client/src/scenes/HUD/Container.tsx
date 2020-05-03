@@ -1,6 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { View } from '../../components';
 import { useHover } from '../../hooks';
+import { isMobile } from 'react-device-detect';
 
 const VIEW_HEIGHT = 56;
 
@@ -27,6 +28,7 @@ export function Container(props: {
             ref={ref}
             style={{
                 ...styles.container,
+                ...(isMobile ? { padding: 8, minHeight: 0 } : {}),
                 ...style,
             }}
             onClick={onClick}

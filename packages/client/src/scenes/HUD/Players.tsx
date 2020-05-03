@@ -4,6 +4,7 @@ import { Text, Inline } from '../../components';
 import { Container } from './'
 import { IconButton } from './IconButton';
 import { MagicWand } from '../../images/icons';
+import { isMobile } from 'react-device-detect';
 
 /**
  * Render the players count.
@@ -14,7 +15,7 @@ export const Players = React.memo((props: {
     style?: CSSProperties;
 }): React.ReactElement => {
     const { count, maxCount, style } = props;
-    const playersText = `Players (${count}/${maxCount})`
+    const playersText = isMobile ? `${count}/${maxCount}` : `Players (${count}/${maxCount})`;
 
     return (
         <Container 
@@ -25,7 +26,14 @@ export const Players = React.memo((props: {
         >
             <Text style={styles.playersText}>{playersText}</Text>
             <Inline size="xs" />
-            <IconButton icon={MagicWand} onClick={() => {}} style={styles.menuButton} />
+            <IconButton 
+                icon={MagicWand}
+                onClick={() => {}}
+                style={{
+                    ...styles.menuButton,
+                    ...(isMobile ? { width: 40, height: 40 } : {}),
+                }}
+            />
         </Container>
     );
 })
@@ -36,7 +44,7 @@ const styles: { [key: string]: CSSProperties } = {
     },
     playersText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: isMobile ? 14 : 16,
     },
     menuButton: {
     },
