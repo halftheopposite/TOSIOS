@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { View } from '../../components';
-import { Health, Messages, Players, Time } from './';
+import { Health, Leaderboard, Menu, Messages, Players, Time } from './';
 import { Types } from '@tosios/common';
 import { Announce } from './Announce';
 import { IPlayer } from '../../entities';
@@ -22,68 +22,98 @@ export interface HUDProps {
     playersMaxCount: number;
     messages: Types.Message[];
     announce: string;
+    leaderboardOpened: boolean;
 }
 
 /**
  * The interface displaying important information to the user:
  * - Lives
  * - Time left
+ * - Number of players
  * - Chat
+ * - Leaderboard
+ * - Menu
  */
 export const HUD = React.memo((props: HUDProps): React.ReactElement => {
     const { 
         gameMode,
+        gameMap,
         gameModeEndsAt,
+        roomName,
         playerName, 
         playerLives, 
         playerMaxLives,
+        players,
         playersCount,
         playersMaxCount,
         messages,
         announce,
+        leaderboardOpened,
     } = props;
+    const [menuOpened, setMenuOpened] = React.useState(false);
 
     return (
-        <View style={styles.hud}>
+        <View flex center fullscreen style={styles.hud}>
+            {/* Health */}
             <Health 
                 name={playerName}
                 lives={playerLives}
                 maxLives={playerMaxLives}
                 style={styles.health}
             />
+         
+            {/* Time */}
             <Time
                 mode={gameMode}
                 endsAt={gameModeEndsAt}
                 style={styles.time}
             />
+       
+            {/* Players */}
             <Players
                 count={playersCount}
                 maxCount={playersMaxCount}
                 style={styles.players}
+                onMenuClicked={() => setMenuOpened(true)}
             />
-            <Messages
-                messages={messages}
-                style={styles.messages}
-            />
+        
+            {/* Messages */}
+            {isMobile ? null : (
+                <Messages
+                    messages={messages}
+                    style={styles.messages}
+                />
+            )}
+
+            {/* Announce */}
             <Announce
                 announce={announce}
                 style={styles.announce}
             />
+
+            {/* Menu */}
+            {menuOpened ? (
+                <Menu
+                    onClose={() => console.log('CLOSE')}
+                />
+            ) : null}
+
+            {/* Leaderboard */}
+            {!leaderboardOpened ? (
+                <Leaderboard
+                    roomName={roomName}
+                    mapName={gameMap}
+                    mode={gameMode}
+                    players={players}
+                />
+            ) : null}
         </View>
     )
 });
 
 const styles: { [key: string]: CSSProperties } = {
     hud: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
         padding: HUD_PADDING,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     health: {
         position: 'absolute',

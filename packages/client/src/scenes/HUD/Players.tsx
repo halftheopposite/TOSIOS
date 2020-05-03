@@ -3,7 +3,7 @@ import { Text, Inline } from '../../components';
 
 import { Container } from './'
 import { IconButton } from './IconButton';
-import { MagicWand } from '../../images/icons';
+import { Menu } from '../../images/icons';
 import { isMobile } from 'react-device-detect';
 
 /**
@@ -13,8 +13,9 @@ export const Players = React.memo((props: {
     count?: number;
     maxCount?: number;
     style?: CSSProperties;
+    onMenuClicked: () => void;
 }): React.ReactElement => {
-    const { count, maxCount, style } = props;
+    const { count, maxCount, style, onMenuClicked: onMenuPressed } = props;
     const playersText = isMobile ? `${count}/${maxCount}` : `Players (${count}/${maxCount})`;
 
     return (
@@ -27,12 +28,12 @@ export const Players = React.memo((props: {
             <Text style={styles.playersText}>{playersText}</Text>
             <Inline size="xs" />
             <IconButton 
-                icon={MagicWand}
-                onClick={() => {}}
+                icon={Menu}
                 style={{
                     ...styles.menuButton,
                     ...(isMobile ? { width: 40, height: 40 } : {}),
                 }}
+                onClick={onMenuPressed}
             />
         </Container>
     );

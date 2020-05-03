@@ -3,6 +3,7 @@ export * from './Container';
 export * from './Health';
 export * from './HUD';
 export * from './IconButton';
+export * from './Leaderboard';
 export * from './Menu';
 export * from './Messages';
 export * from './Players';

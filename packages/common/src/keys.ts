@@ -3,4 +3,5 @@ export const DOWN = ['KeyS', 'ArrowDown'];
 export const LEFT = ['KeyA', 'KeyQ', 'ArrowLeft'];
 export const RIGHT = ['KeyD', 'ArrowRight'];
 export const SHOOT = ['Space'];
-export const MENU = ['Tab'];
+export const LEADERBOARD = ['Tab'];
+export const MENU = ['Escape'];

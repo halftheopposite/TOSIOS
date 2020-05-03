@@ -14,17 +14,13 @@ const TICK = ANNOUNCE_ANIM_TICK / ANNOUNCE_LIFETIME;
 export const Announce = React.memo((props: { 
     announce: string;
     style?: CSSProperties;
-}): React.ReactElement => {
+}): React.ReactElement | null => {
     const { announce, style } = props;
     const [opacity, setOpacity] = React.useState(0)
     const [display, setDisplay] = React.useState<'none' | 'flex'>('none');
 
     // Whenever the announce changes
     React.useEffect(() => {
-        if (!announce || !announce.length) {
-            return;
-        }
-
         setOpacity(1);
         setDisplay('flex');
         const startedAt = Date.now();
@@ -43,6 +39,10 @@ export const Announce = React.memo((props: {
             setOpacity(prev => prev - TICK);
         }, ANNOUNCE_ANIM_TICK);
     }, [announce])
+
+    if (!announce || !announce.length) {
+        return null;
+    }
 
     return (
         <Container 

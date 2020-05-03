@@ -8,21 +8,20 @@ import { Helmet } from 'react-helmet';
 import ReactNipple from 'react-nipple';
 import { View } from '../components';
 import GameManager from '../managers/GameManager';
-import { Menu, HUD, HUDProps } from './HUD';
+import { HUD, HUDProps } from './HUD';
 
 interface IProps extends RouteComponentProps {
   roomId?: string;
 }
 
 interface IState {
-  stats: HUDProps;
-  menuOpened: boolean;
+  hud: HUDProps;
 }
 
 export default class Game extends Component<IProps, IState> {
 
   public state: IState = {
-    stats: {
+    hud: {
       gameMode: '',
       gameMap: '',
       gameModeEndsAt: 0,
@@ -36,8 +35,8 @@ export default class Game extends Component<IProps, IState> {
       playersMaxCount: 0,
       messages: [],
       announce: '',
+      leaderboardOpened: false,
     },
-    menuOpened: false,
   };
 
   private gameCanvas: RefObject<HTMLDivElement>;
@@ -115,8 +114,8 @@ export default class Game extends Component<IProps, IState> {
     // Set the current player id
     this.setState(prev => ({
       ...prev,
-      stats: {
-        ...prev.stats,
+      hud: {
+        ...prev.hud,
         playerId: this.room ? this.room.sessionId : '',
       }
     }));
@@ -233,7 +232,7 @@ export default class Game extends Component<IProps, IState> {
   }
 
   handleMessage = (message: Types.Message) => {
-    const { messages } = this.state.stats;
+    const { messages } = this.state.hud;
 
     let announce = '';
     switch (message.type) {
@@ -254,8 +253,8 @@ export default class Game extends Component<IProps, IState> {
     }
 
     this.setState(prev => ({
-      stats: {
-        ...prev.stats,
+      hud: {
+        ...prev.hud,
         // Only set the last n messages (negative value on slice() is reverse)
         messages: [...messages, message].slice(-Constants.LOG_LINES_MAX),
         announce,
@@ -280,10 +279,6 @@ export default class Game extends Component<IProps, IState> {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.state.menuOpened) {
-      return;
-    }
-
     this.gameManager.inputs.shoot = true;
   }
 
@@ -291,33 +286,23 @@ export default class Game extends Component<IProps, IState> {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.state.menuOpened) {
-      return;
-    }
-
     this.gameManager.inputs.shoot = false;
   }
 
   handleKeyDown = (event: any) => {
     const key = event.code;
 
-    if (Keys.MENU.includes(key)) {
+    if (Keys.LEADERBOARD.includes(key)) {
       event.preventDefault();
       event.stopPropagation();
 
-      const newMenuOpened = !this.state.menuOpened;
-
-      this.setState({ menuOpened: newMenuOpened });
-    }
-
-    if (this.state.menuOpened) {
-      this.gameManager.inputs.left = false;
-      this.gameManager.inputs.up = false;
-      this.gameManager.inputs.right = false;
-      this.gameManager.inputs.down = false;
-      this.gameManager.inputs.shoot = false;
-
-      return;
+      this.setState({
+        ...this.state,
+        hud: {
+          ...this.state.hud,
+          leaderboardOpened: true,
+        },
+      });
     }
 
     if (Keys.LEFT.includes(key)) {
@@ -353,6 +338,19 @@ export default class Game extends Component<IProps, IState> {
 
   handleKeyUp = (event: any) => {
     const key = event.code;
+
+    if (Keys.LEADERBOARD.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.setState({
+        ...this.state,
+        hud: {
+          ...this.state.hud,
+          leaderboardOpened: false,
+        },
+      });
+    }
 
     if (Keys.LEFT.includes(key)) {
       event.preventDefault();
@@ -392,7 +390,7 @@ export default class Game extends Component<IProps, IState> {
 
   // METHODS
   isPlayerIdMe = (playerId: string) => {
-    return this.state.stats.playerId === playerId;
+    return this.state.hud.playerId === playerId;
   }
 
   updateRoom = () => {
@@ -400,8 +398,8 @@ export default class Game extends Component<IProps, IState> {
 
     this.setState(prev => ({
       ...prev,
-      stats: {
-        ...prev.stats,
+      hud: {
+        ...prev.hud,
         ...stats,
       },
     }));
@@ -410,7 +408,7 @@ export default class Game extends Component<IProps, IState> {
 
   // RENDER
   render() {
-    const { menuOpened, stats } = this.state;
+    const { hud } = this.state;
    
     return (
       <View
@@ -421,43 +419,23 @@ export default class Game extends Component<IProps, IState> {
       >
         {/* Set page's title */}
         <Helmet>
-          <title>{`${stats.roomName} [${stats.playersCount}]`}</title>
+          <title>{`${hud.roomName} [${hud.playersCount}]`}</title>
         </Helmet>
 
         {/* Where PIXI is injected */}
         <div ref={this.gameCanvas} />
 
-        <HUD {...stats} />
+        <HUD {...hud} />
 
         {/* Joysticks */}
         {isMobile && this.renderJoySticks()}
-
-        {/* Menu */}
-        {menuOpened ? (
-          <Menu
-            roomName={stats.roomName}
-            mapName={stats.gameMap}
-            mode={stats.gameMode}
-            players={stats.players}
-            onLeave={() => navigate('/')}
-            onClose={() => this.setState({ menuOpened: false })}
-          />
-        ) : null}
       </View>
     );
   }
 
   renderJoySticks = () => {
     return (
-      <View
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-        }}
-      >
+      <View fullscreen>
         {/* Position */}
         <ReactNipple
           options={{ mode: 'static', position: { bottom: '20%', left: '20%' } }}
