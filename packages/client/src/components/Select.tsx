@@ -10,6 +10,7 @@ const SELECT: CSSProperties = {
   border: '1px solid #efefef',
   width: '100%',
   maxWidth: '100%',
+  textTransform: 'capitalize',
 };
 
 export interface IListItem {
