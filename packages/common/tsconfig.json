@@ -3,24 +3,15 @@
         "rootDir": "src",
         "outDir": "build",
         "module": "commonjs",
-        "lib": [
-            "dom",
-            "es6"
-        ],
+        "lib": ["dom", "es6"],
         "target": "es2016",
         "declaration": true,
         "noImplicitAny": false,
         "sourceMap": false,
         "strict": true,
         "composite": true,
-        "esModuleInterop": true,
+        "esModuleInterop": true
     },
-    "exclude": [
-        "node_modules",
-        "build"
-    ],
-    "include": [
-        "src/**/*.json",
-        "src/**/*.ts"
-    ]
+    "exclude": ["node_modules", "build"],
+    "include": ["src/**/*.json", "src/**/*.ts"]
 }
