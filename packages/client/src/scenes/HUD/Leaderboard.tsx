@@ -1,4 +1,15 @@
-import { Box, Table, TableCell, TableHeader, TableRow, Text, View } from '../../components';
+import {
+    Box,
+    RoomFieldItem,
+    Separator,
+    Space,
+    Table,
+    TableCell,
+    TableHeader,
+    TableRow,
+    Text,
+    View,
+} from '../../components';
 import React, { CSSProperties, Fragment } from 'react';
 import { Sorts, Types } from '@tosios/common';
 import { IPlayer } from '../../entities/Player';
@@ -11,158 +22,118 @@ export function Leaderboard(props: {
     mapName: string;
     mode: string;
     players?: IPlayer[];
+    playerId: string;
 }): React.ReactElement {
-    const { roomName, mapName, mode, players = [] } = props;
+    const { roomName, mapName, mode, players = [], playerId } = props;
     const isDeathmatch = mode === 'deathmatch';
 
-    const firstList: IPlayer[] = [];
-    const secondList: IPlayer[] = [];
+    return (
+        <View fullscreen backdrop flex center style={styles.leaderboard}>
+            <Box style={styles.box}>
+                {/* Header */}
+                <View>
+                    <RoomFieldItem title="Title" content={`"${roomName}"`} />
+                    <Space size="xxs" />
+                    <RoomFieldItem title="Map" content={`"${mapName}"`} />
+                </View>
+                <Space size="xs" />
+                <Separator />
+                <Space size="xs" />
+
+                {/* Lists */}
+                {isDeathmatch ? (
+                    <DeathMatch players={players} playerId={playerId} />
+                ) : (
+                    <TeamDeathMatch players={players} playerId={playerId} />
+                )}
+            </Box>
+        </View>
+    );
+}
+
+/**
+ * A single table of all players.
+ */
+function DeathMatch(props: { players: IPlayer[]; playerId: string }): React.ReactElement {
+    const { players, playerId } = props;
+
+    return (
+        <Table>
+            <PlayersListHeader />
+            <PlayersList players={players} playerId={playerId} />
+        </Table>
+    );
+}
+
+/**
+ * Two tables representing each team.
+ */
+function TeamDeathMatch(props: { players: IPlayer[]; playerId: string }): React.ReactElement {
+    const { players, playerId } = props;
+
+    const redPlayers: IPlayer[] = [];
+    const bluePlayers: IPlayer[] = [];
 
     players.forEach((player) => {
-        if (isDeathmatch) {
-            firstList.push(player);
-        } else if (player.team === 'Red') {
-            firstList.push(player);
+        if (player.team === 'Red') {
+            redPlayers.push(player);
         } else {
-            secondList.push(player);
+            bluePlayers.push(player);
         }
     });
 
     return (
-        <View fullscreen backdrop flex center>
-            <Box>
-                <Table>
-                    {/* Header */}
-                    <TableRow>
-                        <TableHeader>
-                            <Text>#</Text>
-                        </TableHeader>
-                        <TableHeader>
-                            <Text>Name</Text>
-                        </TableHeader>
-                        <TableHeader>
-                            <Text>Kills</Text>
-                        </TableHeader>
-                    </TableRow>
+        <>
+            <Table>
+                <PlayersListHeader team="Red" />
+                <PlayersList players={redPlayers} playerId={playerId} />
+            </Table>
 
-                    {/* Players */}
-                    <PlayersList players={firstList} />
-                </Table>
-            </Box>
-        </View>
+            <Space size="m" />
+
+            <Table>
+                <PlayersListHeader team="Blue" />
+                <PlayersList players={bluePlayers} playerId={playerId} />
+            </Table>
+        </>
     );
-
-    // return (
-    //   <View
-    //     fullscreen
-    //     flex
-    //     center
-    //     backdrop
-    //     style={styles.leaderboard}
-    //   >
-    //     <Box
-    //       style={{
-    //         display: 'flex',
-    //         flexDirection: 'column',
-    //         width: 'fit-content',
-    //       }}
-    //     >
-    //       {/* Header */}
-    //       <View>
-    //         <RoomFieldItem
-    //           title="Title"
-    //           content={`"${roomName}"`}
-    //         />
-    //         <Space size="xxs" />
-    //         <RoomFieldItem
-    //           title="Map"
-    //           content={`"${mapName}"`}
-    //         />
-    //       </View>
-
-    //       <Space size="xs" />
-    //       <Separator />
-    //       <Space size="xs" />
-
-    //       {/* Leaderboard */}
-    //       <View style={{ display: 'flex' }}>
-    //         {isDeathmatch
-    //           // Death match list
-    //           ? <PlayersList players={players} />
-    //           // Team death match lists
-    //           : (
-    //             <Fragment>
-    //               <PlayersList
-    //                 players={players.filter(player => player.team === 'Red')}
-    //                 team="Red"
-    //               />
-    //               <Inline size="xs" />
-    //               <Separator mode="vertical" />
-    //               <Inline size="xs" />
-    //               <PlayersList
-    //                 players={players.filter(player => player.team === 'Blue')}
-    //                 team="Blue"
-    //               />
-    //             </Fragment>
-    //           )
-    //         }
-    //       </View>
-    //     </Box>
-    //   </View>
-    // );
 }
-
-/**
- * Render the menu's footer with leave and close actions.
- */
-// function MenuFooter(props: {
-//   onLeave: () => void;
-//   onClose: () => void;
-// }): React.ReactElement {
-//   const { onLeave, onClose } = props;
-
-//   return (
-//     <View
-//       style={{
-//         flex: 1,
-//         justifyContent: 'space-between',
-//         display: 'flex',
-//         ...(isMobile && { flexDirection: 'column' }),
-//       }}
-//     >
-//       <Button
-//         icon={<ArrowLeft width={20} height={20} />}
-//         title="Leave"
-//         onClick={onLeave}
-//         text="Leave"
-//         style={{ color: 'white', width: 'fit-content' }}
-//       />
-//       {isMobile
-//         ? <Space size="xs" />
-//         : <Inline size="xs" />
-//       }
-//       <Button
-//         title="Close"
-//         onClick={onClose}
-//         text="Close"
-//         reversed={true}
-//         style={{ width: 'fit-content' }}
-//       />
-//     </View>
-//   );
-// }
 
 /**
  * Render a list of players.
  */
-function PlayersList(props: { players: IPlayer[]; team?: Types.Teams }): any {
-    const { players, team } = props;
+function PlayersListHeader(props: { team?: Types.Teams }): React.ReactElement {
+    const { team } = props;
+    const textStyle = {
+        color: team || 'black',
+    };
+
+    return (
+        <TableRow>
+            <TableHeader>
+                <Text style={textStyle}>#</Text>
+            </TableHeader>
+            <TableHeader>
+                <Text style={textStyle}>Name</Text>
+            </TableHeader>
+            <TableHeader>
+                <Text style={textStyle}>Kills</Text>
+            </TableHeader>
+        </TableRow>
+    );
+}
+
+/**
+ * Render a list of players.
+ */
+function PlayersList(props: { players: IPlayer[]; playerId: string }): any {
+    const { players, playerId } = props;
 
     return players
         .sort((a, b) => Sorts.sortNumberDesc(a.kills, b.kills))
         .map((player, index) => (
             <Fragment key={index}>
-                <PlayerListItem key={player.playerId} index={index} player={player} team={team} />
+                <PlayerListItem key={player.playerId} index={index} player={player} playerId={playerId} />
             </Fragment>
         ));
 }
@@ -170,20 +141,24 @@ function PlayersList(props: { players: IPlayer[]; team?: Types.Teams }): any {
 /**
  * Render a player item.
  */
-function PlayerListItem(props: { index: number; player: IPlayer; team?: Types.Teams }): React.ReactElement {
-    const { index, player, team } = props;
-    // const color = team ? (team)
+function PlayerListItem(props: { index: number; player: IPlayer; playerId: string }): React.ReactElement {
+    const { index, player, playerId } = props;
+    const isMe = playerId === player.playerId;
+    const isDead = player.lives === 0;
+    const style = {
+        ...(isDead ? styles.playerDead : {}),
+    };
 
     return (
         <TableRow key={index}>
             <TableCell>
-                <Text style={{ color: team || 'black' }}>{`${index + 1}`}</Text>
+                <Text style={style}>{`${index + 1}`}</Text>
             </TableCell>
             <TableCell>
-                <Text>{player.name}</Text>
+                <Text style={style}>{isMe ? 'You' : player.name}</Text>
             </TableCell>
             <TableCell>
-                <Text>{player.kills}</Text>
+                <Text style={style}>{player.kills}</Text>
             </TableCell>
         </TableRow>
     );
@@ -191,6 +166,14 @@ function PlayerListItem(props: { index: number; player: IPlayer; team?: Types.Te
 
 const styles: { [key: string]: CSSProperties } = {
     leaderboard: {
+        position: 'fixed',
         padding: 16,
+    },
+    box: {
+        boxSizing: 'border-box',
+        maxHeight: '100%',
+    },
+    playerDead: {
+        opacity: 0.2,
     },
 };

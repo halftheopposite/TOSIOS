@@ -37,6 +37,7 @@ export interface HUDProps {
 export const HUD = React.memo(
     (props: HUDProps): React.ReactElement => {
         const {
+            playerId,
             gameMode,
             gameMap,
             gameModeEndsAt,
@@ -79,8 +80,14 @@ export const HUD = React.memo(
                 {menuOpened ? <Menu onClose={() => console.log('CLOSE')} /> : null}
 
                 {/* Leaderboard */}
-                {!leaderboardOpened ? (
-                    <Leaderboard roomName={roomName} mapName={gameMap} mode={gameMode} players={players} />
+                {leaderboardOpened ? (
+                    <Leaderboard
+                        roomName={roomName}
+                        mapName={gameMap}
+                        mode={gameMode}
+                        players={players}
+                        playerId={playerId}
+                    />
                 ) : null}
             </View>
         );

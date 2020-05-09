@@ -65,6 +65,7 @@ const styles: { [key: string]: CSSProperties } = {
         border: '2px solid gray',
         borderRadius: 8,
         borderCollapse: 'collapse',
+        width: '100%',
     },
     row: {
         height: 48,

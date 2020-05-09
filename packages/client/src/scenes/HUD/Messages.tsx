@@ -75,6 +75,7 @@ const styles: { [key: string]: CSSProperties } = {
     messages: {
         flexDirection: 'column',
         alignItems: 'flex-start',
+        minHeight: 40,
     },
     message: {
         display: 'flex',
