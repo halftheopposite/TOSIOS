@@ -10,36 +10,36 @@ export type WallCollisionType = 'full' | 'none';
  * Represent the initial parameters of a Player
  */
 export interface IPlayerOptions {
-  playerName?: string;
+    playerName?: string;
 }
 
 /**
  * Represent the initial parameters of a Room
  */
 export interface IRoomOptions {
-  playerName?: string;
-  roomName: string;
-  roomMap: string;
-  roomMaxPlayers: number;
-  mode: GameMode;
+    playerName?: string;
+    roomName: string;
+    roomMap: string;
+    roomMaxPlayers: number;
+    mode: GameMode;
 }
 
 /**
  * Represent an action performed by a Player
  */
 export interface IAction {
-  playerId?: string;
-  ts?: number;
-  type: ActionType;
-  value: any;
+    playerId?: string;
+    ts?: number;
+    type: ActionType;
+    value: any;
 }
 
 /**
  * Represent a server log from a Player or the Server itself.
  */
 export interface Message {
-  type: MessageType;
-  from: string;
-  ts: number;
-  params: any;
+    type: MessageType;
+    from: string;
+    ts: number;
+    params: any;
 }

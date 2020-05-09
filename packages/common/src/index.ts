@@ -9,15 +9,4 @@ import * as Sorts from './sort';
 import * as Tiled from './tiled';
 import * as Types from './types';
 
-export {
-  Collisions,
-  Constants,
-  Entities,
-  Geometry,
-  Keys,
-  Maths,
-  Maps,
-  Sorts,
-  Tiled,
-  Types,
-};
+export { Collisions, Constants, Entities, Geometry, Keys, Maths, Maps, Sorts, Tiled, Types };

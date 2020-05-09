@@ -7,11 +7,11 @@ import * as Props from './prop';
 import * as Weapons from './weapon';
 
 export {
-  GUI as GUITextures,
-  Inputs as InputsTextures,
-  Monsters as MonstersTextures,
-  Particles as ParticleTextures,
-  Players as PlayerTextures,
-  Props as PropTextures,
-  Weapons as WeaponTextures,
+    GUI as GUITextures,
+    Inputs as InputsTextures,
+    Monsters as MonstersTextures,
+    Particles as ParticleTextures,
+    Players as PlayerTextures,
+    Props as PropTextures,
+    Weapons as WeaponTextures,
 };

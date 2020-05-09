@@ -1,34 +1,36 @@
 import React, { CSSProperties } from 'react';
 
-import { Container } from './'
+import { Container } from './';
 
 const BUTTON_SIZE = 56;
 
 /**
  * Render the players count.
  */
-export const IconButton = React.memo((props: { 
-    icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-    style?: CSSProperties;
-    onClick: () => void;
-}): React.ReactElement => {
-    const { icon: Icon, style, onClick } = props;
-    const [hovered, setHovered] = React.useState(false);
+export const IconButton = React.memo(
+    (props: {
+        icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+        style?: CSSProperties;
+        onClick: () => void;
+    }): React.ReactElement => {
+        const { icon: Icon, style, onClick } = props;
+        const [hovered, setHovered] = React.useState(false);
 
-    return (
-        <Container 
-            style={{
-                ...styles.iconButton,
-                ...(hovered ? styles.iconButtonHovered : {}),
-                ...style,
-            }}
-            onHovered={(value: boolean) => setHovered(value)}
-            onClick={onClick}
-        >
-            <Icon width={30} height={30} />
-        </Container>
-    );
-})
+        return (
+            <Container
+                style={{
+                    ...styles.iconButton,
+                    ...(hovered ? styles.iconButtonHovered : {}),
+                    ...style,
+                }}
+                onHovered={(value: boolean) => setHovered(value)}
+                onClick={onClick}
+            >
+                <Icon width={30} height={30} />
+            </Container>
+        );
+    },
+);
 
 const styles: { [key: string]: CSSProperties } = {
     iconButton: {
@@ -47,4 +49,4 @@ const styles: { [key: string]: CSSProperties } = {
         backgroundColor: 'white',
         border: '1px solid rgba(255,255,255,1)',
     },
-}
+};

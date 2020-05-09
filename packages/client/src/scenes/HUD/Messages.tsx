@@ -1,46 +1,42 @@
+import { Inline, Space, Text, View } from '../../components';
 import React, { CSSProperties, Fragment } from 'react';
-import { View, Text, Inline, Space } from '../../components';
-
-import { Container } from '.'
+import { Container } from '.';
 import { Types } from '@tosios/common';
 import { isMobile } from 'react-device-detect';
 
 /**
  * Render the messages from the server.
  */
-export const Messages = React.memo((props: { 
-    messages: Types.Message[];
-    style?: CSSProperties;
-}): React.ReactElement | null => {
-    const { messages, style } = props;
+export const Messages = React.memo(
+    (props: { messages: Types.Message[]; style?: CSSProperties }): React.ReactElement | null => {
+        const { messages, style } = props;
 
-    if (!messages.length) {
-        return null;
-    }
+        if (!messages.length) {
+            return null;
+        }
 
-    return (
-        <Container 
-            style={{
-                ...styles.messages,
-                ...style,
-            }}
-        >
-            {messages.map((message, index) => (
-                <Fragment key={index}>
-                    <Message key={message.ts} message={message} />
-                    {messages.length > 1 && index < messages.length - 1 ? <Space size="xs" /> : null}
-                </Fragment>
-            ))}
-        </Container>
-    )
-})
+        return (
+            <Container
+                style={{
+                    ...styles.messages,
+                    ...style,
+                }}
+            >
+                {messages.map((message, index) => (
+                    <Fragment key={index}>
+                        <Message key={message.ts} message={message} />
+                        {messages.length > 1 && index < messages.length - 1 ? <Space size="xs" /> : null}
+                    </Fragment>
+                ))}
+            </Container>
+        );
+    },
+);
 
 /**
  * Render a single message.
  */
-function Message(props: {
-    message: Types.Message;
-}): React.ReactElement {
+function Message(props: { message: Types.Message }): React.ReactElement {
     const { message } = props;
 
     return (
@@ -72,8 +68,7 @@ function getFormattedMessage(message: Types.Message): string {
             return `Timeout...`;
         default:
             return '';
-      }
-
+    }
 }
 
 const styles: { [key: string]: CSSProperties } = {

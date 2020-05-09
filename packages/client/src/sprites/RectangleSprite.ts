@@ -1,103 +1,104 @@
-import { Constants, Geometry } from '@tosios/common';
 import { AnimatedSprite, Graphics, Sprite, Texture } from 'pixi.js';
+import { Constants, Geometry } from '@tosios/common';
 
 export default class RectangleSprite {
-  private _body: Geometry.RectangleBody;
-  private _sprite: Sprite | AnimatedSprite;
-  private _boundaries?: Graphics;
+    private _body: Geometry.RectangleBody;
 
-  constructor(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    rotation: number = 0,
-    texture: { single?: Texture; array?: Texture[] },
-  ) {
-    // Body
-    this._body = new Geometry.RectangleBody(x, y, width, height);
+    private _sprite: Sprite | AnimatedSprite;
 
-    // Sprite
-    if (texture.single) {
-      this._sprite = new Sprite(texture.single);
-    } else {
-      this._sprite = new AnimatedSprite(texture.array || [], true);
-      (this._sprite as AnimatedSprite).animationSpeed = 0.1;
-      (this._sprite as AnimatedSprite).play();
+    private _boundaries?: Graphics;
+
+    constructor(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        rotation: number = 0,
+        texture: { single?: Texture; array?: Texture[] },
+    ) {
+        // Body
+        this._body = new Geometry.RectangleBody(x, y, width, height);
+
+        // Sprite
+        if (texture.single) {
+            this._sprite = new Sprite(texture.single);
+        } else {
+            this._sprite = new AnimatedSprite(texture.array || [], true);
+            (this._sprite as AnimatedSprite).animationSpeed = 0.1;
+            (this._sprite as AnimatedSprite).play();
+        }
+
+        // Add the boundaries BEFORE scaling the sprite
+        if (Constants.DEBUG) {
+            this._boundaries = new Graphics();
+            this._boundaries.lineStyle(0.5, 0xff00ff);
+            this._boundaries.drawRect(0, 0, this._sprite.width, this._sprite.height);
+            this._boundaries.endFill();
+            this._sprite.addChild(this._boundaries);
+        }
+
+        this._sprite.width = width;
+        this._sprite.height = height;
+        this._sprite.rotation = rotation;
+        this._sprite.position.set(x, y);
     }
 
-    // Add the boundaries BEFORE scaling the sprite
-    if (Constants.DEBUG) {
-      this._boundaries = new Graphics();
-      this._boundaries.lineStyle(0.5, 0xFF00FF);
-      this._boundaries.drawRect(0, 0, this._sprite.width, this._sprite.height);
-      this._boundaries.endFill();
-      this._sprite.addChild(this._boundaries);
+    // Setters
+    set x(x: number) {
+        this._body.x = x;
+        this._sprite.x = x;
     }
 
-    this._sprite.width = width;
-    this._sprite.height = height;
-    this._sprite.rotation = rotation;
-    this._sprite.position.set(x, y);
-  }
+    set y(y: number) {
+        this._body.y = y;
+        this._sprite.y = y;
+    }
 
-  // Setters
-  set x(x: number) {
-    this._body.x = x;
-    this._sprite.x = x;
-  }
+    set width(width: number) {
+        this._body.width = width;
+        this._sprite.width = width;
+    }
 
-  set y(y: number) {
-    this._body.y = y;
-    this._sprite.y = y;
-  }
+    set height(height: number) {
+        this._body.height = height;
+        this._sprite.height = height;
+    }
 
-  set width(width: number) {
-    this._body.width = width;
-    this._sprite.width = width;
-  }
+    set position(position: { x: number; y: number }) {
+        this.x = position.x;
+        this.y = position.y;
+    }
 
-  set height(height: number) {
-    this._body.height = height;
-    this._sprite.height = height;
-  }
+    set rotation(rotation: number) {
+        this._sprite.rotation = rotation;
+    }
 
-  set position(position: { x: number; y: number }) {
-    this.x = position.x;
-    this.y = position.y;
-  }
+    // Getters
+    get body() {
+        return this._body;
+    }
 
-  set rotation(rotation: number) {
-    this._sprite.rotation = rotation;
-  }
+    get sprite() {
+        return this._sprite;
+    }
 
+    get x() {
+        return this._body.x;
+    }
 
-  // Getters
-  get body() {
-    return this._body;
-  }
+    get y() {
+        return this._body.y;
+    }
 
-  get sprite() {
-    return this._sprite;
-  }
+    get width() {
+        return this._body.width;
+    }
 
-  get x() {
-    return this._body.x;
-  }
+    get height() {
+        return this._body.height;
+    }
 
-  get y() {
-    return this._body.y;
-  }
-
-  get width() {
-    return this._body.width;
-  }
-
-  get height() {
-    return this._body.height;
-  }
-
-  get rotation() {
-    return this._sprite.rotation;
-  }
+    get rotation() {
+        return this._sprite.rotation;
+    }
 }

@@ -1,9 +1,9 @@
-import React, { CSSProperties } from 'react';
-import { View } from '../../components';
 import { Health, Leaderboard, Menu, Messages, Players, Time } from './';
-import { Types } from '@tosios/common';
+import React, { CSSProperties } from 'react';
 import { Announce } from './Announce';
 import { IPlayer } from '../../entities';
+import { Types } from '@tosios/common';
+import { View } from '../../components';
 import { isMobile } from 'react-device-detect';
 
 const HUD_PADDING = isMobile ? 16 : 24;
@@ -34,82 +34,58 @@ export interface HUDProps {
  * - Leaderboard
  * - Menu
  */
-export const HUD = React.memo((props: HUDProps): React.ReactElement => {
-    const { 
-        gameMode,
-        gameMap,
-        gameModeEndsAt,
-        roomName,
-        playerName, 
-        playerLives, 
-        playerMaxLives,
-        players,
-        playersCount,
-        playersMaxCount,
-        messages,
-        announce,
-        leaderboardOpened,
-    } = props;
-    const [menuOpened, setMenuOpened] = React.useState(false);
+export const HUD = React.memo(
+    (props: HUDProps): React.ReactElement => {
+        const {
+            gameMode,
+            gameMap,
+            gameModeEndsAt,
+            roomName,
+            playerName,
+            playerLives,
+            playerMaxLives,
+            players,
+            playersCount,
+            playersMaxCount,
+            messages,
+            announce,
+            leaderboardOpened,
+        } = props;
+        const [menuOpened, setMenuOpened] = React.useState(false);
 
-    return (
-        <View flex center fullscreen style={styles.hud}>
-            {/* Health */}
-            <Health 
-                name={playerName}
-                lives={playerLives}
-                maxLives={playerMaxLives}
-                style={styles.health}
-            />
-         
-            {/* Time */}
-            <Time
-                mode={gameMode}
-                endsAt={gameModeEndsAt}
-                style={styles.time}
-            />
-       
-            {/* Players */}
-            <Players
-                count={playersCount}
-                maxCount={playersMaxCount}
-                style={styles.players}
-                onMenuClicked={() => setMenuOpened(true)}
-            />
-        
-            {/* Messages */}
-            {isMobile ? null : (
-                <Messages
-                    messages={messages}
-                    style={styles.messages}
+        return (
+            <View flex center fullscreen style={styles.hud}>
+                {/* Health */}
+                <Health name={playerName} lives={playerLives} maxLives={playerMaxLives} style={styles.health} />
+
+                {/* Time */}
+                <Time mode={gameMode} endsAt={gameModeEndsAt} style={styles.time} />
+
+                {/* Players */}
+                <Players
+                    count={playersCount}
+                    maxCount={playersMaxCount}
+                    style={styles.players}
+                    onMenuClicked={() => setMenuOpened(true)}
                 />
-            )}
 
-            {/* Announce */}
-            <Announce
-                announce={announce}
-                style={styles.announce}
-            />
+                {/* Messages */}
+                {isMobile ? null : <Messages messages={messages} style={styles.messages} />}
 
-            {/* Menu */}
-            {menuOpened ? (
-                <Menu
-                    onClose={() => console.log('CLOSE')}
-                />
-            ) : null}
+                {/* Announce */}
+                <Announce announce={announce} style={styles.announce} />
 
-            {/* Leaderboard */}
-            {!leaderboardOpened ? (
-                <Leaderboard
-                    roomName={roomName}
-                    mapName={gameMap}
-                    mode={gameMode}
-                    players={players}
-                />
-            ) : null}
-        </View>
-    )
-});
+                {/* Menu */}
+                {menuOpened ? <Menu onClose={() => console.log('CLOSE')} /> : null}
+
+                {/* Leaderboard */}
+                {!leaderboardOpened ? (
+                    <Leaderboard roomName={roomName} mapName={gameMap} mode={gameMode} players={players} />
+                ) : null}
+            </View>
+        );
+    },
+);
 
 const styles: { [key: string]: CSSProperties } = {
     hud: {
@@ -138,4 +114,4 @@ const styles: { [key: string]: CSSProperties } = {
     announce: {
         position: 'absolute',
     },
-}
+};

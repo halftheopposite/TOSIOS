@@ -1,14 +1,14 @@
 import React, { CSSProperties } from 'react';
 import { View } from '../../components';
-import { useHover } from '../../hooks';
 import { isMobile } from 'react-device-detect';
+import { useHover } from '../../hooks';
 
 const VIEW_HEIGHT = 56;
 
 /**
  * Render the health of the player.
  */
-export function Container(props: { 
+export function Container(props: {
     children: React.ReactNode;
     style?: CSSProperties;
     onHovered?: (hovered: boolean) => void;
@@ -35,7 +35,7 @@ export function Container(props: {
         >
             {children}
         </View>
-    )
+    );
 }
 
 const styles: { [key: string]: CSSProperties } = {
@@ -52,4 +52,4 @@ const styles: { [key: string]: CSSProperties } = {
         paddingRight: 16,
         minHeight: VIEW_HEIGHT,
     },
-}
+};

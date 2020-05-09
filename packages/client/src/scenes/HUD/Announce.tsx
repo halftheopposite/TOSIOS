@@ -1,7 +1,6 @@
 import React, { CSSProperties } from 'react';
+import { Container } from './';
 import { Text } from '../../components';
-
-import { Container } from './'
 import { isMobile } from 'react-device-detect';
 
 const ANNOUNCE_LIFETIME = 3000;
@@ -11,12 +10,9 @@ const TICK = ANNOUNCE_ANIM_TICK / ANNOUNCE_LIFETIME;
 /**
  * Render the players count.
  */
-export const Announce = React.memo((props: { 
-    announce: string;
-    style?: CSSProperties;
-}): React.ReactElement | null => {
+export const Announce = React.memo((props: { announce: string; style?: CSSProperties }): React.ReactElement | null => {
     const { announce, style } = props;
-    const [opacity, setOpacity] = React.useState(0)
+    const [opacity, setOpacity] = React.useState(0);
     const [display, setDisplay] = React.useState<'none' | 'flex'>('none');
 
     // Whenever the announce changes
@@ -36,16 +32,16 @@ export const Announce = React.memo((props: {
                 return;
             }
 
-            setOpacity(prev => prev - TICK);
+            setOpacity((prev) => prev - TICK);
         }, ANNOUNCE_ANIM_TICK);
-    }, [announce])
+    }, [announce]);
 
     if (!announce || !announce.length) {
         return null;
     }
 
     return (
-        <Container 
+        <Container
             style={{
                 ...styles.announce,
                 ...style,
@@ -56,13 +52,12 @@ export const Announce = React.memo((props: {
             <Text style={styles.announceText}>{announce}</Text>
         </Container>
     );
-})
+});
 
 const styles: { [key: string]: CSSProperties } = {
-    announce: {
-    },
+    announce: {},
     announceText: {
         color: 'white',
         fontSize: isMobile ? 16 : 24,
     },
-}
+};

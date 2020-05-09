@@ -1,11 +1,8 @@
 import React, { CSSProperties } from 'react';
 
-export function Table(props: {
-    children?: React.ReactNode;
-    style?: CSSProperties;
-}): React.ReactElement {
+export function Table(props: { children?: React.ReactNode; style?: CSSProperties }): React.ReactElement {
     const { children, style } = props;
-    
+
     return (
         <table
             style={{
@@ -13,19 +10,14 @@ export function Table(props: {
                 ...style,
             }}
         >
-            <tbody>
-                {children}
-            </tbody>
+            <tbody>{children}</tbody>
         </table>
-    )
+    );
 }
 
-export function TableRow(props: {
-    children?: React.ReactNode;
-    style?: CSSProperties;
-}): React.ReactElement {
+export function TableRow(props: { children?: React.ReactNode; style?: CSSProperties }): React.ReactElement {
     const { children, style } = props;
-    
+
     return (
         <tr
             style={{
@@ -35,15 +27,12 @@ export function TableRow(props: {
         >
             {children}
         </tr>
-    )
+    );
 }
 
-export function TableHeader(props: {
-    children?: React.ReactNode;
-    style?: CSSProperties;
-}): React.ReactElement {
+export function TableHeader(props: { children?: React.ReactNode; style?: CSSProperties }): React.ReactElement {
     const { children, style } = props;
-    
+
     return (
         <th
             style={{
@@ -53,17 +42,14 @@ export function TableHeader(props: {
         >
             {children}
         </th>
-    )
+    );
 }
 
-export function TableCell(props: {
-    children?: React.ReactNode;
-    style?: CSSProperties;
-}): React.ReactElement {
+export function TableCell(props: { children?: React.ReactNode; style?: CSSProperties }): React.ReactElement {
     const { children, style } = props;
-    
+
     return (
-        <td 
+        <td
             style={{
                 ...styles.cell,
                 ...style,
@@ -71,7 +57,7 @@ export function TableCell(props: {
         >
             {children}
         </td>
-    )
+    );
 }
 
 const styles: { [key: string]: CSSProperties } = {
@@ -82,7 +68,7 @@ const styles: { [key: string]: CSSProperties } = {
     },
     row: {
         height: 48,
-        borderBottom: '2px solid gray'
+        borderBottom: '2px solid gray',
     },
     header: {
         textAlign: 'center',

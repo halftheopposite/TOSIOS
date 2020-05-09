@@ -1,5 +1,4 @@
 import { Texture } from 'pixi.js';
-
 import a from './a.png';
 import d from './d.png';
 import esc from './esc.png';
@@ -16,12 +15,4 @@ const ShiftTexture = Texture.from(shift);
 const TabTexture = Texture.from(tab);
 const WTexture = Texture.from(w);
 
-export {
-  ATexture,
-  DTexture,
-  EscTexture,
-  STexture,
-  ShiftTexture,
-  TabTexture,
-  WTexture,
-};
+export { ATexture, DTexture, EscTexture, STexture, ShiftTexture, TabTexture, WTexture };

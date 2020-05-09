@@ -4,10 +4,4 @@ import MonstersManager from './MonstersManager';
 import PlayersManager from './PlayersManager';
 import PropsManager from './PropsManager';
 
-export {
-  BulletsManager,
-  GameManager,
-  MonstersManager,
-  PlayersManager,
-  PropsManager,
-};
+export { BulletsManager, GameManager, MonstersManager, PlayersManager, PropsManager };
