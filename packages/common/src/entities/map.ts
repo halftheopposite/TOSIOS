@@ -34,8 +34,8 @@ export class Map {
 
     clampCircle(circle: CircleBody): Vector {
         return new Vector(
-            Maths.clamp(circle.x, 0, this.width - circle.radius * 2),
-            Maths.clamp(circle.y, 0, this.height - circle.radius * 2),
+            Maths.clamp(circle.x, circle.radius, this.width - circle.radius),
+            Maths.clamp(circle.y, circle.radius, this.height - circle.radius),
         );
     }
 

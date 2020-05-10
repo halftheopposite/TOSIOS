@@ -108,6 +108,8 @@ export default class GameManager {
             height: screenHeight,
             antialias: false,
             backgroundColor: utils.string2hex(Constants.BACKGROUND_COLOR),
+            autoDensity: true,
+            resolution: window.devicePixelRatio,
         });
 
         // Map
