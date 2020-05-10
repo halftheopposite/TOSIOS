@@ -3,6 +3,7 @@ export * from './Button';
 export * from './GitHub';
 export * from './Inline';
 export * from './Input';
+export * from './KeyboardKey';
 export * from './Room';
 export * from './Select';
 export * from './Separator';
