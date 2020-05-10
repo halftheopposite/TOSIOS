@@ -1,8 +1,8 @@
 import { Health, Leaderboard, Menu, Messages, Players, Time } from './';
+import { Keys, Types } from '@tosios/common';
 import React, { CSSProperties } from 'react';
 import { Announce } from './Announce';
 import { IPlayer } from '../../entities';
-import { Types } from '@tosios/common';
 import { View } from '../../components';
 import { isMobile } from 'react-device-detect';
 
@@ -22,7 +22,6 @@ export interface HUDProps {
     playersMaxCount: number;
     messages: Types.Message[];
     announce: string;
-    leaderboardOpened: boolean;
 }
 
 /**
@@ -50,13 +49,50 @@ export const HUD = React.memo(
             playersMaxCount,
             messages,
             announce,
-            leaderboardOpened,
         } = props;
+        const [leaderboardOpened, setLeaderboardOpened] = React.useState(false);
         const [menuOpened, setMenuOpened] = React.useState(false);
 
-        const onLeave = () => {
+        const handleLeave = () => {
             window.location.href = window.location.origin;
         };
+
+        const handleKeyDown = (event: any) => {
+            const key = event.code;
+
+            if (Keys.LEADERBOARD.includes(key)) {
+                event.preventDefault();
+                event.stopPropagation();
+                setLeaderboardOpened(true);
+            }
+        };
+
+        const handleKeyUp = (event: any) => {
+            const key = event.code;
+
+            if (Keys.LEADERBOARD.includes(key)) {
+                event.preventDefault();
+                event.stopPropagation();
+                setLeaderboardOpened(false);
+            }
+
+            if (Keys.MENU.includes(key)) {
+                event.preventDefault();
+                event.stopPropagation();
+                setMenuOpened((prev) => !prev);
+            }
+        };
+
+        // Listen for key presses (and unlisten on unmount).
+        React.useEffect(() => {
+            window.document.addEventListener('keydown', handleKeyDown);
+            window.document.addEventListener('keyup', handleKeyUp);
+
+            return () => {
+                window.document.removeEventListener('keydown', handleKeyDown);
+                window.document.removeEventListener('keyup', handleKeyUp);
+            };
+        }, []);
 
         return (
             <View flex center fullscreen style={styles.hud}>
@@ -92,7 +128,7 @@ export const HUD = React.memo(
                 ) : null}
 
                 {/* Menu */}
-                {menuOpened ? <Menu onClose={() => setMenuOpened(false)} onLeave={onLeave} /> : null}
+                {menuOpened ? <Menu onClose={() => setMenuOpened(false)} onLeave={handleLeave} /> : null}
             </View>
         );
     },

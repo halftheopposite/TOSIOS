@@ -51,7 +51,6 @@ export default class Game extends Component<IProps, IState> {
                 playersMaxCount: 0,
                 messages: [],
                 announce: '',
-                leaderboardOpened: false,
             },
         };
     }
@@ -283,19 +282,6 @@ export default class Game extends Component<IProps, IState> {
     handleKeyDown = (event: any) => {
         const key = event.code;
 
-        if (Keys.LEADERBOARD.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.setState((prevState) => ({
-                ...prevState,
-                hud: {
-                    ...prevState.hud,
-                    leaderboardOpened: true,
-                },
-            }));
-        }
-
         if (Keys.LEFT.includes(key)) {
             event.preventDefault();
             event.stopPropagation();
@@ -329,19 +315,6 @@ export default class Game extends Component<IProps, IState> {
 
     handleKeyUp = (event: any) => {
         const key = event.code;
-
-        if (Keys.LEADERBOARD.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.setState((prevState) => ({
-                ...prevState,
-                hud: {
-                    ...prevState.hud,
-                    leaderboardOpened: false,
-                },
-            }));
-        }
 
         if (Keys.LEFT.includes(key)) {
             event.preventDefault();
@@ -432,7 +405,6 @@ export default class Game extends Component<IProps, IState> {
                     playersMaxCount={hud.playersMaxCount}
                     messages={hud.messages}
                     announce={hud.announce}
-                    leaderboardOpened={hud.leaderboardOpened}
                 />
             </View>
         );
