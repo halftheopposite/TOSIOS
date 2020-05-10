@@ -414,6 +414,10 @@ export default class Game extends Component<IProps, IState> {
                 {/* Where PIXI is injected */}
                 <div ref={this.gameCanvas} />
 
+                {/* Joysticks */}
+                {isMobile && this.renderJoySticks()}
+
+                {/* HUD: GUI, menu, leaderboard */}
                 <HUD
                     playerId={hud.playerId}
                     gameMode={hud.gameMode}
@@ -430,9 +434,6 @@ export default class Game extends Component<IProps, IState> {
                     announce={hud.announce}
                     leaderboardOpened={hud.leaderboardOpened}
                 />
-
-                {/* Joysticks */}
-                {isMobile && this.renderJoySticks()}
             </View>
         );
     }

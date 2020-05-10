@@ -54,6 +54,10 @@ export const HUD = React.memo(
         } = props;
         const [menuOpened, setMenuOpened] = React.useState(false);
 
+        const onLeave = () => {
+            window.location.href = window.location.origin;
+        };
+
         return (
             <View flex center fullscreen style={styles.hud}>
                 {/* Health */}
@@ -76,9 +80,6 @@ export const HUD = React.memo(
                 {/* Announce */}
                 <Announce announce={announce} style={styles.announce} />
 
-                {/* Menu */}
-                {menuOpened ? <Menu onClose={() => console.log('CLOSE')} /> : null}
-
                 {/* Leaderboard */}
                 {leaderboardOpened ? (
                     <Leaderboard
@@ -89,6 +90,9 @@ export const HUD = React.memo(
                         playerId={playerId}
                     />
                 ) : null}
+
+                {/* Menu */}
+                {menuOpened ? <Menu onClose={() => setMenuOpened(false)} onLeave={onLeave} /> : null}
             </View>
         );
     },
