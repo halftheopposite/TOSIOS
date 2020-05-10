@@ -42,7 +42,7 @@
         "lint": "eslint 'src/**/*.{ts,tsx}'",
         "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
         "start": "react-scripts start",
-        "build": "react-scripts build"
+        "build": "GENERATE_SOURCEMAP=false react-scripts build"
     },
     "browserslist": [
         ">0.2%",

@@ -28,7 +28,7 @@
     "build:common": "yarn workspace @tosios/common build",
     "build:client": "yarn workspace @tosios/client build",
     "build:server": "yarn workspace @tosios/server build",
-    "build:move": "mv ./packages/client/build ./packages/server/build/public",
+    "build:move": "cp -R ./packages/client/build ./packages/server/build/public",
     "build": "yarn build:common && yarn build:client && yarn build:server && yarn build:move",
     "serve": "yarn workspace @tosios/server serve"
   },

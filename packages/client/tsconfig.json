@@ -2,16 +2,13 @@
     "compilerOptions": {
         "module": "esnext",
         "target": "es2015",
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "es5"
-        ],
+        "lib": ["dom", "dom.iterable", "es5"],
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
         "strict": true,
         "moduleResolution": "node",
         "allowJs": true,
+        "sourceMap": false,
         "skipLibCheck": true,
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
@@ -20,17 +17,8 @@
         "noEmit": true,
         "jsx": "preserve"
     },
-    "include": [
-        "src/**/*.json",
-        "src/**/*.svg",
-        "src/**/*.png",
-        "src/**/*.ts",
-        "src/**/*.tsx",
-    ],
-    "exclude": [
-        "node_modules",
-        "build"
-    ],
+    "include": ["src/**/*.json", "src/**/*.svg", "src/**/*.png", "src/**/*.ts", "src/**/*.tsx"],
+    "exclude": ["node_modules", "build"],
     "references": [
         {
             "path": "../common"

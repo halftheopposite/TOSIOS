@@ -3,24 +3,16 @@
         "rootDir": "src",
         "outDir": "build",
         "module": "commonjs",
-        "lib": [
-            "dom",
-            "es6"
-        ],
+        "lib": ["dom", "es6"],
         "target": "es2016",
         "declaration": true,
         "noImplicitAny": false,
         "sourceMap": false,
         "allowSyntheticDefaultImports": true,
-        "experimentalDecorators": true,
+        "experimentalDecorators": true
     },
-    "exclude": [
-        "node_modules",
-        "build"
-    ],
-    "include": [
-        "src/**/*.ts"
-    ],
+    "exclude": ["node_modules", "build"],
+    "include": ["src/**/*.ts"],
     "references": [
         {
             "path": "../common"
