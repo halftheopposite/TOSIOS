@@ -6,7 +6,7 @@ The Open-Source IO Shooter is an open-source multiplayer game in the browser (de
 
 **Desktop version**
 
-![banner](images/banner.png "In-game screenshot of desktop")
+![banner](images/banner.jpg "In-game screenshot of desktop")
 
 **Mobile version**
 
@@ -31,9 +31,9 @@ You can see a very small amount of gameplay below (the framerate of this GIF is 
 
 **Movements**
 
-* Move: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
-* Aim: <kbd>Mouse</kbd>
-* Shoot: <kbd>Left click</kbd> or <kbd>Space</kbd>
+- Move: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd>.
+- Aim: <kbd>Mouse</kbd>
+- Shoot: <kbd>Left click</kbd> or <kbd>Space</kbd>
 
 ## 🚀 Running
 
@@ -71,7 +71,7 @@ You can also build the game directly using `yarn` (you cannot use `npm install` 
 
 **Tips**
 
-If you want to **play with friends** at work or home, you can run 
+If you want to **play with friends** at work or home, you can run
 the following command to get your local network IP: `ipconfig getifaddr en0`. You can then share the obtained IP and port(ex: http://192.168.1.10:3001).
 
 ## 🔧 Development
@@ -92,9 +92,9 @@ In development changes made to `client` and `server` are live, except for the `c
 
 This project is a monorepo (with the help of Yarn workspaces). It contains the following packages:
 
-* `client` - The frontend application using `Create React App`, `PIXI.js` and `Colyseus.js`.
-* `server` - The authoritarive server running on `NodeJS`, `Express` and `Colyseus`.
-* `common` - A collection of constants and methods shared amongst `client` and `server`.
+- `client` - The frontend application using `Create React App`, `PIXI.js` and `Colyseus.js`.
+- `server` - The authoritarive server running on `NodeJS`, `Express` and `Colyseus`.
+- `common` - A collection of constants and methods shared amongst `client` and `server`.
 
 ## Modding
 
@@ -114,8 +114,8 @@ A `layer` is where your tiles are placed to form a map. You can combine multiple
 
 There are two reserved layers that should be present at all time (although not rendered):
 
-* `collisions`: for the client and server to know where the player can move or not (ex: walls or pits), or shoot through (ex: pits or small rocks). 
-* `spawners`: for the server to determine the starting position of a player.
+- `collisions`: for the client and server to know where the player can move or not (ex: walls or pits), or shoot through (ex: pits or small rocks).
+- `spawners`: for the server to determine the starting position of a player.
 
 Other than that, you can add as many `layers` as you want and they will be rendered by `PIXI.js` in a WYSIWYG manner (order is maintained).
 
@@ -129,8 +129,8 @@ The `tilesets` is where lie the splitted spritesheet and its collision, animated
 
 When defining which tile will be used for collisions it is very important to set its `type` field to either:
 
-* `half`: a `player` CAN'T go through, but a `bullet` CAN go through.
-* `full`: a `player` CAN'T go through, and a `bullet` CAN'T go through.
+- `half`: a `player` CAN'T go through, but a `bullet` CAN go through.
+- `full`: a `player` CAN'T go through, and a `bullet` CAN'T go through.
 
 This can be done by selecting a tile in the tilesets editor, and entering its `type` on the left pane.
 
@@ -142,33 +142,38 @@ If you want to add your map to the game:
 
 1. If you have a custom spritesheet image, add it in `/packages/client/src/images/maps/custom.png`
 2. Open `/packages/client/src/images/maps/index.ts`, and add the following statements:
-  ```typescript
-  import gigantic from './gigantic.png';
-  import custom from './custom.png'; // <- Add this line
 
-  export const SpriteSheets: { [key: string]: string } = {
-    'dungeon.png': dungeon,
-    'custom.png': custom, // <- Add this line
-  };
-  ```
+```typescript
+import gigantic from "./gigantic.png";
+import custom from "./custom.png"; // <- Add this line
+
+export const SpriteSheets: { [key: string]: string } = {
+  "dungeon.png": dungeon,
+  "custom.png": custom, // <- Add this line
+};
+```
+
 3. Add your map file (TMX as JSON) in `/packages/common/maps/custom.json`.
 4. Open `/packages/common/maps/index.ts`:
-  ```typescript
-  // ...
-  import gigantic from './gigantic.json';
-  import custom from './custom.json'; // <- Add this line
 
-  export const List: { [key: string]: TMX.IMap } = {
-    gigantic,
-    custom, // <- Add this line
-  };
-  ```
+```typescript
+// ...
+import gigantic from "./gigantic.json";
+import custom from "./custom.json"; // <- Add this line
+
+export const List: { [key: string]: TMX.IMap } = {
+  gigantic,
+  custom, // <- Add this line
+};
+```
+
 5. Open `/packages/common/constants.ts`:
-  ```typescript
-  // ...
-  export const MAPS_NAMES = ['gigantic', 'custom']; // <- Add this entry
-  // ...
-  ```
+
+```typescript
+// ...
+export const MAPS_NAMES = ["gigantic", "custom"]; // <- Add this entry
+// ...
+```
 
 ## Roadmap for v1.0.0
 
@@ -194,7 +199,7 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 
 Thanks to [@endel](https://github.com/endel) for his fabulous work on [Colyseus](https://github.com/colyseus/colyseus) that made this game possible.
 
-Thanks to the [PIXI.js](https://github.com/pixijs/pixi.js) team for their incredible library and up-to-date documentation. 
+Thanks to the [PIXI.js](https://github.com/pixijs/pixi.js) team for their incredible library and up-to-date documentation.
 
 Thanks to [@pixel_poem](https://twitter.com/pixel_poem) for the art package he published on Itch.io which made this game looks cool instantly.
 
@@ -206,6 +211,6 @@ This project is under the [MIT](https://github.com/halftheopposite/tosios/blob/m
 
 The major libraries and assets used in this project and their licenses:
 
-* Colyseus: [MIT](https://github.com/colyseus/colyseus/blob/master/LICENSE)
-* PIXI.js: [MIT](https://github.com/pixijs/pixi.js/blob/dev/LICENSE)
-* Font "Press Start 2P": [Creative Common Zero](http://www.zone38.net/font/)
+- Colyseus: [MIT](https://github.com/colyseus/colyseus/blob/master/LICENSE)
+- PIXI.js: [MIT](https://github.com/pixijs/pixi.js/blob/dev/LICENSE)
+- Font "Press Start 2P": [Creative Common Zero](http://www.zone38.net/font/)
