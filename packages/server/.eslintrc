@@ -1,0 +1,51 @@
+{
+    "plugins": [
+        "prettier",
+        "@typescript-eslint"
+    ],
+    "extends": [
+        "airbnb-typescript",
+        "prettier/@typescript-eslint",
+        "plugin:prettier/recommended",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "settings": {
+        "import/resolver": {
+            "typescript": {
+                "alwaysTryTypes": true
+            }
+        }
+    },
+    "rules": {
+        "@typescript-eslint/no-dupe-class-members": "off",
+        "@typescript-eslint/no-implied-eval": "off",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-use-before-define": "off",
+        "guard-for-in": "off",
+        "import/export": "off",
+        "import/extensions": "off",
+        "import/named": "off",
+        "import/no-cycle": "off",
+        "import/no-duplicates": "off",
+        "import/no-extraneous-dependencies": "off",
+        "import/no-named-as-default": "off",
+        "import/no-named-as-default-member": "off",
+        "import/no-self-import": "off",
+        "import/no-useless-path-segments": "off",
+        "import/order": "off",
+        "import/prefer-default-export": "off",
+        "max-classes-per-file": "off",
+        "no-continue": "off",
+        "no-param-reassign": "off",
+        "no-plusplus": "off",
+        "no-restricted-syntax": "off",
+        "no-underscore-dangle": "off",
+        "react/static-property-placement": "off",
+        "sort-imports": "error"
+    }
+}

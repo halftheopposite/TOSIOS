@@ -1,103 +1,102 @@
-import { utils } from 'pixi.js';
-import { WeaponTextures } from '../images/textures';
 import { CircleSprite } from '../sprites';
+import { WeaponTextures } from '../images/textures';
+import { utils } from 'pixi.js';
 
 export interface IBullet {
-  x: number;
-  y: number;
-  radius: number;
-  active: boolean;
-  playerId: string;
-  team: string;
-  rotation: number;
-  color: string;
-  shotAt: number;
+    x: number;
+    y: number;
+    radius: number;
+    active: boolean;
+    playerId: string;
+    team: string;
+    rotation: number;
+    color: string;
+    shotAt: number;
 }
 
 export class Bullet extends CircleSprite {
+    private _playerId: string = '';
 
-  private _playerId: string = '';
-  private _team: string = '';
-  private _active: boolean = false;
-  private _color: string = '#FFFFFF';
-  private _shotAt: number = 0;
+    private _team: string = '';
 
-  // Init
-  constructor(attributes: IBullet) {
-    super(
-      attributes.x,
-      attributes.y,
-      attributes.radius,
-      attributes.rotation,
-      { single: WeaponTextures.bulletTexture },
-    );
+    private _active: boolean = false;
 
-    this.playerId = attributes.playerId;
-    this.team = attributes.team;
-    this.active = attributes.active;
-    this.color = attributes.color;
-    this.shotAt = attributes.shotAt;
-  }
+    private _color: string = '#FFFFFF';
 
-  // Methods
-  reset(attributes: IBullet) {
-    this.x = attributes.x;
-    this.y = attributes.y;
-    this.radius = attributes.radius;
-    this.rotation = attributes.rotation;
-    this.playerId = attributes.playerId;
-    this.team = attributes.team;
-    this.active = attributes.active;
-    this.color = attributes.color;
-    this.shotAt = attributes.shotAt;
-  }
+    private _shotAt: number = 0;
 
-  move = (speed: number) => {
-    this.x = this.x + Math.cos(this.rotation) * speed;
-    this.y = this.y + Math.sin(this.rotation) * speed;
-  }
+    // Init
+    constructor(attributes: IBullet) {
+        super(attributes.x, attributes.y, attributes.radius, attributes.rotation, {
+            single: WeaponTextures.bulletTexture,
+        });
 
-  // Setters
-  set playerId(playerId: string) {
-    this._playerId = playerId;
-  }
+        this.playerId = attributes.playerId;
+        this.team = attributes.team;
+        this.active = attributes.active;
+        this.color = attributes.color;
+        this.shotAt = attributes.shotAt;
+    }
 
-  set team(team: string) {
-    this._team = team;
-  }
+    // Methods
+    reset(attributes: IBullet) {
+        this.x = attributes.x;
+        this.y = attributes.y;
+        this.radius = attributes.radius;
+        this.rotation = attributes.rotation;
+        this.playerId = attributes.playerId;
+        this.team = attributes.team;
+        this.active = attributes.active;
+        this.color = attributes.color;
+        this.shotAt = attributes.shotAt;
+    }
 
-  set active(active: boolean) {
-    this._active = active;
-    this.sprite.visible = active;
-  }
+    move = (speed: number) => {
+        this.x += Math.cos(this.rotation) * speed;
+        this.y += Math.sin(this.rotation) * speed;
+    };
 
-  set color(color: string) {
-    this._color = color;
-    this.sprite.tint = utils.string2hex(color);
-  }
+    // Setters
+    set playerId(playerId: string) {
+        this._playerId = playerId;
+    }
 
-  set shotAt(shotAt: number) {
-    this._shotAt = shotAt;
-  }
+    set team(team: string) {
+        this._team = team;
+    }
 
-  // Getters
-  get playerId() {
-    return this._playerId;
-  }
+    set active(active: boolean) {
+        this._active = active;
+        this.sprite.visible = active;
+    }
 
-  get team() {
-    return this._team;
-  }
+    set color(color: string) {
+        this._color = color;
+        this.sprite.tint = utils.string2hex(color);
+    }
 
-  get active() {
-    return this._active;
-  }
+    set shotAt(shotAt: number) {
+        this._shotAt = shotAt;
+    }
 
-  get color() {
-    return this._color;
-  }
+    // Getters
+    get playerId() {
+        return this._playerId;
+    }
 
-  get shotAt() {
-    return this._shotAt;
-  }
+    get team() {
+        return this._team;
+    }
+
+    get active() {
+        return this._active;
+    }
+
+    get color() {
+        return this._color;
+    }
+
+    get shotAt() {
+        return this._shotAt;
+    }
 }

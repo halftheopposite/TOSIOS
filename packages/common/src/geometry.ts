@@ -1,175 +1,169 @@
 export class Vector {
-  x: number;
-  y: number;
+    x: number;
 
-  constructor(x: number = 0, y: number = 0) {
-    this.x = x;
-    this.y = y;
-  }
+    y: number;
 
-  /**
-   * Set the x and y coordinates
-   */
-  set(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
+    constructor(x: number = 0, y: number = 0) {
+        this.x = x;
+        this.y = y;
+    }
 
-  /**
-   * Return wether this vector is at (0,0) or not
-   */
-  get empty(): boolean {
-    return this.x === 0 && this.y === 0;
-  }
+    /**
+     * Set the x and y coordinates
+     */
+    set(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Return wether this vector is at (0,0) or not
+     */
+    get empty(): boolean {
+        return this.x === 0 && this.y === 0;
+    }
 }
 
 /**
  * An object to represent a Rectangle shape
  */
 export class RectangleBody {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+    x: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-  }
+    y: number;
 
-  /**
-   * Return a copy of this object
-   */
-  copy() {
-    return new RectangleBody(this.x, this.y, this.width, this.height);
-  }
+    width: number;
 
-  // Getters
-  get left() {
-    return this.x;
-  }
+    height: number;
 
-  get top() {
-    return this.y;
-  }
+    constructor(x: number, y: number, width: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
 
-  get right() {
-    return this.x + this.width;
-  }
+    /**
+     * Return a copy of this object
+     */
+    copy() {
+        return new RectangleBody(this.x, this.y, this.width, this.height);
+    }
 
-  get bottom() {
-    return this.y + this.height;
-  }
+    // Getters
+    get left() {
+        return this.x;
+    }
 
-  get position(): Vector {
-    return new Vector(
-      this.x + (this.width / 2),
-      this.y + (this.height / 2),
-    );
-  }
+    get top() {
+        return this.y;
+    }
 
-  get center(): Vector {
-    return new Vector(
-      this.x + (this.width / 2),
-      this.y + (this.height / 2),
-    );
-  }
+    get right() {
+        return this.x + this.width;
+    }
 
-  // Setters
-  set left(left: number) {
-    this.x = left;
-  }
+    get bottom() {
+        return this.y + this.height;
+    }
 
-  set top(top: number) {
-    this.y = top;
-  }
+    get position(): Vector {
+        return new Vector(this.x + this.width / 2, this.y + this.height / 2);
+    }
 
-  set right(right: number) {
-    this.x = right - this.width;
-  }
+    get center(): Vector {
+        return new Vector(this.x + this.width / 2, this.y + this.height / 2);
+    }
 
-  set bottom(bottom: number) {
-    this.y = bottom - this.height;
-  }
+    // Setters
+    set left(left: number) {
+        this.x = left;
+    }
 
-  set position(vector: Vector) {
-    this.x = vector.x;
-    this.y = vector.y;
-  }
+    set top(top: number) {
+        this.y = top;
+    }
+
+    set right(right: number) {
+        this.x = right - this.width;
+    }
+
+    set bottom(bottom: number) {
+        this.y = bottom - this.height;
+    }
+
+    set position(vector: Vector) {
+        this.x = vector.x;
+        this.y = vector.y;
+    }
 }
 
 /**
  * An object to represent a Circle shape
  */
 export class CircleBody {
-  x: number;
-  y: number;
-  radius: number;
+    x: number;
 
-  constructor(x: number, y: number, radius: number) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-  }
+    y: number;
 
-  /**
-   * Return a copy of this object
-   */
-  copy() {
-    return new CircleBody(this.x, this.y, this.radius);
-  }
+    radius: number;
 
-  // Getters
-  get left() {
-    return this.x - this.radius;
-  }
+    constructor(x: number, y: number, radius: number) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+    }
 
-  get top() {
-    return this.y - this.radius;
-  }
+    /**
+     * Return a copy of this object
+     */
+    copy() {
+        return new CircleBody(this.x, this.y, this.radius);
+    }
 
-  get right() {
-    return this.x + this.radius;
-  }
+    // Getters
+    get left() {
+        return this.x - this.radius;
+    }
 
-  get bottom() {
-    return this.y + this.radius;
-  }
+    get top() {
+        return this.y - this.radius;
+    }
 
-  get width() {
-    return this.radius * 2;
-  }
+    get right() {
+        return this.x + this.radius;
+    }
 
-  get height() {
-    return this.radius * 2;
-  }
+    get bottom() {
+        return this.y + this.radius;
+    }
 
-  get box() {
-    return new RectangleBody(
-      this.x - this.radius,
-      this.y - this.radius,
-      this.radius * 2,
-      this.radius * 2,
-    );
-  }
+    get width() {
+        return this.radius * 2;
+    }
 
+    get height() {
+        return this.radius * 2;
+    }
 
-  // Setters
-  set left(left: number) {
-    this.x = left + this.radius;
-  }
+    get box() {
+        return new RectangleBody(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+    }
 
-  set top(top: number) {
-    this.y = top + this.radius;
-  }
+    // Setters
+    set left(left: number) {
+        this.x = left + this.radius;
+    }
 
-  set right(right: number) {
-    this.x = right - this.radius;
-  }
+    set top(top: number) {
+        this.y = top + this.radius;
+    }
 
-  set bottom(bottom: number) {
-    this.y = bottom - this.radius;
-  }
+    set right(right: number) {
+        this.x = right - this.radius;
+    }
+
+    set bottom(bottom: number) {
+        this.y = bottom - this.radius;
+    }
 }

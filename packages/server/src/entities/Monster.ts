@@ -1,208 +1,207 @@
+import { Constants, Maths } from '@tosios/common';
 import { MapSchema, type } from '@colyseus/schema';
-import { Maths } from '@tosios/common';
-import { Constants } from '@tosios/common/';
-import { getDistance } from '@tosios/common/build/maths';
-import { Player } from '.';
 import { Circle } from './Circle';
+import { Player } from '.';
 
 type State = 'idle' | 'patrol' | 'chase';
 
 export class Monster extends Circle {
+    @type('number')
+    private rotation: number = 0;
 
-  @type('number')
-  private rotation: number = 0;
+    // Hidden properties
+    private mapWidth: number;
 
-  // Hidden properties
-  private mapWidth: number;
-  private mapHeight: number;
-  private lives: number = 0;
-  private state: State = 'idle';
-  private lastActionAt: number = Date.now();
-  private lastAttackAt: number = Date.now();
-  private idleDuration: number = 0;
-  private patrolDuration: number = 0;
-  private targetPlayerId: string = null;
+    private mapHeight: number;
 
-  // Init
-  constructor(
-    x: number,
-    y: number,
-    radius: number,
-    mapWidth: number,
-    mapHeight: number,
-    lives: number,
-  ) {
-    super(x, y, radius);
+    private lives: number = 0;
 
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-    this.lives = lives;
-  }
+    private state: State = 'idle';
 
-  // Update
-  update(players: MapSchema<Player>) {
-    switch (this.state) {
-      case 'idle':
-        this.updateIdle(players);
-        break;
-      case 'patrol':
-        this.updatePatrol(players);
-        break;
-      case 'chase':
-        this.updateChase(players);
-        break;
-    }
-  }
+    private lastActionAt: number = Date.now();
 
-  updateIdle(players: MapSchema<Player>) {
-    // Look for a player to chase
-    if (this.lookForPlayer(players)) {
-      return;
+    private lastAttackAt: number = Date.now();
+
+    private idleDuration: number = 0;
+
+    private patrolDuration: number = 0;
+
+    private targetPlayerId: string = null;
+
+    // Init
+    constructor(x: number, y: number, radius: number, mapWidth: number, mapHeight: number, lives: number) {
+        super(x, y, radius);
+
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
+        this.lives = lives;
     }
 
-    // Is state over?
-    const delta = Date.now() - this.lastActionAt;
-    if (delta > this.idleDuration) {
-      this.startPatrol();
-    }
-  }
-
-  updatePatrol(players: MapSchema<Player>) {
-    // Look for a player to chase
-    if (this.lookForPlayer(players)) {
-      return;
-    }
-
-    // Is state over?
-    const delta = Date.now() - this.lastActionAt;
-    if (delta > this.patrolDuration) {
-      this.startIdle();
-      return;
+    // Update
+    update(players: MapSchema<Player>) {
+        switch (this.state) {
+            case 'idle':
+                this.updateIdle(players);
+                break;
+            case 'patrol':
+                this.updatePatrol(players);
+                break;
+            case 'chase':
+                this.updateChase(players);
+                break;
+            default:
+                break;
+        }
     }
 
-    // Move monster
-    this.move(Constants.MONSTER_SPEED_PATROL, this.rotation);
+    updateIdle(players: MapSchema<Player>) {
+        // Look for a player to chase
+        if (this.lookForPlayer(players)) {
+            return;
+        }
 
-    // Is the monster out of bounds?
-    if (
-      this.x < Constants.TILE_SIZE ||
-      this.x > this.mapWidth - Constants.TILE_SIZE ||
-      this.y < Constants.TILE_SIZE ||
-      this.y > this.mapHeight - Constants.TILE_SIZE
-    ) {
-      this.x = Maths.clamp(this.x, 0, this.mapWidth);
-      this.y = Maths.clamp(this.y, 0, this.mapHeight);
-      this.rotation = Maths.getRandomInt(-3, 3);
-    }
-  }
-
-  updateChase(players: MapSchema<Player>) {
-    // Did player disconnect or die?
-    const player = getPlayerFromId(this.targetPlayerId, players);
-    if (!player || !player.isAlive) {
-      this.startIdle();
-      return;
+        // Is state over?
+        const delta = Date.now() - this.lastActionAt;
+        if (delta > this.idleDuration) {
+            this.startPatrol();
+        }
     }
 
-    // Did player run away?
-    const distance = getDistance(this.x, this.y, player.x, player.y);
-    if (distance > Constants.MONSTER_SIGHT) {
-      this.startIdle();
-      return;
+    updatePatrol(players: MapSchema<Player>) {
+        // Look for a player to chase
+        if (this.lookForPlayer(players)) {
+            return;
+        }
+
+        // Is state over?
+        const delta = Date.now() - this.lastActionAt;
+        if (delta > this.patrolDuration) {
+            this.startIdle();
+            return;
+        }
+
+        // Move monster
+        this.move(Constants.MONSTER_SPEED_PATROL, this.rotation);
+
+        // Is the monster out of bounds?
+        if (
+            this.x < Constants.TILE_SIZE ||
+            this.x > this.mapWidth - Constants.TILE_SIZE ||
+            this.y < Constants.TILE_SIZE ||
+            this.y > this.mapHeight - Constants.TILE_SIZE
+        ) {
+            this.x = Maths.clamp(this.x, 0, this.mapWidth);
+            this.y = Maths.clamp(this.y, 0, this.mapHeight);
+            this.rotation = Maths.getRandomInt(-3, 3);
+        }
     }
 
-    // Move toward player
-    this.rotation = Maths.calculateAngle(player.x, player.y, this.x, this.y);
-    this.move(Constants.MONSTER_SPEED_CHASE, this.rotation);
-  }
+    updateChase(players: MapSchema<Player>) {
+        // Did player disconnect or die?
+        const player = getPlayerFromId(this.targetPlayerId, players);
+        if (!player || !player.isAlive) {
+            this.startIdle();
+            return;
+        }
 
-  // States
-  startIdle() {
-    this.state = 'idle';
-    this.rotation = 0;
-    this.targetPlayerId = null;
-    this.idleDuration = Maths.getRandomInt(
-      Constants.MONSTER_IDLE_DURATION_MIN,
-      Constants.MONSTER_IDLE_DURATION_MAX,
-    );
-    this.lastActionAt = Date.now();
-  }
+        // Did player run away?
+        const distance = Maths.getDistance(this.x, this.y, player.x, player.y);
+        if (distance > Constants.MONSTER_SIGHT) {
+            this.startIdle();
+            return;
+        }
 
-  startPatrol() {
-    this.state = 'patrol';
-    this.targetPlayerId = null;
-    this.patrolDuration = Maths.getRandomInt(
-      Constants.MONSTER_PATROL_DURATION_MIN,
-      Constants.MONSTER_PATROL_DURATION_MAX,
-    );
-    this.rotation = Maths.getRandomInt(-3, 3);
-    this.lastActionAt = Date.now();
-  }
-
-  startChase(playerId: string) {
-    this.state = 'chase';
-    this.targetPlayerId = playerId;
-    this.lastActionAt = Date.now();
-  }
-
-
-  // Methods
-  lookForPlayer(players: MapSchema<Player>): boolean {
-    if (!this.targetPlayerId) {
-      const playerId = getClosestPlayerId(this.x, this.y, players);
-      if (playerId) {
-        this.startChase(playerId);
-        return true;
-      }
+        // Move toward player
+        this.rotation = Maths.calculateAngle(player.x, player.y, this.x, this.y);
+        this.move(Constants.MONSTER_SPEED_CHASE, this.rotation);
     }
 
-    return false;
-  }
+    // States
+    startIdle() {
+        this.state = 'idle';
+        this.rotation = 0;
+        this.targetPlayerId = null;
+        this.idleDuration = Maths.getRandomInt(
+            Constants.MONSTER_IDLE_DURATION_MIN,
+            Constants.MONSTER_IDLE_DURATION_MAX,
+        );
+        this.lastActionAt = Date.now();
+    }
 
-  hurt() {
-    this.lives -= 1;
-  }
+    startPatrol() {
+        this.state = 'patrol';
+        this.targetPlayerId = null;
+        this.patrolDuration = Maths.getRandomInt(
+            Constants.MONSTER_PATROL_DURATION_MIN,
+            Constants.MONSTER_PATROL_DURATION_MAX,
+        );
+        this.rotation = Maths.getRandomInt(-3, 3);
+        this.lastActionAt = Date.now();
+    }
 
-  move(speed: number, rotation: number) {
-    this.x = this.x + Math.cos(rotation) * speed;
-    this.y = this.y + Math.sin(rotation) * speed;
-  }
+    startChase(playerId: string) {
+        this.state = 'chase';
+        this.targetPlayerId = playerId;
+        this.lastActionAt = Date.now();
+    }
 
-  attack() {
-    this.lastAttackAt = Date.now();
-  }
+    // Methods
+    lookForPlayer(players: MapSchema<Player>): boolean {
+        if (!this.targetPlayerId) {
+            const playerId = getClosestPlayerId(this.x, this.y, players);
+            if (playerId) {
+                this.startChase(playerId);
+                return true;
+            }
+        }
 
-  // Getters
-  get isAlive(): boolean {
-    return this.lives > 0;
-  }
+        return false;
+    }
 
-  get canAttack(): boolean {
-    const delta = Math.abs(this.lastAttackAt - Date.now());
-    return this.state === 'chase' && delta > Constants.MONSTER_ATTACK_BACKOFF;
-  }
+    hurt() {
+        this.lives -= 1;
+    }
+
+    move(speed: number, rotation: number) {
+        this.x += Math.cos(rotation) * speed;
+        this.y += Math.sin(rotation) * speed;
+    }
+
+    attack() {
+        this.lastAttackAt = Date.now();
+    }
+
+    // Getters
+    get isAlive(): boolean {
+        return this.lives > 0;
+    }
+
+    get canAttack(): boolean {
+        const delta = Math.abs(this.lastAttackAt - Date.now());
+        return this.state === 'chase' && delta > Constants.MONSTER_ATTACK_BACKOFF;
+    }
 }
 
 function getPlayerFromId(id: string, players: MapSchema<Player>): Player | null {
-  for (const playerId in players) {
-    if (id === playerId) {
-      return players[playerId];
+    for (const playerId in players) {
+        if (id === playerId) {
+            return players[playerId];
+        }
     }
-  }
 
-  return null;
+    return null;
 }
 
 function getClosestPlayerId(x: number, y: number, players: MapSchema<Player>): string | null {
-  for (const playerId in players) {
-    const player = players[playerId];
-    if (player.isAlive) {
-      const distance = Maths.getDistance(x, y, player.x, player.y);
-      if (distance <= Constants.MONSTER_SIGHT) {
-        return playerId;
-      }
+    for (const playerId in players) {
+        const player = players[playerId];
+        if (player.isAlive) {
+            const distance = Maths.getDistance(x, y, player.x, player.y);
+            if (distance <= Constants.MONSTER_SIGHT) {
+                return playerId;
+            }
+        }
     }
-  }
 
-  return null;
+    return null;
 }

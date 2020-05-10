@@ -6,7 +6,7 @@
  * @param y2
  */
 export function calculateAngle(x1: number, y1: number, x2: number, y2: number): number {
-  return Math.atan2(y1 - y2, x1 - x2);
+    return Math.atan2(y1 - y2, x1 - x2);
 }
 
 /**
@@ -16,7 +16,7 @@ export function calculateAngle(x1: number, y1: number, x2: number, y2: number): 
  * @param n
  */
 export function lerp(a: number, b: number, n: number): number {
-  return (1 - n) * a + n * b;
+    return (1 - n) * a + n * b;
 }
 
 /**
@@ -27,7 +27,7 @@ export function lerp(a: number, b: number, n: number): number {
  * @param toY
  */
 export function getDistance(x: number, y: number, toX: number, toY: number): number {
-  return Math.hypot(toX - x, toY - y);
+    return Math.hypot(toX - x, toY - y);
 }
 
 /**
@@ -36,7 +36,7 @@ export function getDistance(x: number, y: number, toX: number, toY: number): num
  * @param {number} max - max number
  */
 export function getRandomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 /**
@@ -46,7 +46,7 @@ export function getRandomInt(min: number, max: number): number {
  * @param max
  */
 export function clamp(value: number, min: number, max: number): number {
-  return value > max ? max : value < min ? min : value;
+    return Math.min(Math.max(value, min), max);
 }
 
 /**
@@ -54,7 +54,7 @@ export function clamp(value: number, min: number, max: number): number {
  * @param value
  */
 export function round2Digits(value: number): number {
-  return Math.round(Math.round(value * 1000) / 10) / 100;
+    return Math.round(Math.round(value * 1000) / 10) / 100;
 }
 
 /**
@@ -63,7 +63,7 @@ export function round2Digits(value: number): number {
  * @param ay
  */
 export function normalize2D(ax: number, ay: number): number {
-  return Math.sqrt((ax * ax) + (ay * ay));
+    return Math.sqrt(ax * ax + ay * ay);
 }
 
 /**
@@ -71,10 +71,10 @@ export function normalize2D(ax: number, ay: number): number {
  */
 type Cardinal = 'E' | 'NE' | 'N' | 'NW' | 'W' | 'SW' | 'S' | 'SE';
 export function degreeToCardinal(degree: number): Cardinal {
-  const cardinals: Cardinal[] = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
-  const remainder = degree %= 360;
-  const index = Math.round((remainder < 0 ? degree + 360 : degree) / 45) % 8;
-  return cardinals[index];
+    const cardinals: Cardinal[] = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+    const remainder = degree % 360;
+    const index = Math.round((remainder < 0 ? degree + 360 : degree) / 45) % 8;
+    return cardinals[index];
 }
 
 /**
@@ -83,7 +83,7 @@ export function degreeToCardinal(degree: number): Cardinal {
  * reverseNumber(1.2, 0, 3) // returns 1.8
  */
 export function reverseNumber(num: number, min: number, max: number): number {
-  return (max + min) - num;
+    return max + min - num;
 }
 
 /**
@@ -92,24 +92,22 @@ export function reverseNumber(num: number, min: number, max: number): number {
  * @param tileSize The tile size to snap to
  */
 export function snapPosition(pos: number, tileSize: number): number {
-  const rest = pos % tileSize;
-  return rest < tileSize / 2
-    ? -rest
-    : tileSize - rest;
+    const rest = pos % tileSize;
+    return rest < tileSize / 2 ? -rest : tileSize - rest;
 }
 
 /**
  * Shuffles an array
  */
 export function shuffleArray(array: any[]) {
-  const result = [...array];
+    const result = [...array];
 
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = result[i];
-    result[i] = result[j];
-    result[j] = temp;
-  }
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = result[i];
+        result[i] = result[j];
+        result[j] = temp;
+    }
 
-  return result;
+    return result;
 }

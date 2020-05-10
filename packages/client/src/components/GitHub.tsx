@@ -1,32 +1,23 @@
+import { Inline, View } from './';
 import React, { CSSProperties } from 'react';
-
 import { GitHubIcon } from '../images/icons';
-import {
-  Inline,
-  View,
-} from './';
 import { Text } from './Text';
 
 const URL = 'https://github.com/halftheopposite/tosios';
 
 const GITHUB: CSSProperties = {
-  color: 'white',
-  fontSize: 14,
+    color: 'white',
+    fontSize: 14,
 };
 
-export function GitHub(props: {
-}): React.ReactElement {
-  return (
-    <a href={URL}>
-      <View
-        flex={true}
-        center={true}
-        style={GITHUB}
-      >
-        <GitHubIcon />
-        <Inline size="xxs" />
-        <Text>GitHub</Text>
-      </View>
-    </a>
-  );
+export function GitHub(): React.ReactElement {
+    return (
+        <a href={URL}>
+            <View flex center style={GITHUB}>
+                <GitHubIcon />
+                <Inline size="xxs" />
+                <Text>GitHub</Text>
+            </View>
+        </a>
+    );
 }
