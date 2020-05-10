@@ -35,12 +35,12 @@ export function Button(props: {
     text?: string;
     children?: ReactNode;
     style?: CSSProperties;
-    icon?: React.ReactElement;
+    icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
     title?: string;
     reversed?: boolean;
     onClick?: () => void;
 }): React.ReactElement {
-    const { type = 'button', text, children, style, icon, title, reversed = false, onClick } = props;
+    const { type = 'button', text, children, style, icon: Icon, title, reversed = false, onClick } = props;
     const [hovered, setHovered] = React.useState(false);
 
     return (
@@ -58,9 +58,9 @@ export function Button(props: {
             onClick={onClick}
         >
             {/* Icon */}
-            {icon && (
+            {Icon && (
                 <>
-                    {icon}
+                    <Icon />
                     <Inline size="xxs" />
                 </>
             )}
