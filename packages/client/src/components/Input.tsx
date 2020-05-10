@@ -13,26 +13,32 @@ const INPUT: CSSProperties = {
     maxWidth: '100%',
 };
 
-export function Input(props: {
-    value?: string;
-    placeholder?: string;
-    maxLength?: number;
-    style?: CSSProperties;
-    onChange?: (event: SyntheticEvent) => void;
-}): React.ReactElement {
-    const { value, placeholder, style, maxLength, onChange } = props;
+export const Input = React.forwardRef(
+    (
+        props: {
+            value?: string;
+            placeholder?: string;
+            maxLength?: number;
+            style?: CSSProperties;
+            onChange?: (event: SyntheticEvent) => void;
+        },
+        ref: any,
+    ): React.ReactElement => {
+        const { value, placeholder, style, maxLength, onChange } = props;
 
-    return (
-        <input
-            type="text"
-            value={value}
-            style={{
-                ...INPUT,
-                ...style,
-            }}
-            maxLength={maxLength}
-            placeholder={placeholder}
-            onChange={onChange}
-        />
-    );
-}
+        return (
+            <input
+                ref={ref}
+                type="text"
+                value={value}
+                style={{
+                    ...INPUT,
+                    ...style,
+                }}
+                maxLength={maxLength}
+                placeholder={placeholder}
+                onChange={onChange}
+            />
+        );
+    },
+);
