@@ -1,4 +1,4 @@
-import { PropType } from '../types';
+export type PropType = 'potion-red';
 
 export interface PropJSON {
     x: number;

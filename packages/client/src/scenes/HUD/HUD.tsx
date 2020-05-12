@@ -19,7 +19,7 @@ export interface HUDProps {
     players: Models.PlayerJSON[];
     playersCount: number;
     playersMaxCount: number;
-    messages: Types.Message[];
+    messages: Models.MessageJSON[];
     announce: string;
 }
 

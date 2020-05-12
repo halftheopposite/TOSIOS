@@ -223,7 +223,7 @@ export default class Game extends Component<IProps, IState> {
         this.gameManager.bulletRemove(bulletId);
     };
 
-    handleMessage = (message: Types.Message) => {
+    handleMessage = (message: Models.MessageJSON) => {
         const { messages } = this.state.hud;
 
         let announce = '';
@@ -257,7 +257,7 @@ export default class Game extends Component<IProps, IState> {
     };
 
     // HANDLERS: GameManager
-    handleActionSend = (action: Types.IAction) => {
+    handleActionSend = (action: Models.ActionJSON) => {
         if (!this.room) {
             return;
         }

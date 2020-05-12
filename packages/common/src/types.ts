@@ -1,9 +1,6 @@
-export type ActionType = 'move' | 'rotate' | 'name' | 'shoot';
 export type GameState = 'waiting' | 'lobby' | 'game';
 export type GameMode = 'deathmatch' | 'team deathmatch';
 export type Teams = 'Red' | 'Blue';
-export type MessageType = 'waiting' | 'start' | 'stop' | 'joined' | 'killed' | 'won' | 'left' | 'timeout';
-export type PropType = 'potion-red';
 export type WallCollisionType = 'full' | 'none';
 
 /**
@@ -22,24 +19,4 @@ export interface IRoomOptions {
     roomMap: string;
     roomMaxPlayers: number;
     mode: GameMode;
-}
-
-/**
- * Represent an action performed by a Player
- */
-export interface IAction {
-    playerId?: string;
-    ts?: number;
-    type: ActionType;
-    value: any;
-}
-
-/**
- * Represent a server log from a Player or the Server itself.
- */
-export interface Message {
-    type: MessageType;
-    from: string;
-    ts: number;
-    params: any;
 }

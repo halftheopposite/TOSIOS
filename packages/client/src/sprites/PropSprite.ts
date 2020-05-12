@@ -7,7 +7,7 @@ import { Texture } from 'pixi.js';
  * A sprite representing a prop with rectangle bounds.
  */
 export class PropSprite extends RectangleSprite {
-    private _type: Types.PropType;
+    private _type: Models.PropType;
 
     private _active: boolean = false;
 
@@ -39,7 +39,7 @@ export class PropSprite extends RectangleSprite {
  * Return a texture depending on a type.
  */
 const getTexture = (
-    type: Types.PropType,
+    type: Models.PropType,
 ): {
     [key: string]: Texture | Texture[];
 } => {

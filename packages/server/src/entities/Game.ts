@@ -1,4 +1,4 @@
-import { Constants, Types } from '@tosios/common';
+import { Constants, Models, Types } from '@tosios/common';
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { Player } from './Player';
 
@@ -7,10 +7,10 @@ export interface IGame {
     mapName: string;
     maxPlayers: number;
     mode: Types.GameMode;
-    onWaitingStart: (message?: Types.Message) => void;
-    onLobbyStart: (message?: Types.Message) => void;
-    onGameStart: (message?: Types.Message) => void;
-    onGameEnd: (message?: Types.Message) => void;
+    onWaitingStart: (message?: Models.MessageJSON) => void;
+    onLobbyStart: (message?: Models.MessageJSON) => void;
+    onGameStart: (message?: Models.MessageJSON) => void;
+    onGameEnd: (message?: Models.MessageJSON) => void;
 }
 
 export class Game extends Schema {
@@ -36,13 +36,13 @@ export class Game extends Schema {
     public mode: Types.GameMode;
 
     // Hidden fields
-    private onWaitingStart: (message?: Types.Message) => void;
+    private onWaitingStart: (message?: Models.MessageJSON) => void;
 
-    private onLobbyStart: (message?: Types.Message) => void;
+    private onLobbyStart: (message?: Models.MessageJSON) => void;
 
-    private onGameStart: (message?: Types.Message) => void;
+    private onGameStart: (message?: Models.MessageJSON) => void;
 
-    private onGameEnd: (message?: Types.Message) => void;
+    private onGameEnd: (message?: Models.MessageJSON) => void;
 
     // Init
     constructor(attributes: IGame) {

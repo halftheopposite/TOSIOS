@@ -62,7 +62,7 @@ export default class GameManager {
     public forcedRotation: number = 0; // Used on mobile only
 
     // Callbacks
-    private onActionSend: (action: Types.IAction) => void;
+    private onActionSend: (action: Models.ActionJSON) => void;
 
     // Application
     private app: Application;
@@ -255,6 +255,8 @@ export default class GameManager {
 
         this.onActionSend({
             type: 'move',
+            ts: Date.now(),
+            playerId: this.me.playerId,
             value: {
                 x: dir.x,
                 y: dir.y,
@@ -295,6 +297,8 @@ export default class GameManager {
                 this.me.rotation = rotation;
                 this.onActionSend({
                     type: 'rotate',
+                    ts: Date.now(),
+                    playerId: this.me.playerId,
                     value: {
                         rotation,
                     },
@@ -305,6 +309,8 @@ export default class GameManager {
             this.me.rotation = this.forcedRotation;
             this.onActionSend({
                 type: 'rotate',
+                ts: Date.now(),
+                playerId: this.me.playerId,
                 value: {
                     rotation: this.forcedRotation,
                 },
@@ -337,6 +343,8 @@ export default class GameManager {
         });
         this.onActionSend({
             type: 'shoot',
+            ts: Date.now(),
+            playerId: this.me.playerId,
             value: {
                 angle: this.me.rotation,
             },

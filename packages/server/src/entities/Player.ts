@@ -2,9 +2,6 @@ import { Maths, Types } from '@tosios/common';
 import { Circle } from './Circle';
 import { type } from '@colyseus/schema';
 
-const validateName = (name: string) => name.trim().slice(0, 16);
-const getTeamColor = (team: Types.Teams) => (team === 'Blue' ? '#0000FF' : '#FF0000');
-
 export class Player extends Circle {
     @type('string')
     public playerId: string;
@@ -132,3 +129,6 @@ export class Player extends Circle {
         this.kills = kills;
     }
 }
+
+const validateName = (name: string) => name.trim().slice(0, 16);
+const getTeamColor = (team: Types.Teams) => (team === 'Blue' ? '#0000FF' : '#FF0000');
