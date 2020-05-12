@@ -1,8 +1,8 @@
-import { AnchorContainer } from './';
+import { AnchorContainer } from '.';
 import { GUITextures } from '../images/textures';
 import { Sprite } from 'pixi.js';
 
-export default class HUDLives extends AnchorContainer {
+export class PlayerLivesSprite extends AnchorContainer {
     private _heartSize: number;
 
     private _maxLives: number;

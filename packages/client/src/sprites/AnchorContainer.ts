@@ -1,6 +1,6 @@
 import { Container } from 'pixi.js';
 
-export default class AnchorContainer extends Container {
+export class AnchorContainer extends Container {
     private _anchorX = 0;
 
     private _anchorY = 0;

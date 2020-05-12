@@ -1,7 +1,7 @@
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './';
-import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
-import { IMonster, IPlayer, Monster, Player, Prop } from '../entities';
+import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
+import { MonsterSprite, PlayerSprite, PropSprite } from '../sprites';
 import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { ParticleTextures } from '../images/textures';
@@ -44,7 +44,7 @@ export interface Stats {
     playerName: string;
     playerLives: number;
     playerMaxLives: number;
-    players: IPlayer[];
+    players: Models.PlayerJSON[];
     playersCount: number;
     playersMaxCount: number;
 }
@@ -98,7 +98,7 @@ export default class GameManager {
     private mode?: Types.GameMode;
 
     // Me (the one playing the game on his computer)
-    private me: Player | null = null;
+    private me: PlayerSprite | null = null;
 
     // LIFECYCLE
     constructor(screenWidth: number, screenHeight: number, onActionSend: any) {
@@ -321,16 +321,20 @@ export default class GameManager {
         const bulletY = this.me.y + Math.sin(this.me.rotation) * Constants.PLAYER_WEAPON_SIZE;
 
         this.me.lastShootAt = Date.now();
-        this.bulletsManager.addOrCreate(
-            bulletX,
-            bulletY,
-            Constants.BULLET_SIZE,
-            this.me.playerId,
-            this.me.team,
-            this.me.rotation,
-            this.me.color,
-            this.me.lastShootAt,
-        );
+
+        this.bulletsManager.addOrCreate({
+            x: bulletX,
+            y: bulletY,
+            radius: Constants.BULLET_SIZE,
+            rotation: this.me.rotation,
+            active: true,
+            fromX: bulletX,
+            fromY: bulletY,
+            playerId: this.me.playerId,
+            team: this.me.team,
+            color: this.me.color,
+            shotAt: this.me.lastShootAt,
+        });
         this.onActionSend({
             type: 'shoot',
             value: {
@@ -450,7 +454,7 @@ export default class GameManager {
 
     // GETTERS
     getStats = (): Stats => {
-        const players = this.playersManager.getAll().map((item) => ({
+        const players: Models.PlayerJSON[] = this.playersManager.getAll().map((item) => ({
             playerId: item.playerId,
             x: item.x,
             y: item.y,
@@ -462,7 +466,6 @@ export default class GameManager {
             maxLives: item.maxLives,
             kills: item.kills,
             team: item.team,
-            isGhost: item.isGhost,
         }));
 
         return {
@@ -513,31 +516,13 @@ export default class GameManager {
     };
 
     // COLYSEUS: Players
-    playerAdd = (playerId: string, attributes: any, isMe: boolean) => {
-        const props: IPlayer = {
-            playerId,
-            x: attributes.x,
-            y: attributes.y,
-            radius: attributes.radius,
-            rotation: attributes.rotation,
-            name: attributes.name,
-            color: attributes.color,
-            lives: attributes.lives,
-            maxLives: attributes.maxLives,
-            kills: attributes.kills,
-            team: attributes.team,
-            isGhost: isMe,
-        };
-
-        const player = new Player(props);
+    playerAdd = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
+        const player = new PlayerSprite(attributes, isMe);
         this.playersManager.add(playerId, player);
 
         // If the player is "you"
         if (isMe) {
-            this.me = new Player({
-                ...props,
-                isGhost: false,
-            });
+            this.me = new PlayerSprite(attributes, false);
 
             this.playersManager.addChild(this.me.weaponSprite);
             this.playersManager.addChild(this.me.sprite);
@@ -547,7 +532,7 @@ export default class GameManager {
         }
     };
 
-    playerUpdate = (playerId: string, attributes: any, isMe: boolean) => {
+    playerUpdate = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
         const player = this.playersManager.get(playerId);
         if (!player) {
             return;
@@ -604,19 +589,12 @@ export default class GameManager {
     };
 
     // COLYSEUS: Monster
-    monsterAdd = (monsterId: string, attributes: any) => {
-        const props: IMonster = {
-            x: attributes.x,
-            y: attributes.y,
-            radius: attributes.radius,
-            rotation: attributes.rotation,
-        };
-
-        const monster = new Monster(props);
+    monsterAdd = (monsterId: string, attributes: Models.MonsterJSON) => {
+        const monster = new MonsterSprite(attributes);
         this.monstersManager.add(monsterId, monster);
     };
 
-    monsterUpdate = (monsterId: string, attributes: any) => {
+    monsterUpdate = (monsterId: string, attributes: Models.MonsterJSON) => {
         const monster = this.monstersManager.get(monsterId);
         if (!monster) {
             return;
@@ -636,19 +614,12 @@ export default class GameManager {
     };
 
     // COLYSEUS: Props
-    propAdd = (propId: string, attributes: any) => {
-        const prop = new Prop({
-            type: attributes.type,
-            x: attributes.x,
-            y: attributes.y,
-            width: attributes.width,
-            height: attributes.height,
-            active: attributes.active,
-        });
+    propAdd = (propId: string, attributes: Models.PropJSON) => {
+        const prop = new PropSprite(attributes);
         this.propsManager.add(propId, prop);
     };
 
-    propUpdate = (propId: string, attributes: any) => {
+    propUpdate = (propId: string, attributes: Models.PropJSON) => {
         const prop = this.propsManager.get(propId);
         if (!prop) {
             return;
@@ -666,21 +637,12 @@ export default class GameManager {
     };
 
     // COLYSEUS: Bullets
-    bulletAdd = (attributes: any) => {
+    bulletAdd = (bulletId: string, attributes: Models.BulletJSON) => {
         if ((this.me && this.me.playerId === attributes.playerId) || !attributes.active) {
             return;
         }
 
-        this.bulletsManager.addOrCreate(
-            attributes.fromX,
-            attributes.fromY,
-            attributes.radius,
-            attributes.playerId,
-            attributes.team,
-            attributes.rotation,
-            attributes.color,
-            attributes.shotAt,
-        );
+        this.bulletsManager.addOrCreate(attributes);
     };
 
     bulletRemove = (bulletId: string) => {

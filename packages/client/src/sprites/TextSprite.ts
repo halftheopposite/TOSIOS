@@ -1,6 +1,6 @@
 import { Text, TextStyle } from 'pixi.js';
 
-export default class HUDText extends Text {
+export class TextSprite extends Text {
     constructor(text: string, fontSize: number, anchorX: number, anchorY: number, style?: object) {
         super(
             '',

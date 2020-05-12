@@ -1,7 +1,8 @@
-import { Bullet } from '../entities';
+import { BulletSprite } from '../sprites/BulletSprite';
 import { ManagerContainer } from './ManagerContainer';
+import { Models } from '@tosios/common';
 
-export default class BulletsManager extends ManagerContainer<Bullet> {
+export default class BulletsManager extends ManagerContainer<BulletSprite> {
     constructor() {
         super('BULLETS');
     }
@@ -15,52 +16,47 @@ export default class BulletsManager extends ManagerContainer<Bullet> {
         return this.getAll().find((item) => !item.active);
     }
 
-    addOrCreate(
-        fromX: number,
-        fromY: number,
-        radius: number,
-        playerId: string,
-        team: string,
-        rotation: number,
-        color: string,
-        shotAt: number,
-    ) {
+    addOrCreate(bullet: Models.BulletJSON) {
         // Check if bullet has already been created
-        const isSame = this.isSameBullet(playerId, shotAt);
+        const isSame = this.isSameBullet(bullet.playerId, bullet.shotAt);
         if (isSame) {
             return;
         }
 
         // Recycle inactive bullet or create one
-        const bullet = this.getFirstInactiveBullet();
-        if (bullet) {
+        const inactiveBullet = this.getFirstInactiveBullet();
+        if (inactiveBullet) {
             // Recycle bullet
-            bullet.reset({
-                x: fromX,
-                y: fromY,
-                radius,
-                active: true,
-                playerId,
-                team,
-                rotation,
-                color,
-                shotAt,
+            inactiveBullet.reset({
+                x: bullet.fromX,
+                y: bullet.fromY,
+                radius: bullet.radius,
+                rotation: bullet.rotation,
+                active: bullet.active,
+                fromX: bullet.fromX,
+                fromY: bullet.fromY,
+                shotAt: bullet.shotAt,
+                playerId: bullet.playerId,
+                team: bullet.team,
+                color: bullet.color,
             });
         } else {
             // Add new bullet
             const randomId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             this.add(
                 randomId,
-                new Bullet({
-                    x: fromX,
-                    y: fromY,
-                    radius,
-                    active: true,
-                    playerId,
-                    team,
-                    rotation,
-                    color,
-                    shotAt,
+                new BulletSprite({
+                    x: bullet.fromX,
+                    y: bullet.fromY,
+                    radius: bullet.radius,
+                    rotation: bullet.rotation,
+                    active: bullet.active,
+                    fromX: bullet.fromX,
+                    fromY: bullet.fromY,
+                    shotAt: bullet.shotAt,
+                    playerId: bullet.playerId,
+                    team: bullet.team,
+                    color: bullet.color,
                 }),
             );
         }

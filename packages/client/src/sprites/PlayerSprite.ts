@@ -1,7 +1,6 @@
 import { AnimatedSprite, Sprite, utils } from 'pixi.js';
-import { CircleSprite, Effects } from '../sprites';
-import { Constants, Maths } from '@tosios/common';
-import { HUDLives, HUDText } from '../HUD';
+import { CircleSprite, Effects, PlayerLivesSprite, TextSprite } from '.';
+import { Constants, Maths, Models, Types } from '@tosios/common';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
 
 const NAME_OFFSET = 4;
@@ -12,23 +11,10 @@ const BULLET_DELAY_FACTOR = 1.1; // Add 10% to delay as server may lag behind so
 
 type PlayerDirection = 'left' | 'right';
 
-export interface IPlayer {
-    playerId: string;
-    x: number;
-    y: number;
-    radius: number;
-    rotation: number;
-    name: string;
-    color: string;
-    lives: number;
-    maxLives: number;
-    kills: number;
-    team: string;
-    isGhost: boolean;
-}
-
-export class Player extends CircleSprite {
-    // Server
+/**
+ * A sprite representing a player with circle bounds.
+ */
+export class PlayerSprite extends CircleSprite {
     private _playerId: string = '';
 
     private _name: string = '';
@@ -37,7 +23,7 @@ export class Player extends CircleSprite {
 
     private _maxLives: number = 0;
 
-    private _team: string = '';
+    public team?: Types.Teams;
 
     private _color: string = '#FFFFFF';
 
@@ -58,52 +44,49 @@ export class Player extends CircleSprite {
 
     private _weaponSprite: Sprite;
 
-    private _nameTextSprite: HUDText;
+    private _nameTextSprite: TextSprite;
 
-    private _livesSprite: HUDLives;
+    private _livesSprite: PlayerLivesSprite;
 
     // Init
-    constructor(attributes: IPlayer) {
-        super(attributes.x, attributes.y, attributes.radius, 0, {
-            array: attributes.lives > 0 ? PlayerTextures.playerIdleTextures : PlayerTextures.playerDeadTextures,
+    constructor(player: Models.PlayerJSON, isGhost: boolean) {
+        super(player.x, player.y, player.radius, 0, {
+            array: player.lives > 0 ? PlayerTextures.playerIdleTextures : PlayerTextures.playerDeadTextures,
         });
 
         // Weapon
         this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
         this._weaponSprite.anchor.set(0, 0.5);
-        this._weaponSprite.position.set(attributes.x, attributes.y);
+        this._weaponSprite.position.set(player.x, player.y);
         this._weaponSprite.zIndex = 0;
 
         // Name
-        this._nameTextSprite = new HUDText(attributes.name, 8, 0.5, 1);
-        this._nameTextSprite.position.set(attributes.x, this.body.top - NAME_OFFSET);
+        this._nameTextSprite = new TextSprite(player.name, 8, 0.5, 1);
+        this._nameTextSprite.position.set(player.x, this.body.top - NAME_OFFSET);
         this._nameTextSprite.zIndex = 2;
 
         // Lives
-        this._livesSprite = new HUDLives(0.5, 1, 8, attributes.maxLives, attributes.lives);
-        this._livesSprite.position.set(
-            attributes.x,
-            this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET,
-        );
+        this._livesSprite = new PlayerLivesSprite(0.5, 1, 8, player.maxLives, player.lives);
+        this._livesSprite.position.set(player.x, this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET);
         this._livesSprite.anchorX = 0.5;
         this._livesSprite.zIndex = 2;
 
         // Player
         this.sprite.zIndex = 1;
-        this.playerId = attributes.playerId;
-        this.toX = attributes.x;
-        this.toY = attributes.y;
-        this.rotation = attributes.rotation;
-        this.name = attributes.name;
-        this.color = attributes.color;
-        this.lives = attributes.lives;
-        this.maxLives = attributes.maxLives;
-        this.kills = attributes.kills;
-        this.team = attributes.team;
-        this.isGhost = attributes.isGhost;
+        this.playerId = player.playerId;
+        this.toX = player.x;
+        this.toY = player.y;
+        this.rotation = player.rotation;
+        this.name = player.name;
+        this.color = player.color;
+        this.lives = player.lives;
+        this.maxLives = player.maxLives;
+        this.kills = player.kills;
+        this.team = player.team;
+        this.isGhost = isGhost;
 
         // Ghost
-        if (attributes.isGhost) {
+        if (isGhost) {
             this.sprite.visible = Constants.DEBUG;
             this._weaponSprite.visible = Constants.DEBUG;
             this._nameTextSprite.visible = Constants.DEBUG;
@@ -224,14 +207,6 @@ export class Player extends CircleSprite {
         this.updateTextures();
     }
 
-    set team(team: string) {
-        if (this._team === team) {
-            return;
-        }
-
-        this._team = team;
-    }
-
     set color(color: string) {
         if (this._color === color) {
             return;
@@ -325,10 +300,6 @@ export class Player extends CircleSprite {
 
     get maxLives() {
         return this._maxLives;
-    }
-
-    get team() {
-        return this._team;
     }
 
     get color() {
