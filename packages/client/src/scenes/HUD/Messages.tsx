@@ -1,14 +1,14 @@
 import { Inline, Space, Text, View } from '../../components';
 import React, { CSSProperties, Fragment } from 'react';
 import { Container } from '.';
-import { Types } from '@tosios/common';
+import { Models } from '@tosios/common';
 import { isMobile } from 'react-device-detect';
 
 /**
  * Render the messages from the server.
  */
 export const Messages = React.memo(
-    (props: { messages: Types.Message[]; style?: CSSProperties }): React.ReactElement | null => {
+    (props: { messages: Models.MessageJSON[]; style?: CSSProperties }): React.ReactElement | null => {
         const { messages, style } = props;
 
         if (!messages.length) {
@@ -36,7 +36,7 @@ export const Messages = React.memo(
 /**
  * Render a single message.
  */
-function Message(props: { message: Types.Message }): React.ReactElement {
+function Message(props: { message: Models.MessageJSON }): React.ReactElement {
     const { message } = props;
 
     return (
@@ -48,7 +48,7 @@ function Message(props: { message: Types.Message }): React.ReactElement {
     );
 }
 
-function getFormattedMessage(message: Types.Message): string {
+function getFormattedMessage(message: Models.MessageJSON): string {
     switch (message.type) {
         case 'waiting':
             return 'Waiting for other players...';

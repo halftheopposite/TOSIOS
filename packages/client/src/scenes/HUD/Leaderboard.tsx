@@ -10,9 +10,8 @@ import {
     Text,
     View,
 } from '../../components';
+import { Models, Sorts, Types } from '@tosios/common';
 import React, { CSSProperties, Fragment } from 'react';
-import { Sorts, Types } from '@tosios/common';
-import { IPlayer } from '../../entities/Player';
 
 /**
  * A leaderboard of all players.
@@ -21,7 +20,7 @@ export function Leaderboard(props: {
     roomName: string;
     mapName: string;
     mode: string;
-    players?: IPlayer[];
+    players?: Models.PlayerJSON[];
     playerId: string;
 }): React.ReactElement {
     const { roomName, mapName, mode, players = [], playerId } = props;
@@ -54,7 +53,7 @@ export function Leaderboard(props: {
 /**
  * A single table of all players.
  */
-function DeathMatch(props: { players: IPlayer[]; playerId: string }): React.ReactElement {
+function DeathMatch(props: { players: Models.PlayerJSON[]; playerId: string }): React.ReactElement {
     const { players, playerId } = props;
 
     return (
@@ -68,11 +67,11 @@ function DeathMatch(props: { players: IPlayer[]; playerId: string }): React.Reac
 /**
  * Two tables representing each team.
  */
-function TeamDeathMatch(props: { players: IPlayer[]; playerId: string }): React.ReactElement {
+function TeamDeathMatch(props: { players: Models.PlayerJSON[]; playerId: string }): React.ReactElement {
     const { players, playerId } = props;
 
-    const redPlayers: IPlayer[] = [];
-    const bluePlayers: IPlayer[] = [];
+    const redPlayers: Models.PlayerJSON[] = [];
+    const bluePlayers: Models.PlayerJSON[] = [];
 
     players.forEach((player) => {
         if (player.team === 'Red') {
@@ -126,7 +125,7 @@ function PlayersListHeader(props: { team?: Types.Teams }): React.ReactElement {
 /**
  * Render a list of players.
  */
-function PlayersList(props: { players: IPlayer[]; playerId: string }): any {
+function PlayersList(props: { players: Models.PlayerJSON[]; playerId: string }): any {
     const { players, playerId } = props;
 
     return players
@@ -141,7 +140,7 @@ function PlayersList(props: { players: IPlayer[]; playerId: string }): any {
 /**
  * Render a player item.
  */
-function PlayerListItem(props: { index: number; player: IPlayer; playerId: string }): React.ReactElement {
+function PlayerListItem(props: { index: number; player: Models.PlayerJSON; playerId: string }): React.ReactElement {
     const { index, player, playerId } = props;
     const isMe = playerId === player.playerId;
     const isDead = player.lives === 0;

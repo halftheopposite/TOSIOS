@@ -1,7 +1,7 @@
 import { ManagerContainer } from './ManagerContainer';
-import { Monster } from '../entities';
+import { MonsterSprite } from '../sprites';
 
-export default class MonstersManager extends ManagerContainer<Monster> {
+export default class MonstersManager extends ManagerContainer<MonsterSprite> {
     constructor() {
         super('PROPS');
     }

@@ -1,13 +1,13 @@
 import { ManagerContainer } from './ManagerContainer';
-import { Player } from '../entities';
+import { PlayerSprite } from '../sprites';
 
-export default class PlayersManager extends ManagerContainer<Player> {
+export default class PlayersManager extends ManagerContainer<PlayerSprite> {
     constructor() {
         super('PLAYERS');
     }
 
     // Entities
-    public add = (playerId: string, player: Player) => {
+    public add = (playerId: string, player: PlayerSprite) => {
         this.entities[playerId] = player;
         this.addChild(player.weaponSprite);
         this.addChild(player.sprite);

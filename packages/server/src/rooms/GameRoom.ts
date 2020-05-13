@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus';
-import { Constants, Maths, Types } from '@tosios/common';
+import { Constants, Maths, Models, Types } from '@tosios/common';
 import { GameState } from '../states/GameState';
 
 export class GameRoom extends Room<GameState> {
@@ -39,15 +39,13 @@ export class GameRoom extends Room<GameState> {
         const { type } = data;
 
         // Validate which type of message is accepted
-        switch (type) {
-            case 'name':
+        switch (type as Models.ActionType) {
             case 'move':
             case 'rotate':
             case 'shoot':
                 this.state.playerPushAction({
                     playerId,
                     ...data,
-                    ts: Date.now(),
                 });
                 break;
             default:
@@ -64,7 +62,7 @@ export class GameRoom extends Room<GameState> {
         this.state.update();
     };
 
-    handleMessage = (message: Types.Message) => {
+    handleMessage = (message: Models.MessageJSON) => {
         this.broadcast(message);
     };
 }

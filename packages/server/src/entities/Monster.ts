@@ -3,7 +3,7 @@ import { MapSchema, type } from '@colyseus/schema';
 import { Circle } from './Circle';
 import { Player } from '.';
 
-type State = 'idle' | 'patrol' | 'chase';
+type MonsterState = 'idle' | 'patrol' | 'chase';
 
 export class Monster extends Circle {
     @type('number')
@@ -16,7 +16,7 @@ export class Monster extends Circle {
 
     private lives: number = 0;
 
-    private state: State = 'idle';
+    private state: MonsterState = 'idle';
 
     private lastActionAt: number = Date.now();
 

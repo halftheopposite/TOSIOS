@@ -1,6 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
 import { Bullet, Game, Monster, Player, Prop } from '../entities';
-import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
+import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
 
 export class GameState extends Schema {
     @type(Game)
@@ -24,9 +24,9 @@ export class GameState extends Schema {
 
     private spawners: Geometry.RectangleBody[] = [];
 
-    private actions: Types.IAction[] = [];
+    private actions: Models.ActionJSON[] = [];
 
-    private onMessage: (message: Types.Message) => void;
+    private onMessage: (message: Models.MessageJSON) => void;
 
     // INIT
     constructor(
@@ -34,7 +34,7 @@ export class GameState extends Schema {
         mapName: string,
         maxPlayers: number,
         mode: Types.GameMode,
-        onMessage: (message: Types.Message) => void,
+        onMessage: (message: Models.MessageJSON) => void,
     ) {
         super();
 
@@ -99,15 +99,12 @@ export class GameState extends Schema {
     }
 
     private updatePlayers() {
-        let action: Types.IAction;
+        let action: Models.ActionJSON;
 
         while (this.actions.length > 0) {
             action = this.actions.shift();
 
             switch (action.type) {
-                case 'name':
-                    this.playerName(action.playerId, action.value);
-                    break;
                 case 'move':
                     this.playerMove(action.playerId, action.ts, action.value);
                     break;
@@ -167,7 +164,7 @@ export class GameState extends Schema {
         });
     };
 
-    private handleGameEnd = (message?: Types.Message) => {
+    private handleGameEnd = (message?: Models.MessageJSON) => {
         if (message) {
             this.onMessage(message);
         }
@@ -213,20 +210,11 @@ export class GameState extends Schema {
         });
     }
 
-    playerPushAction(action: Types.IAction) {
+    playerPushAction(action: Models.ActionJSON) {
         this.actions.push(action);
     }
 
-    private playerName(id: string, name: string) {
-        const player: Player = this.players[id];
-        if (!player) {
-            return;
-        }
-
-        player.setName(name);
-    }
-
-    private playerMove(id: string, ts: number, dir: Geometry.Vector) {
+    private playerMove(id: string, ts: number, dir: Geometry.Vector2) {
         const player: Player = this.players[id];
         if (!player || dir.empty) {
             return;
@@ -241,6 +229,9 @@ export class GameState extends Schema {
         // Collisions: Walls
         const correctedPosition = this.walls.correctWithCircle(player.body);
         player.setPosition(correctedPosition.x, correctedPosition.y);
+
+        // Acknoledge last treated action
+        player.ack = ts;
 
         // Collisions: Props
         if (!player.isAlive) {

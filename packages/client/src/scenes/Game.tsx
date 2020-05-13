@@ -5,6 +5,7 @@ import React, { Component, RefObject } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
 import GameManager from '../managers/GameManager';
 import { Helmet } from 'react-helmet';
+import { Models } from '@tosios/common';
 import ReactNipple from 'react-nipple';
 import { View } from '../components';
 import { isMobile } from 'react-device-detect';
@@ -173,56 +174,56 @@ export default class Game extends Component<IProps, IState> {
         }
     };
 
-    handlePlayerAdd = (player: any, playerId: string) => {
+    handlePlayerAdd = (player: Models.PlayerJSON, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
         this.gameManager.playerAdd(playerId, player, isMe);
         this.updateRoom();
     };
 
-    handlePlayerUpdate = (player: any, playerId: string) => {
+    handlePlayerUpdate = (player: Models.PlayerJSON, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
         this.gameManager.playerUpdate(playerId, player, isMe);
     };
 
-    handlePlayerRemove = (player: any, playerId: string) => {
+    handlePlayerRemove = (player: Models.PlayerJSON, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
         this.gameManager.playerRemove(playerId, isMe);
         this.updateRoom();
     };
 
-    handleMonsterAdd = (monster: any, monsterId: string) => {
+    handleMonsterAdd = (monster: Models.MonsterJSON, monsterId: string) => {
         this.gameManager.monsterAdd(monsterId, monster);
     };
 
-    handleMonsterUpdate = (monster: any, monsterId: string) => {
+    handleMonsterUpdate = (monster: Models.MonsterJSON, monsterId: string) => {
         this.gameManager.monsterUpdate(monsterId, monster);
     };
 
-    handleMonsterRemove = (monster: any, monsterId: string) => {
+    handleMonsterRemove = (monster: Models.MonsterJSON, monsterId: string) => {
         this.gameManager.monsterRemove(monsterId);
     };
 
-    handlePropAdd = (prop: any, propId: string) => {
+    handlePropAdd = (prop: Models.PropJSON, propId: string) => {
         this.gameManager.propAdd(propId, prop);
     };
 
-    handlePropUpdate = (prop: any, propId: string) => {
+    handlePropUpdate = (prop: Models.PropJSON, propId: string) => {
         this.gameManager.propUpdate(propId, prop);
     };
 
-    handlePropRemove = (prop: any, propId: string) => {
+    handlePropRemove = (prop: Models.PropJSON, propId: string) => {
         this.gameManager.propRemove(propId);
     };
 
-    handleBulletAdd = (bullet: any, bulletId: string) => {
-        this.gameManager.bulletAdd(bullet);
+    handleBulletAdd = (bullet: Models.BulletJSON, bulletId: string) => {
+        this.gameManager.bulletAdd(bulletId, bullet);
     };
 
-    handleBulletRemove = (bullet: any, bulletId: string) => {
+    handleBulletRemove = (bullet: Models.BulletJSON, bulletId: string) => {
         this.gameManager.bulletRemove(bulletId);
     };
 
-    handleMessage = (message: Types.Message) => {
+    handleMessage = (message: Models.MessageJSON) => {
         const { messages } = this.state.hud;
 
         let announce = '';
@@ -256,7 +257,7 @@ export default class Game extends Component<IProps, IState> {
     };
 
     // HANDLERS: GameManager
-    handleActionSend = (action: Types.IAction) => {
+    handleActionSend = (action: Models.ActionJSON) => {
         if (!this.room) {
             return;
         }

@@ -1,4 +1,4 @@
-import { CircleBody, RectangleBody, Vector } from '../geometry';
+import { CircleBody, RectangleBody, Vector2 } from '../geometry';
 import { Maths } from '..';
 
 export class Map {
@@ -25,15 +25,15 @@ export class Map {
         return circle.left < 0 || circle.right > this.width || circle.top < 0 || circle.bottom > this.height;
     };
 
-    clampRectangle(rectangle: RectangleBody): Vector {
-        return new Vector(
+    clampRectangle(rectangle: RectangleBody): Vector2 {
+        return new Vector2(
             Maths.clamp(rectangle.x, 0, this.width - rectangle.width),
             Maths.clamp(rectangle.y, 0, this.height - rectangle.height),
         );
     }
 
-    clampCircle(circle: CircleBody): Vector {
-        return new Vector(
+    clampCircle(circle: CircleBody): Vector2 {
+        return new Vector2(
             Maths.clamp(circle.x, circle.radius, this.width - circle.radius),
             Maths.clamp(circle.y, circle.radius, this.height - circle.radius),
         );

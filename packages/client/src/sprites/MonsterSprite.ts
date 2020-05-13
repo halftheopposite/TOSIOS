@@ -1,36 +1,27 @@
-import { CircleSprite, Effects } from '../sprites';
+import { CircleSprite, Effects } from '.';
+import { Models } from '@tosios/common';
 import { MonstersTextures } from '../images/textures';
 
 const HURT_COLOR = 0xff0000;
 
 type MonsterDirection = 'left' | 'right';
 
-export interface IMonster {
-    x: number;
-    y: number;
-    radius: number;
-    rotation: number;
-}
-
-export class Monster extends CircleSprite {
+/**
+ * A sprite representing a monster with circle bounds.
+ */
+export class MonsterSprite extends CircleSprite {
     private _toX: number = 0;
 
     private _toY: number = 0;
 
-    // Computed
     private _direction: MonsterDirection = 'right';
 
     // Init
-    constructor(attributes: IMonster) {
-        super(attributes.x, attributes.y, attributes.radius, 0, { array: MonstersTextures.Bat });
+    constructor(monster: Models.MonsterJSON) {
+        super(monster.x, monster.y, monster.radius, 0, { array: MonstersTextures.Bat });
     }
 
     // Methods
-    move = (speed: number) => {
-        this.x += Math.cos(this.rotation) * speed;
-        this.y += Math.sin(this.rotation) * speed;
-    };
-
     hurt() {
         Effects.flash(this.sprite, HURT_COLOR, 0xffffff);
     }

@@ -1,8 +1,7 @@
 import { Health, Leaderboard, Menu, Messages, Players, Time } from './';
-import { Keys, Types } from '@tosios/common';
+import { Keys, Models, Types } from '@tosios/common';
 import React, { CSSProperties } from 'react';
 import { Announce } from './Announce';
-import { IPlayer } from '../../entities';
 import { View } from '../../components';
 import { isMobile } from 'react-device-detect';
 
@@ -17,10 +16,10 @@ export interface HUDProps {
     playerName: string;
     playerLives: number;
     playerMaxLives: number;
-    players: IPlayer[];
+    players: Models.PlayerJSON[];
     playersCount: number;
     playersMaxCount: number;
-    messages: Types.Message[];
+    messages: Models.MessageJSON[];
     announce: string;
 }
 

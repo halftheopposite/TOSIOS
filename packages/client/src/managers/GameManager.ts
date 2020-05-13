@@ -1,7 +1,7 @@
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './';
-import { Collisions, Constants, Entities, Geometry, Maps, Maths, Tiled, Types } from '@tosios/common';
-import { IMonster, IPlayer, Monster, Player, Prop } from '../entities';
+import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
+import { MonsterSprite, PlayerSprite, PropSprite } from '../sprites';
 import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { ParticleTextures } from '../images/textures';
@@ -25,8 +25,6 @@ const ZINDEXES = {
 // They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
-// When is far consired too far for client-side prediction?
-const TOREMOVE_DISTANCE_LIMIT = Constants.TILE_SIZE * 2;
 
 interface IInputs {
     left: boolean;
@@ -44,7 +42,7 @@ export interface Stats {
     playerName: string;
     playerLives: number;
     playerMaxLives: number;
-    players: IPlayer[];
+    players: Models.PlayerJSON[];
     playersCount: number;
     playersMaxCount: number;
 }
@@ -62,7 +60,7 @@ export default class GameManager {
     public forcedRotation: number = 0; // Used on mobile only
 
     // Callbacks
-    private onActionSend: (action: Types.IAction) => void;
+    private onActionSend: (action: Models.ActionJSON) => void;
 
     // Application
     private app: Application;
@@ -98,7 +96,10 @@ export default class GameManager {
     private mode?: Types.GameMode;
 
     // Me (the one playing the game on his computer)
-    private me: Player | null = null;
+    private me: PlayerSprite | null = null;
+
+    // Server reconciliation
+    private moveActions: Models.ActionJSON[] = [];
 
     // LIFECYCLE
     constructor(screenWidth: number, screenHeight: number, onActionSend: any) {
@@ -204,8 +205,6 @@ export default class GameManager {
     };
 
     private update = () => {
-        // Uncomment if you need to use time for animations
-        // const deltaTime: number = this.app.ticker.elapsedMS;
         this.updateInputs();
         this.updatePlayers();
         this.updateMonsters();
@@ -216,7 +215,7 @@ export default class GameManager {
 
     private updateInputs = () => {
         // Move
-        const dir = new Geometry.Vector(0, 0);
+        const dir = new Geometry.Vector2(0, 0);
         if (this.inputs.up || this.inputs.down || this.inputs.left || this.inputs.right) {
             if (this.inputs.up) {
                 dir.y -= 1;
@@ -248,18 +247,23 @@ export default class GameManager {
         }
     };
 
-    private move = (dir: Geometry.Vector) => {
+    private move = (dir: Geometry.Vector2) => {
         if (!this.me) {
             return;
         }
 
-        this.onActionSend({
+        const action: Models.ActionJSON = {
             type: 'move',
+            ts: Date.now(),
+            playerId: this.me.playerId,
             value: {
                 x: dir.x,
                 y: dir.y,
             },
-        });
+        };
+
+        this.onActionSend(action);
+        this.moveActions.push(action);
 
         this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
 
@@ -295,6 +299,8 @@ export default class GameManager {
                 this.me.rotation = rotation;
                 this.onActionSend({
                     type: 'rotate',
+                    ts: Date.now(),
+                    playerId: this.me.playerId,
                     value: {
                         rotation,
                     },
@@ -305,6 +311,8 @@ export default class GameManager {
             this.me.rotation = this.forcedRotation;
             this.onActionSend({
                 type: 'rotate',
+                ts: Date.now(),
+                playerId: this.me.playerId,
                 value: {
                     rotation: this.forcedRotation,
                 },
@@ -321,18 +329,24 @@ export default class GameManager {
         const bulletY = this.me.y + Math.sin(this.me.rotation) * Constants.PLAYER_WEAPON_SIZE;
 
         this.me.lastShootAt = Date.now();
-        this.bulletsManager.addOrCreate(
-            bulletX,
-            bulletY,
-            Constants.BULLET_SIZE,
-            this.me.playerId,
-            this.me.team,
-            this.me.rotation,
-            this.me.color,
-            this.me.lastShootAt,
-        );
+
+        this.bulletsManager.addOrCreate({
+            x: bulletX,
+            y: bulletY,
+            radius: Constants.BULLET_SIZE,
+            rotation: this.me.rotation,
+            active: true,
+            fromX: bulletX,
+            fromY: bulletY,
+            playerId: this.me.playerId,
+            team: this.me.team,
+            color: this.me.color,
+            shotAt: this.me.lastShootAt,
+        });
         this.onActionSend({
             type: 'shoot',
+            ts: Date.now(),
+            playerId: this.me.playerId,
             value: {
                 angle: this.me.rotation,
             },
@@ -450,7 +464,7 @@ export default class GameManager {
 
     // GETTERS
     getStats = (): Stats => {
-        const players = this.playersManager.getAll().map((item) => ({
+        const players: Models.PlayerJSON[] = this.playersManager.getAll().map((item) => ({
             playerId: item.playerId,
             x: item.x,
             y: item.y,
@@ -462,7 +476,6 @@ export default class GameManager {
             maxLives: item.maxLives,
             kills: item.kills,
             team: item.team,
-            isGhost: item.isGhost,
         }));
 
         return {
@@ -513,31 +526,13 @@ export default class GameManager {
     };
 
     // COLYSEUS: Players
-    playerAdd = (playerId: string, attributes: any, isMe: boolean) => {
-        const props: IPlayer = {
-            playerId,
-            x: attributes.x,
-            y: attributes.y,
-            radius: attributes.radius,
-            rotation: attributes.rotation,
-            name: attributes.name,
-            color: attributes.color,
-            lives: attributes.lives,
-            maxLives: attributes.maxLives,
-            kills: attributes.kills,
-            team: attributes.team,
-            isGhost: isMe,
-        };
-
-        const player = new Player(props);
+    playerAdd = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
+        const player = new PlayerSprite(attributes, isMe);
         this.playersManager.add(playerId, player);
 
         // If the player is "you"
         if (isMe) {
-            this.me = new Player({
-                ...props,
-                isGhost: false,
-            });
+            this.me = new PlayerSprite(attributes, false);
 
             this.playersManager.addChild(this.me.weaponSprite);
             this.playersManager.addChild(this.me.sprite);
@@ -547,45 +542,86 @@ export default class GameManager {
         }
     };
 
-    playerUpdate = (playerId: string, attributes: any, isMe: boolean) => {
-        const player = this.playersManager.get(playerId);
-        if (!player) {
-            return;
-        }
-
-        player.lives = attributes.lives;
-        player.maxLives = attributes.maxLives;
-        player.color = attributes.color;
-        player.kills = attributes.kills;
-        player.team = attributes.team;
-        player.rotation = attributes.rotation;
-
-        // Set new interpolation values
-        player.position = {
-            x: player.toX,
-            y: player.toY,
-        };
-        player.toPosition = {
-            toX: attributes.x,
-            toY: attributes.y,
-        };
-
-        // If the player is "you"
+    playerUpdate = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
         if (isMe && this.me) {
+            const ghost = this.playersManager.get(playerId);
+            if (!ghost) {
+                return;
+            }
+
+            // Update base
             this.me.lives = attributes.lives;
             this.me.maxLives = attributes.maxLives;
             this.me.color = attributes.color;
             this.me.kills = attributes.kills;
             this.me.team = attributes.team;
 
-            const distance = Maths.getDistance(this.me.x, this.me.y, player.toX, player.toY);
+            if (attributes.ack !== this.me.ack) {
+                this.me.ack = attributes.ack;
 
-            if (distance > TOREMOVE_DISTANCE_LIMIT) {
-                this.me.position = {
-                    x: player.toX,
-                    y: player.toY,
+                // Update ghost position
+                ghost.position = {
+                    x: attributes.x,
+                    y: attributes.y,
                 };
+                ghost.toPosition = {
+                    toX: attributes.x,
+                    toY: attributes.y,
+                };
+
+                // Run simulation of all movements that weren't treated by server yet
+                const index = this.moveActions.findIndex((action) => action.ts === attributes.ack);
+                this.moveActions = this.moveActions.slice(index + 1);
+                this.moveActions.forEach((action) => {
+                    const updatedPosition = Models.movePlayer(
+                        ghost.x,
+                        ghost.y,
+                        ghost.radius,
+                        action.value.x,
+                        action.value.y,
+                        Constants.PLAYER_SPEED,
+                        this.walls,
+                    );
+
+                    ghost.position = { x: updatedPosition.x, y: updatedPosition.y };
+                    ghost.toPosition = { toX: updatedPosition.x, toY: updatedPosition.y };
+                });
+
+                // Check if our predictions were accurate
+                const distance = Maths.getDistance(this.me.x, this.me.y, ghost.x, ghost.y);
+                if (distance > 0) {
+                    console.log(`Corrected position distance=${distance}`);
+                    this.me.position = {
+                        x: ghost.x,
+                        y: ghost.y,
+                    };
+                }
             }
+        } else {
+            const player = this.playersManager.get(playerId);
+            if (!player) {
+                return;
+            }
+
+            // Update base
+            player.lives = attributes.lives;
+            player.maxLives = attributes.maxLives;
+            player.color = attributes.color;
+            player.kills = attributes.kills;
+            player.team = attributes.team;
+
+            // Update rotation
+            player.rotation = attributes.rotation;
+
+            // Update position
+            player.position = {
+                x: player.toX,
+                y: player.toY,
+            };
+            player.toPosition = {
+                toX: attributes.x,
+                toY: attributes.y,
+            };
         }
     };
 
@@ -604,19 +640,12 @@ export default class GameManager {
     };
 
     // COLYSEUS: Monster
-    monsterAdd = (monsterId: string, attributes: any) => {
-        const props: IMonster = {
-            x: attributes.x,
-            y: attributes.y,
-            radius: attributes.radius,
-            rotation: attributes.rotation,
-        };
-
-        const monster = new Monster(props);
+    monsterAdd = (monsterId: string, attributes: Models.MonsterJSON) => {
+        const monster = new MonsterSprite(attributes);
         this.monstersManager.add(monsterId, monster);
     };
 
-    monsterUpdate = (monsterId: string, attributes: any) => {
+    monsterUpdate = (monsterId: string, attributes: Models.MonsterJSON) => {
         const monster = this.monstersManager.get(monsterId);
         if (!monster) {
             return;
@@ -636,19 +665,12 @@ export default class GameManager {
     };
 
     // COLYSEUS: Props
-    propAdd = (propId: string, attributes: any) => {
-        const prop = new Prop({
-            type: attributes.type,
-            x: attributes.x,
-            y: attributes.y,
-            width: attributes.width,
-            height: attributes.height,
-            active: attributes.active,
-        });
+    propAdd = (propId: string, attributes: Models.PropJSON) => {
+        const prop = new PropSprite(attributes);
         this.propsManager.add(propId, prop);
     };
 
-    propUpdate = (propId: string, attributes: any) => {
+    propUpdate = (propId: string, attributes: Models.PropJSON) => {
         const prop = this.propsManager.get(propId);
         if (!prop) {
             return;
@@ -666,21 +688,12 @@ export default class GameManager {
     };
 
     // COLYSEUS: Bullets
-    bulletAdd = (attributes: any) => {
+    bulletAdd = (bulletId: string, attributes: Models.BulletJSON) => {
         if ((this.me && this.me.playerId === attributes.playerId) || !attributes.active) {
             return;
         }
 
-        this.bulletsManager.addOrCreate(
-            attributes.fromX,
-            attributes.fromY,
-            attributes.radius,
-            attributes.playerId,
-            attributes.team,
-            attributes.rotation,
-            attributes.color,
-            attributes.shotAt,
-        );
+        this.bulletsManager.addOrCreate(attributes);
     };
 
     bulletRemove = (bulletId: string) => {
