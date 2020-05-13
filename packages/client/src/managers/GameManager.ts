@@ -25,8 +25,6 @@ const ZINDEXES = {
 // They are used to interpolate movements of other players for smoothness.
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
-// When is far consired too far for client-side prediction?
-const TOREMOVE_DISTANCE_LIMIT = Constants.TILE_SIZE * 2;
 
 interface IInputs {
     left: boolean;
@@ -99,6 +97,9 @@ export default class GameManager {
 
     // Me (the one playing the game on his computer)
     private me: PlayerSprite | null = null;
+
+    // Server reconciliation
+    private moveActions: Models.ActionJSON[] = [];
 
     // LIFECYCLE
     constructor(screenWidth: number, screenHeight: number, onActionSend: any) {
@@ -204,8 +205,6 @@ export default class GameManager {
     };
 
     private update = () => {
-        // Uncomment if you need to use time for animations
-        // const deltaTime: number = this.app.ticker.elapsedMS;
         this.updateInputs();
         this.updatePlayers();
         this.updateMonsters();
@@ -216,7 +215,7 @@ export default class GameManager {
 
     private updateInputs = () => {
         // Move
-        const dir = new Geometry.Vector(0, 0);
+        const dir = new Geometry.Vector2(0, 0);
         if (this.inputs.up || this.inputs.down || this.inputs.left || this.inputs.right) {
             if (this.inputs.up) {
                 dir.y -= 1;
@@ -248,12 +247,12 @@ export default class GameManager {
         }
     };
 
-    private move = (dir: Geometry.Vector) => {
+    private move = (dir: Geometry.Vector2) => {
         if (!this.me) {
             return;
         }
 
-        this.onActionSend({
+        const action: Models.ActionJSON = {
             type: 'move',
             ts: Date.now(),
             playerId: this.me.playerId,
@@ -261,7 +260,10 @@ export default class GameManager {
                 x: dir.x,
                 y: dir.y,
             },
-        });
+        };
+
+        this.onActionSend(action);
+        this.moveActions.push(action);
 
         this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
 
@@ -541,44 +543,85 @@ export default class GameManager {
     };
 
     playerUpdate = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
-        const player = this.playersManager.get(playerId);
-        if (!player) {
-            return;
-        }
-
-        player.lives = attributes.lives;
-        player.maxLives = attributes.maxLives;
-        player.color = attributes.color;
-        player.kills = attributes.kills;
-        player.team = attributes.team;
-        player.rotation = attributes.rotation;
-
-        // Set new interpolation values
-        player.position = {
-            x: player.toX,
-            y: player.toY,
-        };
-        player.toPosition = {
-            toX: attributes.x,
-            toY: attributes.y,
-        };
-
-        // If the player is "you"
         if (isMe && this.me) {
+            const ghost = this.playersManager.get(playerId);
+            if (!ghost) {
+                return;
+            }
+
+            // Update base
             this.me.lives = attributes.lives;
             this.me.maxLives = attributes.maxLives;
             this.me.color = attributes.color;
             this.me.kills = attributes.kills;
             this.me.team = attributes.team;
 
-            const distance = Maths.getDistance(this.me.x, this.me.y, player.toX, player.toY);
+            if (attributes.ack !== this.me.ack) {
+                this.me.ack = attributes.ack;
 
-            if (distance > TOREMOVE_DISTANCE_LIMIT) {
-                this.me.position = {
-                    x: player.toX,
-                    y: player.toY,
+                // Update ghost position
+                ghost.position = {
+                    x: attributes.x,
+                    y: attributes.y,
                 };
+                ghost.toPosition = {
+                    toX: attributes.x,
+                    toY: attributes.y,
+                };
+
+                // Run simulation of all movements that weren't treated by server yet
+                const index = this.moveActions.findIndex((action) => action.ts === attributes.ack);
+                this.moveActions = this.moveActions.slice(index + 1);
+                this.moveActions.forEach((action) => {
+                    const updatedPosition = Models.movePlayer(
+                        ghost.x,
+                        ghost.y,
+                        ghost.radius,
+                        action.value.x,
+                        action.value.y,
+                        Constants.PLAYER_SPEED,
+                        this.walls,
+                    );
+
+                    ghost.position = { x: updatedPosition.x, y: updatedPosition.y };
+                    ghost.toPosition = { toX: updatedPosition.x, toY: updatedPosition.y };
+                });
+
+                // Check if our predictions were accurate
+                const distance = Maths.getDistance(this.me.x, this.me.y, ghost.x, ghost.y);
+                if (distance > 0) {
+                    console.log(`Corrected position distance=${distance}`);
+                    this.me.position = {
+                        x: ghost.x,
+                        y: ghost.y,
+                    };
+                }
             }
+        } else {
+            const player = this.playersManager.get(playerId);
+            if (!player) {
+                return;
+            }
+
+            // Update base
+            player.lives = attributes.lives;
+            player.maxLives = attributes.maxLives;
+            player.color = attributes.color;
+            player.kills = attributes.kills;
+            player.team = attributes.team;
+
+            // Update rotation
+            player.rotation = attributes.rotation;
+
+            // Update position
+            player.position = {
+                x: player.toX,
+                y: player.toY,
+            };
+            player.toPosition = {
+                toX: attributes.x,
+                toY: attributes.y,
+            };
         }
     };
 

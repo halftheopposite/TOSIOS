@@ -1,4 +1,4 @@
-export class Vector {
+export class Vector2 {
     x: number;
 
     y: number;
@@ -67,12 +67,12 @@ export class RectangleBody {
         return this.y + this.height;
     }
 
-    get position(): Vector {
-        return new Vector(this.x + this.width / 2, this.y + this.height / 2);
+    get position(): Vector2 {
+        return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
     }
 
-    get center(): Vector {
-        return new Vector(this.x + this.width / 2, this.y + this.height / 2);
+    get center(): Vector2 {
+        return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
     }
 
     // Setters
@@ -92,7 +92,7 @@ export class RectangleBody {
         this.y = bottom - this.height;
     }
 
-    set position(vector: Vector) {
+    set position(vector: Vector2) {
         this.x = vector.x;
         this.y = vector.y;
     }

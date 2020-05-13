@@ -214,7 +214,7 @@ export class GameState extends Schema {
         this.actions.push(action);
     }
 
-    private playerMove(id: string, ts: number, dir: Geometry.Vector) {
+    private playerMove(id: string, ts: number, dir: Geometry.Vector2) {
         const player: Player = this.players[id];
         if (!player || dir.empty) {
             return;
@@ -229,6 +229,9 @@ export class GameState extends Schema {
         // Collisions: Walls
         const correctedPosition = this.walls.correctWithCircle(player.body);
         player.setPosition(correctedPosition.x, correctedPosition.y);
+
+        // Acknoledge last treated action
+        player.ack = ts;
 
         // Collisions: Props
         if (!player.isAlive) {

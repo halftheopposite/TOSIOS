@@ -48,6 +48,8 @@ export class PlayerSprite extends CircleSprite {
 
     private _livesSprite: PlayerLivesSprite;
 
+    public ack?: number;
+
     // Init
     constructor(player: Models.PlayerJSON, isGhost: boolean) {
         super(player.x, player.y, player.radius, 0, {
