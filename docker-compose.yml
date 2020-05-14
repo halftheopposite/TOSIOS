@@ -1,0 +1,9 @@
+version: "3.7"	
+
+services:	
+  tosios:	
+    image: halftheopposite/tosios	
+    container_name: tosios	
+    restart: always	
+    ports:	
+      - 3001:3001
