@@ -14,7 +14,7 @@ The Open-Source IO Shooter is an open-source multiplayer game in the browser (de
 
 ## 🕹️ Playing
 
-Want to play right away? You can play the game by following (and sharing) this link https://tosios-demo.herokuapp.com/.
+Want to play right away? You can play the game by following (and sharing) this link https://tosios.online/ (or https://tosios-demo.herokuapp.com/).
 
 **Rules**
 
