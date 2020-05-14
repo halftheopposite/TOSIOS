@@ -345,6 +345,8 @@ export class GameState extends Schema {
             player = this.players[playerId];
 
             player.setPosition(spawner.x + Constants.PLAYER_SIZE / 2, spawner.y + Constants.PLAYER_SIZE / 2);
+            // Reset last acknowledge move action
+            player.ack = 0;
         }
     }
 
