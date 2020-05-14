@@ -1,16 +1,16 @@
 {
-  "short_name": "TOSIOS",
-  "name": "TOSIOS",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    }
-  ],
-  "start_url": ".",
-  "display": "fullscreen",
-  "orientation": "landscape",
-  "theme_color": "#FFFFFF",
-  "background_color": "#25131A"
+    "short_name": "TOSIOS",
+    "name": "The Open-Source IO Shooter",
+    "icons": [
+        {
+            "src": "favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        }
+    ],
+    "start_url": ".",
+    "display": "fullscreen",
+    "orientation": "landscape",
+    "theme_color": "#FFFFFF",
+    "background_color": "#25131A"
 }
