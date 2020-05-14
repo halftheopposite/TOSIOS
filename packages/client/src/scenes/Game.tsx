@@ -382,7 +382,7 @@ export default class Game extends Component<IProps, IState> {
             >
                 {/* Set page's title */}
                 <Helmet>
-                    <title>{`${hud.roomName} [${hud.playersCount}]`}</title>
+                    <title>{`${hud.roomName || hud.gameMode} [${hud.playersCount}]`}</title>
                 </Helmet>
 
                 {/* Where PIXI is injected */}

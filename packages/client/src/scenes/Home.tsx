@@ -168,7 +168,7 @@ export default class Home extends Component<IProps, IState> {
                 }}
             >
                 <Helmet>
-                    <title>{Constants.APP_TITLE}</title>
+                    <title>{`${Constants.APP_TITLE} - Home`}</title>
                 </Helmet>
 
                 <View flex center column>
