@@ -1,9 +1,8 @@
 import React, { CSSProperties } from 'react';
 import { Space, Text, View } from '../../components';
 
+import { heartEmptyImage, heartFullImage } from '../../images';
 import { Container } from './';
-import heartEmpty from '../../game/images/textures/gui/heart-empty.png';
-import heartFull from '../../game/images/textures/gui/heart-full.png';
 import { isMobile } from 'react-device-detect';
 
 const HEART_SIZE = isMobile ? 24 : 36;
@@ -23,7 +22,7 @@ export const Health = React.memo(
             hearts.push(
                 <img
                     key={i}
-                    src={isFull ? heartFull : heartEmpty}
+                    src={isFull ? heartFullImage : heartEmptyImage}
                     alt={isFull ? 'full-heart' : 'empty-heart'}
                     width={HEART_SIZE}
                     height={HEART_SIZE}
