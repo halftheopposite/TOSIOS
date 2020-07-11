@@ -1,4 +1,4 @@
-import { BulletSprite } from '../sprites/BulletSprite';
+import { BulletSprite } from '../sprites';
 import { ManagerContainer } from './ManagerContainer';
 import { Models } from '@tosios/common';
 

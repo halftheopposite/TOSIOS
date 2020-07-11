@@ -3,7 +3,7 @@ import { Constants, Keys, Maths, Types } from '@tosios/common';
 import { HUD, HUDProps } from './HUD';
 import React, { Component, RefObject } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
-import GameManager from '../managers/GameManager';
+import GameManager from '../game/managers/GameManager';
 import { Helmet } from 'react-helmet';
 import { Models } from '@tosios/common';
 import ReactNipple from 'react-nipple';

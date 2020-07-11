@@ -1,5 +1,5 @@
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
-import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './';
+import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from '.';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
 import { MonsterSprite, PlayerSprite, PropSprite } from '../sprites';
 import { getSpritesLayer, getTexturesSet } from '../utils/tiled';

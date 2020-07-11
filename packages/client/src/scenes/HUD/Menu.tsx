@@ -1,6 +1,6 @@
 import { Box, Button, Inline, Input, KeyboardKey, Space, Text, View } from '../../components';
 import React, { CSSProperties } from 'react';
-import { ArrowLeft } from '../../images/icons';
+import { ArrowLeft } from '../../game/images/icons';
 
 /**
  * A menu displaying important room actions and informations.

@@ -2,8 +2,8 @@ import React, { CSSProperties } from 'react';
 import { Space, Text, View } from '../../components';
 
 import { Container } from './';
-import heartEmpty from '../../images/textures/gui/heart-empty.png';
-import heartFull from '../../images/textures/gui/heart-full.png';
+import heartEmpty from '../../game/images/textures/gui/heart-empty.png';
+import heartFull from '../../game/images/textures/gui/heart-full.png';
 import { isMobile } from 'react-device-detect';
 
 const HEART_SIZE = isMobile ? 24 : 36;
