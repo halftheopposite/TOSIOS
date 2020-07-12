@@ -4,11 +4,11 @@ import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, 
 import { MonsterSprite, PlayerSprite, PropSprite } from './sprites';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
+import { Inputs } from './utils/inputs';
 import { ParticleTextures } from './images/textures';
 import { SpriteSheets } from './images/maps';
 import { Viewport } from 'pixi-viewport';
 import particleConfig from './particles/impact.json';
-import { Inputs, Keyboard } from './utils/keyboard';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -41,17 +41,9 @@ export interface Stats {
 }
 
 export class Game {
-    private keyboard: Keyboard = new Keyboard();
+    public inputs: Inputs = new Inputs();
 
     // Inputs
-    public inputs: Inputs = {
-        left: false,
-        up: false,
-        right: false,
-        down: false,
-        shoot: false,
-    };
-
     public forcedRotation: number = 0; // Used on mobile only
 
     // Callbacks
@@ -153,13 +145,13 @@ export class Game {
         renderView.appendChild(this.app.view);
         this.app.start();
         this.app.ticker.add(this.update);
-        this.keyboard.start();
+        this.inputs.start();
     };
 
     stop = () => {
         this.app.ticker.stop();
         this.app.stop();
-        this.keyboard.stop();
+        this.inputs.stop();
     };
 
     // METHODS

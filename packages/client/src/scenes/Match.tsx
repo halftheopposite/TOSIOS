@@ -20,9 +20,9 @@ interface IState {
 }
 
 export default class Match extends Component<IProps, IState> {
-    private gameCanvas: RefObject<HTMLDivElement>;
+    private canvasRef: RefObject<HTMLDivElement>;
 
-    private gameManager: Game;
+    private game: Game;
 
     private client?: Client;
 
@@ -34,8 +34,8 @@ export default class Match extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
 
-        this.gameCanvas = React.createRef();
-        this.gameManager = new Game(window.innerWidth, window.innerHeight, this.handleActionSend);
+        this.canvasRef = React.createRef();
+        this.game = new Game(window.innerWidth, window.innerHeight, this.handleActionSend);
 
         this.state = {
             hud: {
@@ -132,7 +132,7 @@ export default class Match extends Component<IProps, IState> {
         this.room.onMessage(this.handleMessage);
 
         // Start game
-        this.gameManager.start(this.gameCanvas.current);
+        this.game.start(this.canvasRef.current);
 
         // Listen for inputs
         window.addEventListener('resize', this.handleWindowResize);
@@ -148,7 +148,7 @@ export default class Match extends Component<IProps, IState> {
         }
 
         // Game
-        this.gameManager.stop();
+        this.game.stop();
 
         // Inputs
         window.removeEventListener('resize', this.handleWindowResize);
@@ -162,57 +162,57 @@ export default class Match extends Component<IProps, IState> {
     // HANDLERS: Colyseus
     handleGameChange = (attributes: any) => {
         for (const row of attributes) {
-            this.gameManager.gameUpdate(row.field, row.value);
+            this.game.gameUpdate(row.field, row.value);
         }
     };
 
     handlePlayerAdd = (player: Models.PlayerJSON, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
-        this.gameManager.playerAdd(playerId, player, isMe);
+        this.game.playerAdd(playerId, player, isMe);
         this.updateRoom();
     };
 
     handlePlayerUpdate = (player: Models.PlayerJSON, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
-        this.gameManager.playerUpdate(playerId, player, isMe);
+        this.game.playerUpdate(playerId, player, isMe);
     };
 
     handlePlayerRemove = (player: Models.PlayerJSON, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
-        this.gameManager.playerRemove(playerId, isMe);
+        this.game.playerRemove(playerId, isMe);
         this.updateRoom();
     };
 
     handleMonsterAdd = (monster: Models.MonsterJSON, monsterId: string) => {
-        this.gameManager.monsterAdd(monsterId, monster);
+        this.game.monsterAdd(monsterId, monster);
     };
 
     handleMonsterUpdate = (monster: Models.MonsterJSON, monsterId: string) => {
-        this.gameManager.monsterUpdate(monsterId, monster);
+        this.game.monsterUpdate(monsterId, monster);
     };
 
     handleMonsterRemove = (monster: Models.MonsterJSON, monsterId: string) => {
-        this.gameManager.monsterRemove(monsterId);
+        this.game.monsterRemove(monsterId);
     };
 
     handlePropAdd = (prop: Models.PropJSON, propId: string) => {
-        this.gameManager.propAdd(propId, prop);
+        this.game.propAdd(propId, prop);
     };
 
     handlePropUpdate = (prop: Models.PropJSON, propId: string) => {
-        this.gameManager.propUpdate(propId, prop);
+        this.game.propUpdate(propId, prop);
     };
 
     handlePropRemove = (prop: Models.PropJSON, propId: string) => {
-        this.gameManager.propRemove(propId);
+        this.game.propRemove(propId);
     };
 
     handleBulletAdd = (bullet: Models.BulletJSON, bulletId: string) => {
-        this.gameManager.bulletAdd(bulletId, bullet);
+        this.game.bulletAdd(bulletId, bullet);
     };
 
     handleBulletRemove = (bullet: Models.BulletJSON, bulletId: string) => {
-        this.gameManager.bulletRemove(bulletId);
+        this.game.bulletRemove(bulletId);
     };
 
     handleMessage = (message: Models.MessageJSON) => {
@@ -259,7 +259,7 @@ export default class Match extends Component<IProps, IState> {
 
     // HANDLERS: Inputs
     handleWindowResize = () => {
-        this.gameManager.setScreenSize(window.innerWidth, window.innerHeight);
+        this.game.setScreenSize(window.innerWidth, window.innerHeight);
     };
 
     // METHODS
@@ -268,7 +268,7 @@ export default class Match extends Component<IProps, IState> {
     };
 
     updateRoom = () => {
-        const stats = this.gameManager.getStats();
+        const stats = this.game.getStats();
 
         this.setState((prev) => ({
             ...prev,
@@ -296,7 +296,7 @@ export default class Match extends Component<IProps, IState> {
                 </Helmet>
 
                 {/* Where PIXI is injected */}
-                <div ref={this.gameCanvas} />
+                <div ref={this.canvasRef} />
 
                 {/* Joysticks */}
                 {isMobile && this.renderJoySticks()}
@@ -328,17 +328,17 @@ export default class Match extends Component<IProps, IState> {
                 <ReactNipple
                     options={{ mode: 'static', position: { bottom: '20%', left: '20%' } }}
                     onEnd={() => {
-                        this.gameManager.inputs.up = false;
-                        this.gameManager.inputs.down = false;
-                        this.gameManager.inputs.left = false;
-                        this.gameManager.inputs.right = false;
+                        this.game.inputs.up = false;
+                        this.game.inputs.down = false;
+                        this.game.inputs.left = false;
+                        this.game.inputs.right = false;
                     }}
                     onMove={(event: any, data: any) => {
                         const cardinal = Maths.degreeToCardinal(data.angle.degree);
-                        this.gameManager.inputs.up = cardinal === 'NW' || cardinal === 'N' || cardinal === 'NE';
-                        this.gameManager.inputs.right = cardinal === 'NE' || cardinal === 'E' || cardinal === 'SE';
-                        this.gameManager.inputs.down = cardinal === 'SE' || cardinal === 'S' || cardinal === 'SW';
-                        this.gameManager.inputs.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
+                        this.game.inputs.up = cardinal === 'NW' || cardinal === 'N' || cardinal === 'NE';
+                        this.game.inputs.right = cardinal === 'NE' || cardinal === 'E' || cardinal === 'SE';
+                        this.game.inputs.down = cardinal === 'SE' || cardinal === 'S' || cardinal === 'SW';
+                        this.game.inputs.left = cardinal === 'SW' || cardinal === 'W' || cardinal === 'NW';
                     }}
                 />
 
@@ -354,11 +354,11 @@ export default class Match extends Component<IProps, IState> {
                             rotation = Maths.reverseNumber(radians, 0, Math.PI);
                         }
 
-                        this.gameManager.forcedRotation = rotation;
-                        this.gameManager.inputs.shoot = true;
+                        this.game.forcedRotation = rotation;
+                        this.game.inputs.shoot = true;
                     }}
                     onEnd={() => {
-                        this.gameManager.inputs.shoot = false;
+                        this.game.inputs.shoot = false;
                     }}
                 />
             </View>
