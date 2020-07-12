@@ -1,13 +1,14 @@
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
-import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from '.';
+import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
-import { MonsterSprite, PlayerSprite, PropSprite } from '../sprites';
-import { getSpritesLayer, getTexturesSet } from '../utils/tiled';
+import { MonsterSprite, PlayerSprite, PropSprite } from './sprites';
+import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
-import { ParticleTextures } from '../images/textures';
-import { SpriteSheets } from '../images/maps';
+import { ParticleTextures } from './images/textures';
+import { SpriteSheets } from './images/maps';
 import { Viewport } from 'pixi-viewport';
-import particleConfig from '../particles/impact.json';
+import particleConfig from './particles/impact.json';
+import { Inputs, Keyboard } from './utils/keyboard';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -26,14 +27,6 @@ const ZINDEXES = {
 const TOREMOVE_MAX_FPS_MS = 1000 / 60;
 const TOREMOVE_AVG_LAG = 50;
 
-interface IInputs {
-    left: boolean;
-    up: boolean;
-    right: boolean;
-    down: boolean;
-    shoot: boolean;
-}
-
 export interface Stats {
     gameMode: string;
     gameModeEndsAt: number;
@@ -47,9 +40,11 @@ export interface Stats {
     playersMaxCount: number;
 }
 
-export default class GameManager {
+export class Game {
+    private keyboard: Keyboard = new Keyboard();
+
     // Inputs
-    public inputs: IInputs = {
+    public inputs: Inputs = {
         left: false,
         up: false,
         right: false,
@@ -158,11 +153,13 @@ export default class GameManager {
         renderView.appendChild(this.app.view);
         this.app.start();
         this.app.ticker.add(this.update);
+        this.keyboard.start();
     };
 
     stop = () => {
         this.app.ticker.stop();
         this.app.stop();
+        this.keyboard.stop();
     };
 
     // METHODS

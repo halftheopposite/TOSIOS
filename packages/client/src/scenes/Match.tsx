@@ -1,9 +1,9 @@
 import { Client, Room } from 'colyseus.js';
-import { Constants, Keys, Maths, Types } from '@tosios/common';
+import { Constants, Maths, Types } from '@tosios/common';
 import { HUD, HUDProps } from './HUD';
 import React, { Component, RefObject } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
-import GameManager from '../game/managers/GameManager';
+import { Game } from '../game/Game';
 import { Helmet } from 'react-helmet';
 import { Models } from '@tosios/common';
 import ReactNipple from 'react-nipple';
@@ -19,10 +19,10 @@ interface IState {
     hud: HUDProps;
 }
 
-export default class Game extends Component<IProps, IState> {
+export default class Match extends Component<IProps, IState> {
     private gameCanvas: RefObject<HTMLDivElement>;
 
-    private gameManager: GameManager;
+    private gameManager: Game;
 
     private client?: Client;
 
@@ -35,7 +35,7 @@ export default class Game extends Component<IProps, IState> {
         super(props);
 
         this.gameCanvas = React.createRef();
-        this.gameManager = new GameManager(window.innerWidth, window.innerHeight, this.handleActionSend);
+        this.gameManager = new Game(window.innerWidth, window.innerHeight, this.handleActionSend);
 
         this.state = {
             hud: {
@@ -135,10 +135,6 @@ export default class Game extends Component<IProps, IState> {
         this.gameManager.start(this.gameCanvas.current);
 
         // Listen for inputs
-        window.document.addEventListener('mousedown', this.handleMouseDown);
-        window.document.addEventListener('mouseup', this.handleMouseUp);
-        window.document.addEventListener('keydown', this.handleKeyDown);
-        window.document.addEventListener('keyup', this.handleKeyUp);
         window.addEventListener('resize', this.handleWindowResize);
 
         // Start players refresh listeners
@@ -155,10 +151,6 @@ export default class Game extends Component<IProps, IState> {
         this.gameManager.stop();
 
         // Inputs
-        window.document.removeEventListener('mousedown', this.handleMouseDown);
-        window.document.removeEventListener('mouseup', this.handleMouseUp);
-        window.document.removeEventListener('keydown', this.handleKeyDown);
-        window.document.removeEventListener('keyup', this.handleKeyUp);
         window.removeEventListener('resize', this.handleWindowResize);
 
         // Start players refresh listeners
@@ -266,88 +258,6 @@ export default class Game extends Component<IProps, IState> {
     };
 
     // HANDLERS: Inputs
-    handleMouseDown = (event: any) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        this.gameManager.inputs.shoot = true;
-    };
-
-    handleMouseUp = (event: any) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        this.gameManager.inputs.shoot = false;
-    };
-
-    handleKeyDown = (event: any) => {
-        const key = event.code;
-
-        if (Keys.LEFT.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.left = true;
-        }
-
-        if (Keys.UP.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.up = true;
-        }
-
-        if (Keys.RIGHT.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.right = true;
-        }
-
-        if (Keys.DOWN.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.down = true;
-        }
-
-        if (Keys.SHOOT.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.shoot = true;
-        }
-    };
-
-    handleKeyUp = (event: any) => {
-        const key = event.code;
-
-        if (Keys.LEFT.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.left = false;
-        }
-
-        if (Keys.UP.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.up = false;
-        }
-
-        if (Keys.RIGHT.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.right = false;
-        }
-
-        if (Keys.DOWN.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.down = false;
-        }
-
-        if (Keys.SHOOT.includes(key)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.gameManager.inputs.shoot = false;
-        }
-    };
-
     handleWindowResize = () => {
         this.gameManager.setScreenSize(window.innerWidth, window.innerHeight);
     };
