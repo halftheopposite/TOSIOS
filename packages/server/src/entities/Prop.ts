@@ -1,8 +1,8 @@
+import { Circle } from '.';
 import { Models } from '@tosios/common';
-import { Rectangle } from './Rectangle';
 import { type } from '@colyseus/schema';
 
-export class Prop extends Rectangle {
+export class Prop extends Circle {
     @type('string')
     public type: Models.PropType;
 
@@ -10,8 +10,8 @@ export class Prop extends Rectangle {
     public active: boolean;
 
     // Init
-    constructor(propType: Models.PropType, x: number, y: number, width: number, height: number) {
-        super(x, y, width, height);
+    constructor(propType: Models.PropType, x: number, y: number, radius: number) {
+        super(x, y, radius);
 
         this.type = propType;
         this.active = true;

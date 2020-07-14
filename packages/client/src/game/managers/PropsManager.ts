@@ -1,8 +1,8 @@
-import { ManagerContainer } from './ManagerContainer';
-import { PropSprite } from '../sprites';
+import { BaseManager } from './BaseManager';
+import { Prop } from '../entities';
 
-export default class PropsManager extends ManagerContainer<PropSprite> {
+export default class PropsManager extends BaseManager<Prop> {
     constructor() {
-        super('PROPS');
+        super('Props');
     }
 }

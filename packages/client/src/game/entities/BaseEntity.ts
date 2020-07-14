@@ -48,4 +48,14 @@ export class BaseEntity {
         // Body
         this.body = new Geometry.CircleBody(props.x, props.y, props.radius);
     }
+
+    // Setters
+    set visible(visible: boolean) {
+        this.container.visible = visible;
+    }
+
+    // Getters
+    get visible(): boolean {
+        return this.container.visible;
+    }
 }

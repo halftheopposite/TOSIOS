@@ -2,11 +2,11 @@ import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
 import { ImpactConfig, ImpactTexture } from './particles';
-import { PlayerSprite, PropSprite } from './sprites';
+import { Monster, Prop } from './entities';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
-import { Monster } from './entities/Monster';
+import { PlayerSprite } from './sprites';
 import { SpriteSheets } from './images/maps';
 import { Viewport } from 'pixi-viewport';
 
@@ -653,7 +653,7 @@ export class Game {
 
     // COLYSEUS: Props
     propAdd = (propId: string, attributes: Models.PropJSON) => {
-        const prop = new PropSprite(attributes);
+        const prop = new Prop(attributes);
         this.propsManager.add(propId, prop);
     };
 
@@ -663,10 +663,8 @@ export class Game {
             return;
         }
 
-        prop.position = {
-            x: attributes.x,
-            y: attributes.y,
-        };
+        prop.x = attributes.x;
+        prop.y = attributes.y;
         prop.active = attributes.active;
     };
 
