@@ -1,14 +1,14 @@
 import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
-import { MonsterSprite, PlayerSprite, PropSprite } from './sprites';
+import { ImpactConfig, ImpactTexture } from './particles';
+import { PlayerSprite, PropSprite } from './sprites';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
-import { ParticleTextures } from './images/textures';
+import { Monster } from './entities/Monster';
 import { SpriteSheets } from './images/maps';
 import { Viewport } from 'pixi-viewport';
-import particleConfig from './particles/impact.json';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -362,10 +362,8 @@ export class Game {
         for (const monster of this.monstersManager.getAll()) {
             distance = Maths.getDistance(monster.x, monster.y, monster.toX, monster.toY);
             if (distance !== 0) {
-                monster.position = {
-                    x: Maths.lerp(monster.x, monster.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG),
-                    y: Maths.lerp(monster.y, monster.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG),
-                };
+                monster.x = Maths.lerp(monster.x, monster.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
+                monster.y = Maths.lerp(monster.y, monster.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
             }
         }
     };
@@ -432,8 +430,8 @@ export class Game {
 
     // SPAWNERS
     private spawnImpact = (x: number, y: number, color = '#ffffff') => {
-        new Emitter(this.playersManager, [ParticleTextures.particleTexture], {
-            ...particleConfig,
+        new Emitter(this.playersManager, [ImpactTexture], {
+            ...ImpactConfig,
             color: {
                 start: color,
                 end: color,
@@ -630,7 +628,7 @@ export class Game {
 
     // COLYSEUS: Monster
     monsterAdd = (monsterId: string, attributes: Models.MonsterJSON) => {
-        const monster = new MonsterSprite(attributes);
+        const monster = new Monster(attributes);
         this.monstersManager.add(monsterId, monster);
     };
 
