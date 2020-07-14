@@ -4,6 +4,7 @@ import { Effects } from '../sprites';
 import { Emitter } from 'pixi-particles';
 import { Models } from '@tosios/common';
 import { MonstersTextures } from '../images/textures';
+import { Graphics } from 'pixi.js';
 
 const HURT_COLOR = 0xff0000;
 
@@ -18,6 +19,8 @@ export class Monster extends BaseEntity {
 
     private _smoke: Emitter;
 
+    private _shadow: Graphics;
+
     // Init
     constructor(props: Models.MonsterJSON) {
         super({
@@ -27,6 +30,16 @@ export class Monster extends BaseEntity {
             textures: MonstersTextures.Bat,
         });
 
+        // Shadow
+        this._shadow = new Graphics();
+        this._shadow.zIndex = 10;
+        this._shadow.pivot.set(0.5);
+        this._shadow.beginFill(0x000000, 0.3);
+        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius / 2, props.radius / 4);
+        this._shadow.endFill();
+        this.container.addChild(this._shadow);
+
+        // Smoke emitter
         this._smoke = new Emitter(this.container, [SmokeTexture], {
             ...SmokeConfig,
             pos: {

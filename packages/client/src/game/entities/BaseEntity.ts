@@ -1,5 +1,5 @@
 import { AnimatedSprite, Container, Graphics, Texture } from 'pixi.js';
-import { Geometry } from '@tosios/common';
+import { Constants, Geometry } from '@tosios/common';
 
 export interface BaseProps {
     x: number;
@@ -15,7 +15,7 @@ export class BaseEntity {
 
     body: Geometry.CircleBody;
 
-    debug: Graphics;
+    debug?: Graphics;
 
     constructor(props: BaseProps) {
         this.container = new Container();
@@ -32,18 +32,21 @@ export class BaseEntity {
         this.container.addChild(this.sprite);
 
         // Debug
-        this.debug = new Graphics();
-        this.debug.lineStyle(0.5, 0xff00ff);
-        this.debug.drawCircle(this.container.width / 2, this.container.height / 2, this.container.width / 2);
-        this.debug.drawRect(0, 0, this.container.width, this.container.height);
-        this.debug.endFill();
-        this.container.addChild(this.debug);
+        if (Constants.DEBUG) {
+            this.debug = new Graphics();
+            this.debug.lineStyle(0.5, 0xff00ff);
+            this.debug.drawCircle(this.container.width / 2, this.container.height / 2, this.container.width / 2);
+            this.debug.drawRect(0, 0, this.container.width, this.container.height);
+            this.debug.endFill();
+            this.container.addChild(this.debug);
+        }
 
         // Container
         this.container.pivot.x = this.container.width / 2;
         this.container.pivot.y = this.container.height / 2;
         this.container.x = props.x;
         this.container.y = props.y;
+        this.container.sortChildren();
 
         // Body
         this.body = new Geometry.CircleBody(props.x, props.y, props.radius);
