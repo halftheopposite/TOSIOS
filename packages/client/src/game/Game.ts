@@ -2,11 +2,10 @@ import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
 import { ImpactConfig, ImpactTexture } from './particles';
-import { Monster, Prop } from './entities';
+import { Monster, Player, Prop } from './entities';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
-import { PlayerSprite } from './sprites';
 import { SpriteSheets } from './images/maps';
 import { Viewport } from 'pixi-viewport';
 
@@ -83,7 +82,7 @@ export class Game {
     private mode?: Types.GameMode;
 
     // Me (the one playing the game on his computer)
-    private me: PlayerSprite | null = null;
+    private me: Player | null = null;
 
     // Server reconciliation
     private moveActions: Models.ActionJSON[] = [];
@@ -258,17 +257,13 @@ export class Game {
 
         // Collisions: Map
         const clampedPosition = this.map.clampCircle(this.me.body);
-        this.me.position = {
-            x: clampedPosition.x,
-            y: clampedPosition.y,
-        };
+        this.me.x = clampedPosition.x;
+        this.me.y = clampedPosition.y;
 
         // Collisions: Walls
         const correctedPosition = this.walls.correctWithCircle(this.me.body);
-        this.me.position = {
-            x: correctedPosition.x,
-            y: correctedPosition.y,
-        };
+        this.me.x = correctedPosition.x;
+        this.me.y = correctedPosition.y;
     };
 
     private rotate = () => {
@@ -348,10 +343,8 @@ export class Game {
         for (const player of this.playersManager.getAll()) {
             distance = Maths.getDistance(player.x, player.y, player.toX, player.toY);
             if (distance !== 0) {
-                player.position = {
-                    x: Maths.lerp(player.x, player.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG),
-                    y: Maths.lerp(player.y, player.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG),
-                };
+                player.x = Maths.lerp(player.x, player.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
+                player.y = Maths.lerp(player.y, player.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
             }
         }
     };
@@ -451,18 +444,18 @@ export class Game {
 
     // GETTERS
     getStats = (): Stats => {
-        const players: Models.PlayerJSON[] = this.playersManager.getAll().map((item) => ({
-            playerId: item.playerId,
-            x: item.x,
-            y: item.y,
-            radius: item.radius,
-            rotation: item.rotation,
-            name: item.name,
-            color: item.color,
-            lives: item.lives,
-            maxLives: item.maxLives,
-            kills: item.kills,
-            team: item.team,
+        const players: Models.PlayerJSON[] = this.playersManager.getAll().map((player) => ({
+            playerId: player.playerId,
+            x: player.x,
+            y: player.y,
+            radius: player.body.radius,
+            rotation: player.rotation,
+            name: player.name,
+            color: player.color,
+            lives: player.lives,
+            maxLives: player.maxLives,
+            kills: player.kills,
+            team: player.team,
         }));
 
         return {
@@ -514,18 +507,15 @@ export class Game {
 
     // COLYSEUS: Players
     playerAdd = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
-        const player = new PlayerSprite(attributes, isMe);
+        const player = new Player(attributes, isMe);
         this.playersManager.add(playerId, player);
 
         // If the player is "you"
         if (isMe) {
-            this.me = new PlayerSprite(attributes, false);
+            this.me = new Player(attributes, false);
 
-            this.playersManager.addChild(this.me.weaponSprite);
-            this.playersManager.addChild(this.me.sprite);
-            this.playersManager.addChild(this.me.nameTextSprite);
-            this.playersManager.addChild(this.me.livesSprite);
-            this.viewport.follow(this.me.sprite);
+            this.playersManager.addChild(this.me.container);
+            this.viewport.follow(this.me.container);
         }
     };
 
@@ -547,14 +537,10 @@ export class Game {
                 this.me.ack = attributes.ack;
 
                 // Update ghost position
-                ghost.position = {
-                    x: attributes.x,
-                    y: attributes.y,
-                };
-                ghost.toPosition = {
-                    toX: attributes.x,
-                    toY: attributes.y,
-                };
+                ghost.x = attributes.x;
+                ghost.y = attributes.y;
+                ghost.toX = attributes.x;
+                ghost.toY = attributes.y;
 
                 // Run simulation of all movements that weren't treated by server yet
                 const index = this.moveActions.findIndex((action) => action.ts === attributes.ack);
@@ -563,25 +549,24 @@ export class Game {
                     const updatedPosition = Models.movePlayer(
                         ghost.x,
                         ghost.y,
-                        ghost.radius,
+                        ghost.body.radius,
                         action.value.x,
                         action.value.y,
                         Constants.PLAYER_SPEED,
                         this.walls,
                     );
 
-                    ghost.position = { x: updatedPosition.x, y: updatedPosition.y };
-                    ghost.toPosition = { toX: updatedPosition.x, toY: updatedPosition.y };
+                    ghost.x = updatedPosition.x;
+                    ghost.y = updatedPosition.y;
+                    ghost.toX = updatedPosition.x;
+                    ghost.toY = updatedPosition.y;
                 });
 
                 // Check if our predictions were accurate
                 const distance = Maths.getDistance(this.me.x, this.me.y, ghost.x, ghost.y);
                 if (distance > 0) {
-                    console.log(`Corrected position distance=${distance}`);
-                    this.me.position = {
-                        x: ghost.x,
-                        y: ghost.y,
-                    };
+                    this.me.x = ghost.x;
+                    this.me.y = ghost.y;
                 }
             }
         } else {
@@ -601,14 +586,10 @@ export class Game {
             player.rotation = attributes.rotation;
 
             // Update position
-            player.position = {
-                x: player.toX,
-                y: player.toY,
-            };
-            player.toPosition = {
-                toX: attributes.x,
-                toY: attributes.y,
-            };
+            player.x = player.toX;
+            player.y = player.toY;
+            player.toX = attributes.x;
+            player.toY = attributes.y;
         }
     };
 
@@ -617,11 +598,7 @@ export class Game {
 
         // If the player is "you"
         if (isMe && this.me) {
-            this.playersManager.removeChild(this.me.weaponSprite);
-            this.playersManager.removeChild(this.me.sprite);
-            this.playersManager.removeChild(this.me.nameTextSprite);
-            this.playersManager.removeChild(this.me.livesSprite);
-
+            this.playersManager.removeChild(this.me.container);
             delete this.me;
         }
     };

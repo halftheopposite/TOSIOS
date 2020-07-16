@@ -2,13 +2,13 @@ import { SmokeConfig, SmokeTexture } from '../particles';
 import { BaseEntity } from './';
 import { Effects } from '../sprites';
 import { Emitter } from 'pixi-particles';
+import { Graphics } from 'pixi.js';
 import { Models } from '@tosios/common';
 import { MonstersTextures } from '../images/textures';
-import { Graphics } from 'pixi.js';
 
 const HURT_COLOR = 0xff0000;
 
-type MonsterDirection = 'left' | 'right';
+export type MonsterDirection = 'left' | 'right';
 
 export class Monster extends BaseEntity {
     private _toX: number = 0;
@@ -79,10 +79,10 @@ export class Monster extends BaseEntity {
         this._direction = getDirection(rotation);
         switch (this._direction) {
             case 'left':
-                this.container.scale.x = -1;
+                this.sprite.scale.x = -2;
                 break;
             case 'right':
-                this.container.scale.x = 1;
+                this.sprite.scale.x = 2;
                 break;
             default:
                 break;
@@ -108,7 +108,7 @@ export class Monster extends BaseEntity {
 }
 
 /**
- * Get a `MonsterDirection` given a rotation
+ * Get a direction given a rotation.
  */
 function getDirection(rotation: number): MonsterDirection {
     if (rotation >= -(Math.PI / 2) && rotation <= Math.PI / 2) {

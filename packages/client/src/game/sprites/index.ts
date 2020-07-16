@@ -7,7 +7,6 @@ export * from './AnchorContainer';
 export * from './BulletSprite';
 export * from './CircleSprite';
 export * from './LineSprite';
-export * from './PlayerSprite';
 export * from './PlayerLivesSprite';
 export * from './RectangleSprite';
 export * from './TextSprite';

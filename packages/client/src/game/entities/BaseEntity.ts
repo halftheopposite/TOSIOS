@@ -22,11 +22,11 @@ export class BaseEntity {
 
         // Sprite
         this.sprite = new AnimatedSprite(props.textures);
-        this.sprite.pivot.x = 0.5;
-        this.sprite.pivot.y = 0.5;
+        this.sprite.anchor.set(0.5);
+        this.sprite.position.set(props.radius, props.radius);
         this.sprite.width = props.radius * 2;
         this.sprite.height = props.radius * 2;
-        this.sprite.zIndex = 100;
+        this.sprite.zIndex = 1;
         this.sprite.animationSpeed = 0.1;
         this.sprite.play();
         this.container.addChild(this.sprite);
@@ -42,8 +42,7 @@ export class BaseEntity {
         }
 
         // Container
-        this.container.pivot.x = this.container.width / 2;
-        this.container.pivot.y = this.container.height / 2;
+        this.container.pivot.set(this.container.width / 2, this.container.height / 2);
         this.container.x = props.x;
         this.container.y = props.y;
         this.container.sortChildren();

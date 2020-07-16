@@ -1,7 +1,8 @@
-import { AnimatedSprite, Sprite, utils } from 'pixi.js';
-import { CircleSprite, Effects, PlayerLivesSprite, TextSprite } from '.';
 import { Constants, Maths, Models, Types } from '@tosios/common';
+import { Effects, PlayerLivesSprite, TextSprite } from '../sprites';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
+import { Sprite, Texture, utils } from 'pixi.js';
+import { BaseEntity } from '.';
 
 const NAME_OFFSET = 4;
 const LIVES_OFFSET = 10;
@@ -9,12 +10,9 @@ const HURT_COLOR = 0xff0000;
 const HEAL_COLOR = 0x00ff00;
 const BULLET_DELAY_FACTOR = 1.1; // Add 10% to delay as server may lag behind sometimes (rarely)
 
-type PlayerDirection = 'left' | 'right';
+export type PlayerDirection = 'left' | 'right';
 
-/**
- * A sprite representing a player with circle bounds.
- */
-export class PlayerSprite extends CircleSprite {
+export class Player extends BaseEntity {
     private _playerId: string = '';
 
     private _name: string = '';
@@ -51,64 +49,64 @@ export class PlayerSprite extends CircleSprite {
     public ack?: number;
 
     // Init
-    constructor(player: Models.PlayerJSON, isGhost: boolean) {
-        super(player.x, player.y, player.radius, 0, {
-            array: player.lives > 0 ? PlayerTextures.playerIdleTextures : PlayerTextures.playerDeadTextures,
+    constructor(props: Models.PlayerJSON, isGhost: boolean) {
+        super({
+            x: props.x,
+            y: props.y,
+            radius: props.radius,
+            textures: getTexture(props.lives),
         });
 
         // Weapon
         this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
         this._weaponSprite.anchor.set(0, 0.5);
-        this._weaponSprite.position.set(player.x, player.y);
+        this._weaponSprite.position.set(props.radius, props.radius);
         this._weaponSprite.zIndex = 0;
+        this.container.addChild(this._weaponSprite);
 
         // Name
-        this._nameTextSprite = new TextSprite(player.name, 8, 0.5, 1);
-        this._nameTextSprite.position.set(player.x, this.body.top - NAME_OFFSET);
+        this._nameTextSprite = new TextSprite(props.name, 8, 0.5, 1);
+        this._nameTextSprite.position.set(props.radius, -NAME_OFFSET);
         this._nameTextSprite.zIndex = 2;
+        this.container.addChild(this._nameTextSprite);
 
         // Lives
-        this._livesSprite = new PlayerLivesSprite(0.5, 1, 8, player.maxLives, player.lives);
-        this._livesSprite.position.set(player.x, this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET);
+        this._livesSprite = new PlayerLivesSprite(0.5, 1, 8, props.maxLives, props.lives);
+        this._livesSprite.position.set(
+            props.radius,
+            this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET,
+        );
         this._livesSprite.anchorX = 0.5;
         this._livesSprite.zIndex = 2;
+        this.container.addChild(this._livesSprite);
 
         // Player
-        this.sprite.zIndex = 1;
-        this.playerId = player.playerId;
-        this.toX = player.x;
-        this.toY = player.y;
-        this.rotation = player.rotation;
-        this.name = player.name;
-        this.color = player.color;
-        this.lives = player.lives;
-        this.maxLives = player.maxLives;
-        this.kills = player.kills;
-        this.team = player.team;
+        this.playerId = props.playerId;
+        this.toX = props.x;
+        this.toY = props.y;
+        this.rotation = props.rotation;
+        this.name = props.name;
+        this.color = props.color;
+        this.lives = props.lives;
+        this.maxLives = props.maxLives;
+        this.kills = props.kills;
+        this.team = props.team;
         this.isGhost = isGhost;
 
         // Ghost
         if (isGhost) {
-            this.sprite.visible = Constants.DEBUG;
-            this._weaponSprite.visible = Constants.DEBUG;
-            this._nameTextSprite.visible = Constants.DEBUG;
-            this._livesSprite.visible = Constants.DEBUG;
+            this.visible = Constants.DEBUG;
         }
-
-        this.updateTextures();
     }
 
     // Methods
     move(dirX: number, dirY: number, speed: number) {
         const magnitude = Maths.normalize2D(dirX, dirY);
-
         const speedX = Math.round(Maths.round2Digits(dirX * (speed / magnitude)));
         const speedY = Math.round(Maths.round2Digits(dirY * (speed / magnitude)));
 
         this.x += speedX;
         this.y += speedY;
-        this._weaponSprite.position.set(this.x, this.y);
-        this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
     }
 
     hurt() {
@@ -124,21 +122,20 @@ export class PlayerSprite extends CircleSprite {
 
         // Player
         this.sprite.alpha = isAlive ? 1.0 : 0.2;
-        (this.sprite as AnimatedSprite).textures = isAlive
-            ? PlayerTextures.playerIdleTextures
-            : PlayerTextures.playerDeadTextures;
-        (this.sprite as AnimatedSprite).width = this.body.width;
-        (this.sprite as AnimatedSprite).height = this.body.height;
-        (this.sprite as AnimatedSprite).play();
+        this.sprite.textures = isAlive ? PlayerTextures.playerIdleTextures : PlayerTextures.playerDeadTextures;
+        this.sprite.anchor.set(0.5);
+        this.sprite.width = this.body.width;
+        this.sprite.height = this.body.height;
+        this.sprite.play();
 
         // Weapon
-        this.weaponSprite.visible = this.isGhost ? isAlive && Constants.DEBUG : isAlive;
+        this._weaponSprite.visible = this.isGhost ? isAlive && Constants.DEBUG : isAlive;
 
         // Name
-        this.nameTextSprite.alpha = isAlive ? 1.0 : 0.2;
+        this._nameTextSprite.alpha = isAlive ? 1.0 : 0.2;
 
         // Lives
-        this.livesSprite.alpha = isAlive ? 1.0 : 0.2;
+        this._livesSprite.alpha = isAlive ? 1.0 : 0.2;
     }
 
     canShoot(): boolean {
@@ -176,6 +173,24 @@ export class PlayerSprite extends CircleSprite {
     }
 
     // Setters
+    set x(x: number) {
+        this.container.x = x;
+        this.body.x = x;
+    }
+
+    set y(y: number) {
+        this.container.y = y;
+        this.body.y = y;
+    }
+
+    set toX(toX: number) {
+        this._toX = toX;
+    }
+
+    set toY(toY: number) {
+        this._toY = toY;
+    }
+
     set playerId(playerId: string) {
         this._playerId = playerId;
     }
@@ -195,7 +210,7 @@ export class PlayerSprite extends CircleSprite {
         }
 
         this._lives = lives;
-        this.livesSprite.lives = this._lives;
+        this._livesSprite.lives = this._lives;
         this.updateTextures();
     }
 
@@ -205,7 +220,7 @@ export class PlayerSprite extends CircleSprite {
         }
 
         this._maxLives = maxLives;
-        this.livesSprite.maxLives = this._maxLives;
+        this._livesSprite.maxLives = this._maxLives;
         this.updateTextures();
     }
 
@@ -220,7 +235,7 @@ export class PlayerSprite extends CircleSprite {
         // Therefore, adding a delay fixes the problem for now.
         setTimeout(() => {
             this.sprite.tint = utils.string2hex(color);
-            this.weaponSprite.tint = utils.string2hex(color);
+            this._weaponSprite.tint = utils.string2hex(color);
         }, 100);
     }
 
@@ -233,23 +248,9 @@ export class PlayerSprite extends CircleSprite {
     }
 
     set rotation(rotation: number) {
-        this._rotation = rotation;
+        this._direction = getDirection(rotation);
 
-        if (rotation >= -(Math.PI / 2) && rotation <= Math.PI / 2) {
-            this.direction = 'right';
-        } else {
-            this.direction = 'left';
-        }
-
-        this._weaponSprite.rotation = rotation;
-    }
-
-    set isGhost(isGhost: boolean) {
-        this._isGhost = isGhost;
-    }
-
-    set direction(direction: PlayerDirection) {
-        switch (direction) {
+        switch (this._direction) {
             case 'left':
                 this.sprite.scale.x = -2;
                 break;
@@ -259,35 +260,36 @@ export class PlayerSprite extends CircleSprite {
             default:
                 break;
         }
+
+        this._rotation = rotation;
+        this._weaponSprite.rotation = rotation;
+    }
+
+    set isGhost(isGhost: boolean) {
+        this._isGhost = isGhost;
     }
 
     set lastShootAt(lastShootAt: number) {
         this._lastShootAt = lastShootAt;
     }
 
-    set toX(toX: number) {
-        this._toX = toX;
-    }
-
-    set toY(toY: number) {
-        this._toY = toY;
-    }
-
-    set position(position: { x: number; y: number }) {
-        this.x = position.x;
-        this.y = position.y;
-        this._weaponSprite.position.set(this.x, this.y);
-        this._nameTextSprite.position.set(this.x, this.body.top - NAME_OFFSET);
-        this._livesSprite.position.set(this.x, this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET);
-        this._livesSprite.anchorX = 0.5;
-    }
-
-    set toPosition(position: { toX: number; toY: number }) {
-        this.toX = position.toX;
-        this.toY = position.toY;
-    }
-
     // Getters
+    get x(): number {
+        return this.body.x;
+    }
+
+    get y(): number {
+        return this.body.y;
+    }
+
+    get toX(): number {
+        return this._toX;
+    }
+
+    get toY(): number {
+        return this._toY;
+    }
+
     get playerId() {
         return this._playerId;
     }
@@ -320,43 +322,29 @@ export class PlayerSprite extends CircleSprite {
         return this._isGhost;
     }
 
-    get direction() {
-        return this._direction;
-    }
-
     get lastShootAt() {
         return this._lastShootAt;
-    }
-
-    get toX() {
-        return this._toX;
-    }
-
-    get toY() {
-        return this._toY;
-    }
-
-    get position() {
-        return { x: this.x, y: this.y };
-    }
-
-    get toPosition() {
-        return { toX: this.toX, toY: this.toY };
     }
 
     get isAlive() {
         return this._lives > 0;
     }
+}
 
-    get weaponSprite() {
-        return this._weaponSprite;
+/**
+ * Return a texture depending on the number of lives.
+ */
+const getTexture = (lives: number): Texture[] => {
+    return lives > 0 ? PlayerTextures.playerIdleTextures : PlayerTextures.playerDeadTextures;
+};
+
+/**
+ * Get a direction given a rotation.
+ */
+function getDirection(rotation: number): PlayerDirection {
+    if (rotation >= -(Math.PI / 2) && rotation <= Math.PI / 2) {
+        return 'right';
     }
 
-    get nameTextSprite() {
-        return this._nameTextSprite;
-    }
-
-    get livesSprite() {
-        return this._livesSprite;
-    }
+    return 'left';
 }
