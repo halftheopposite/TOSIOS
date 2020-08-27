@@ -3,6 +3,11 @@ import { BaseEntity } from '.';
 import { Models } from '@tosios/common';
 import { PropTextures } from '../images/textures';
 
+const ZINDEXES = {
+    SHADOW: 0,
+    PROP: 1,
+};
+
 export class Prop extends BaseEntity {
     private _type: Models.PropType;
 
@@ -17,19 +22,24 @@ export class Prop extends BaseEntity {
             y: props.y,
             radius: props.radius,
             textures: getTexture(props.type),
+            zIndex: ZINDEXES.PROP,
         });
-
-        this._type = props.type;
-        this.active = props.active;
 
         // Shadow
         this._shadow = new Graphics();
-        this._shadow.zIndex = 10;
+        this._shadow.zIndex = ZINDEXES.SHADOW;
         this._shadow.pivot.set(0.5);
         this._shadow.beginFill(0x000000, 0.3);
         this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius / 2, props.radius / 4);
         this._shadow.endFill();
         this.container.addChild(this._shadow);
+
+        // Sort rendering order
+        this.container.sortChildren();
+
+        // Prop
+        this._type = props.type;
+        this.active = props.active;
     }
 
     // Setters

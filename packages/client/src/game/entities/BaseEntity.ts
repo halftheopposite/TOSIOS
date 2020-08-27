@@ -6,6 +6,7 @@ export interface BaseProps {
     y: number;
     radius: number;
     textures: Texture[];
+    zIndex?: number;
 }
 
 export class BaseEntity {
@@ -26,8 +27,8 @@ export class BaseEntity {
         this.sprite.position.set(props.radius, props.radius);
         this.sprite.width = props.radius * 2;
         this.sprite.height = props.radius * 2;
-        this.sprite.zIndex = 1;
         this.sprite.animationSpeed = 0.1;
+        this.sprite.zIndex = props.zIndex || 0;
         this.sprite.play();
         this.container.addChild(this.sprite);
 

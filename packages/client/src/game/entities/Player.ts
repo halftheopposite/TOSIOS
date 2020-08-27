@@ -1,14 +1,24 @@
 import { Constants, Maths, Models, Types } from '@tosios/common';
+import { Container, Graphics, Sprite, Texture, utils } from 'pixi.js';
 import { Effects, PlayerLivesSprite, TextSprite } from '../sprites';
 import { PlayerTextures, WeaponTextures } from '../images/textures';
-import { Sprite, Texture, utils } from 'pixi.js';
+import { SmokeConfig, SmokeTexture } from '../particles';
 import { BaseEntity } from '.';
+import { Emitter } from 'pixi-particles';
 
 const NAME_OFFSET = 4;
 const LIVES_OFFSET = 10;
 const HURT_COLOR = 0xff0000;
 const HEAL_COLOR = 0x00ff00;
 const BULLET_DELAY_FACTOR = 1.1; // Add 10% to delay as server may lag behind sometimes (rarely)
+const SMOKE_DELAY = 500;
+const DEAD_ALPHA = 0.2;
+const ZINDEXES = {
+    SHADOW: 0,
+    WEAPON: 1,
+    PLAYER: 2,
+    INFOS: 3,
+};
 
 export type PlayerDirection = 'left' | 'right';
 
@@ -48,26 +58,33 @@ export class Player extends BaseEntity {
 
     public ack?: number;
 
+    private _shadow: Graphics;
+
+    private _particlesContainer?: Container;
+
+    private _lastSmokeAt: number = 0;
+
     // Init
-    constructor(props: Models.PlayerJSON, isGhost: boolean) {
+    constructor(props: Models.PlayerJSON, isGhost: boolean, particlesContainer?: Container) {
         super({
             x: props.x,
             y: props.y,
             radius: props.radius,
             textures: getTexture(props.lives),
+            zIndex: ZINDEXES.PLAYER,
         });
 
         // Weapon
         this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
         this._weaponSprite.anchor.set(0, 0.5);
         this._weaponSprite.position.set(props.radius, props.radius);
-        this._weaponSprite.zIndex = 0;
+        this._weaponSprite.zIndex = ZINDEXES.WEAPON;
         this.container.addChild(this._weaponSprite);
 
         // Name
         this._nameTextSprite = new TextSprite(props.name, 8, 0.5, 1);
         this._nameTextSprite.position.set(props.radius, -NAME_OFFSET);
-        this._nameTextSprite.zIndex = 2;
+        this._nameTextSprite.zIndex = ZINDEXES.INFOS;
         this.container.addChild(this._nameTextSprite);
 
         // Lives
@@ -77,8 +94,23 @@ export class Player extends BaseEntity {
             this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET,
         );
         this._livesSprite.anchorX = 0.5;
-        this._livesSprite.zIndex = 2;
+        this._livesSprite.zIndex = ZINDEXES.INFOS;
         this.container.addChild(this._livesSprite);
+
+        // Shadow
+        this._shadow = new Graphics();
+        this._shadow.zIndex = ZINDEXES.SHADOW;
+        this._shadow.pivot.set(0.5);
+        this._shadow.beginFill(0x000000, 0.3);
+        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius * 0.7, props.radius * 0.5);
+        this._shadow.endFill();
+        this.container.addChild(this._shadow);
+
+        // Sort rendering order
+        this.container.sortChildren();
+
+        // Reference to the particles container
+        this._particlesContainer = particlesContainer;
 
         // Player
         this.playerId = props.playerId;
@@ -121,7 +153,7 @@ export class Player extends BaseEntity {
         const isAlive = this.lives > 0;
 
         // Player
-        this.sprite.alpha = isAlive ? 1.0 : 0.2;
+        this.sprite.alpha = isAlive ? 1 : DEAD_ALPHA;
         this.sprite.textures = isAlive ? PlayerTextures.playerIdleTextures : PlayerTextures.playerDeadTextures;
         this.sprite.anchor.set(0.5);
         this.sprite.width = this.body.width;
@@ -132,10 +164,13 @@ export class Player extends BaseEntity {
         this._weaponSprite.visible = this.isGhost ? isAlive && Constants.DEBUG : isAlive;
 
         // Name
-        this._nameTextSprite.alpha = isAlive ? 1.0 : 0.2;
+        this._nameTextSprite.alpha = isAlive ? 1 : DEAD_ALPHA;
 
         // Lives
-        this._livesSprite.alpha = isAlive ? 1.0 : 0.2;
+        this._livesSprite.alpha = isAlive ? 1 : DEAD_ALPHA;
+
+        // Shadow
+        this._shadow.alpha = isAlive ? 1 : DEAD_ALPHA;
     }
 
     canShoot(): boolean {
@@ -172,15 +207,42 @@ export class Player extends BaseEntity {
         return true;
     }
 
+    spawnSmoke() {
+        if (!this._particlesContainer) {
+            return;
+        }
+
+        if (!this.isAlive) {
+            return;
+        }
+
+        const timeSinceLastSmoke = Date.now() - this._lastSmokeAt;
+        if (timeSinceLastSmoke < SMOKE_DELAY) {
+            return;
+        }
+
+        new Emitter(this._particlesContainer, [SmokeTexture], {
+            ...SmokeConfig,
+            pos: {
+                x: this.body.x,
+                y: this.body.y + this.body.radius / 2,
+            },
+        }).playOnceAndDestroy();
+
+        this._lastSmokeAt = Date.now();
+    }
+
     // Setters
     set x(x: number) {
         this.container.x = x;
         this.body.x = x;
+        this.spawnSmoke();
     }
 
     set y(y: number) {
         this.container.y = y;
         this.body.y = y;
+        this.spawnSmoke();
     }
 
     set toX(toX: number) {

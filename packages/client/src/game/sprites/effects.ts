@@ -1,7 +1,7 @@
-import { Sprite } from 'pixi.js';
+import { DisplayObject, Sprite } from 'pixi.js';
 
-const FLASH_DURATION = 100;
-const BLINK_DURATION = 20;
+const FLASH_DURATION = 200;
+const BLINK_DURATION = 300;
 const BLINK_COUNT = 5;
 
 export const flash = (sprite: Sprite, tintColor: number, baseColor: number) => {
@@ -12,15 +12,15 @@ export const flash = (sprite: Sprite, tintColor: number, baseColor: number) => {
     }, FLASH_DURATION);
 };
 
-export const blink = (sprite: Sprite) => {
+export const blink = (object: DisplayObject) => {
     let count = 0;
 
     const interval = setInterval(() => {
-        sprite.visible = !sprite.visible;
+        object.visible = !object.visible;
         count++;
 
         if (count >= BLINK_COUNT) {
-            sprite.visible = true;
+            object.visible = true;
             clearInterval(interval);
         }
     }, BLINK_DURATION);

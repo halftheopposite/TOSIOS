@@ -1,4 +1,4 @@
-import { Application, SCALE_MODES, settings, utils } from 'pixi.js';
+import { Application, Container, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
 import { ImpactConfig, ImpactTexture } from './particles';
@@ -15,10 +15,11 @@ settings.SCALE_MODE = SCALE_MODES.NEAREST;
 const ZINDEXES = {
     GROUND: 1,
     PROPS: 2,
-    PLAYERS: 3,
-    ME: 4,
-    MONSTERS: 5,
-    BULLETS: 6,
+    PARTICLES: 3,
+    PLAYERS: 4,
+    ME: 5,
+    MONSTERS: 6,
+    BULLETS: 7,
 };
 
 // TODO: These two constants should be calculated automatically.
@@ -54,6 +55,8 @@ export class Game {
     private map: Entities.Map;
 
     private viewport: Viewport;
+
+    private particlesContainer: Container;
 
     private playersManager: PlayersManager;
 
@@ -112,6 +115,11 @@ export class Game {
         // Walls R-Tree
         this.walls = new Collisions.TreeCollider();
 
+        // Particles
+        this.particlesContainer = new Container();
+        this.particlesContainer.zIndex = ZINDEXES.PARTICLES;
+        this.viewport.addChild(this.particlesContainer);
+
         // Players
         this.playersManager = new PlayersManager();
         this.playersManager.zIndex = ZINDEXES.PLAYERS;
@@ -145,6 +153,133 @@ export class Game {
         this.app.start();
         this.app.ticker.add(this.update);
         this.inputs.start();
+    };
+
+    private update = () => {
+        this.updateInputs();
+        this.updatePlayers();
+        this.updateMonsters();
+        this.updateBullets();
+
+        this.playersManager.sortChildren();
+    };
+
+    private updateInputs = () => {
+        // Move
+        const dir = new Geometry.Vector2(0, 0);
+        if (this.inputs.up || this.inputs.down || this.inputs.left || this.inputs.right) {
+            if (this.inputs.up) {
+                dir.y -= 1;
+            }
+
+            if (this.inputs.down) {
+                dir.y += 1;
+            }
+
+            if (this.inputs.left) {
+                dir.x -= 1;
+            }
+
+            if (this.inputs.right) {
+                dir.x += 1;
+            }
+
+            if (!dir.empty) {
+                this.move(dir);
+            }
+        }
+
+        // Rotate
+        this.rotate();
+
+        // Shoot
+        if (this.inputs.shoot) {
+            this.shoot();
+        }
+    };
+
+    private updatePlayers = () => {
+        let distance;
+
+        for (const player of this.playersManager.getAll()) {
+            distance = Maths.getDistance(player.x, player.y, player.toX, player.toY);
+            if (distance > 0.01) {
+                player.x = Maths.lerp(player.x, player.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
+                player.y = Maths.lerp(player.y, player.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
+            }
+        }
+    };
+
+    private updateMonsters = () => {
+        let distance;
+
+        for (const monster of this.monstersManager.getAll()) {
+            distance = Maths.getDistance(monster.x, monster.y, monster.toX, monster.toY);
+            if (distance > 0.01) {
+                monster.x = Maths.lerp(monster.x, monster.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
+                monster.y = Maths.lerp(monster.y, monster.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
+            }
+        }
+    };
+
+    private updateBullets = () => {
+        for (const bullet of this.bulletsManager.getAll()) {
+            if (!bullet.active) {
+                continue;
+            }
+
+            bullet.move(Constants.BULLET_SPEED);
+
+            // Collisions: Players
+            for (const player of this.playersManager.getAll()) {
+                // Check if the bullet can hurt the player
+                if (
+                    !player.canBulletHurt(bullet.playerId, bullet.team) ||
+                    !Collisions.circleToCircle(bullet.body, player.body)
+                ) {
+                    continue;
+                }
+
+                bullet.active = false;
+                player.hurt();
+                this.spawnImpact(bullet.x, bullet.y);
+                continue;
+            }
+
+            // Collisions: Me
+            if (this.me && this.me.lives && Collisions.circleToCircle(bullet.body, this.me.body)) {
+                bullet.active = false;
+                this.me.hurt();
+                this.spawnImpact(bullet.x, bullet.y);
+                continue;
+            }
+
+            // Collisions: Monsters
+            for (const monster of this.monstersManager.getAll()) {
+                if (!Collisions.circleToCircle(bullet.body, monster.body)) {
+                    continue;
+                }
+
+                bullet.active = false;
+                monster.hurt();
+                this.spawnImpact(bullet.x, bullet.y);
+                continue;
+            }
+
+            // Collisions: Walls
+            if (this.walls.collidesWithCircle(bullet.body, 'half')) {
+                bullet.active = false;
+                this.spawnImpact(bullet.x, bullet.y);
+                continue;
+            }
+
+            // Collisions: Map
+            if (this.map.isCircleOutside(bullet.body)) {
+                bullet.active = false;
+                this.spawnImpact(Maths.clamp(bullet.x, 0, this.map.width), Maths.clamp(bullet.y, 0, this.map.height));
+                continue;
+            }
+        }
     };
 
     stop = () => {
@@ -190,49 +325,6 @@ export class Game {
         const container = getSpritesLayer(textures, tiledMap.layers);
         container.zIndex = ZINDEXES.GROUND;
         this.viewport.addChild(container);
-    };
-
-    private update = () => {
-        this.updateInputs();
-        this.updatePlayers();
-        this.updateMonsters();
-        this.updateBullets();
-
-        this.playersManager.sortChildren();
-    };
-
-    private updateInputs = () => {
-        // Move
-        const dir = new Geometry.Vector2(0, 0);
-        if (this.inputs.up || this.inputs.down || this.inputs.left || this.inputs.right) {
-            if (this.inputs.up) {
-                dir.y -= 1;
-            }
-
-            if (this.inputs.down) {
-                dir.y += 1;
-            }
-
-            if (this.inputs.left) {
-                dir.x -= 1;
-            }
-
-            if (this.inputs.right) {
-                dir.x += 1;
-            }
-
-            if (!dir.empty) {
-                this.move(dir);
-            }
-        }
-
-        // Rotate
-        this.rotate();
-
-        // Shoot
-        if (this.inputs.shoot) {
-            this.shoot();
-        }
     };
 
     private move = (dir: Geometry.Vector2) => {
@@ -337,90 +429,6 @@ export class Game {
         });
     };
 
-    private updatePlayers = () => {
-        let distance;
-
-        for (const player of this.playersManager.getAll()) {
-            distance = Maths.getDistance(player.x, player.y, player.toX, player.toY);
-            if (distance !== 0) {
-                player.x = Maths.lerp(player.x, player.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
-                player.y = Maths.lerp(player.y, player.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
-            }
-        }
-    };
-
-    private updateMonsters = () => {
-        let distance;
-
-        for (const monster of this.monstersManager.getAll()) {
-            distance = Maths.getDistance(monster.x, monster.y, monster.toX, monster.toY);
-            if (distance !== 0) {
-                monster.x = Maths.lerp(monster.x, monster.toX, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
-                monster.y = Maths.lerp(monster.y, monster.toY, TOREMOVE_MAX_FPS_MS / TOREMOVE_AVG_LAG);
-            }
-        }
-    };
-
-    private updateBullets = () => {
-        for (const bullet of this.bulletsManager.getAll()) {
-            if (!bullet.active) {
-                continue;
-            }
-
-            bullet.move(Constants.BULLET_SPEED);
-
-            // Collisions: Players
-            for (const player of this.playersManager.getAll()) {
-                // Check if the bullet can hurt the player
-                if (
-                    !player.canBulletHurt(bullet.playerId, bullet.team) ||
-                    !Collisions.circleToCircle(bullet.body, player.body)
-                ) {
-                    continue;
-                }
-
-                bullet.active = false;
-                player.hurt();
-                this.spawnImpact(bullet.x, bullet.y);
-                continue;
-            }
-
-            // Collisions: Me
-            if (this.me && this.me.lives && Collisions.circleToCircle(bullet.body, this.me.body)) {
-                bullet.active = false;
-                this.me.hurt();
-                this.spawnImpact(bullet.x, bullet.y);
-                continue;
-            }
-
-            // Collisions: Monsters
-            for (const monster of this.monstersManager.getAll()) {
-                if (!Collisions.circleToCircle(bullet.body, monster.body)) {
-                    continue;
-                }
-
-                bullet.active = false;
-                monster.hurt();
-                this.spawnImpact(bullet.x, bullet.y);
-                continue;
-            }
-
-            // Collisions: Walls
-            if (this.walls.collidesWithCircle(bullet.body, 'half')) {
-                bullet.active = false;
-                this.spawnImpact(bullet.x, bullet.y);
-                continue;
-            }
-
-            // Collisions: Map
-            if (this.map.isCircleOutside(bullet.body)) {
-                bullet.active = false;
-                this.spawnImpact(Maths.clamp(bullet.x, 0, this.map.width), Maths.clamp(bullet.y, 0, this.map.height));
-                continue;
-            }
-        }
-    };
-
     // SPAWNERS
     private spawnImpact = (x: number, y: number, color = '#ffffff') => {
         new Emitter(this.playersManager, [ImpactTexture], {
@@ -507,12 +515,12 @@ export class Game {
 
     // COLYSEUS: Players
     playerAdd = (playerId: string, attributes: Models.PlayerJSON, isMe: boolean) => {
-        const player = new Player(attributes, isMe);
+        const player = new Player(attributes, isMe, this.particlesContainer);
         this.playersManager.add(playerId, player);
 
         // If the player is "you"
         if (isMe) {
-            this.me = new Player(attributes, false);
+            this.me = new Player(attributes, false, this.particlesContainer);
 
             this.playersManager.addChild(this.me.container);
             this.viewport.follow(this.me.container);
