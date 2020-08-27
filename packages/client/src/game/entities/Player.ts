@@ -103,7 +103,7 @@ export class Player extends BaseEntity {
         this._shadow.zIndex = ZINDEXES.SHADOW;
         this._shadow.pivot.set(0.5);
         this._shadow.beginFill(0x000000, 0.3);
-        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius * 0.7, props.radius * 0.5);
+        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius * 0.7, props.radius * 0.3);
         this._shadow.endFill();
         this.container.addChild(this._shadow);
 
