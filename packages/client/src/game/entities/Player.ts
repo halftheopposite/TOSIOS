@@ -15,12 +15,13 @@ const SMOKE_DELAY = 500;
 const DEAD_ALPHA = 0.2;
 const ZINDEXES = {
     SHADOW: 0,
-    WEAPON: 1,
+    WEAPON_BACK: 1,
     PLAYER: 2,
-    INFOS: 3,
+    WEAPON_FRONT: 3,
+    INFOS: 4,
 };
 
-export type PlayerDirection = 'left' | 'right';
+export type PlayerDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 export class Player extends BaseEntity {
     private _playerId: string = '';
@@ -42,7 +43,7 @@ export class Player extends BaseEntity {
     // Computed
     private _isGhost: boolean = false;
 
-    private _direction: PlayerDirection = 'right';
+    private _direction: PlayerDirection = 'bottom-right';
 
     private _lastShootAt: number = 0;
 
@@ -78,7 +79,7 @@ export class Player extends BaseEntity {
         this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
         this._weaponSprite.anchor.set(0, 0.5);
         this._weaponSprite.position.set(props.radius, props.radius);
-        this._weaponSprite.zIndex = ZINDEXES.WEAPON;
+        this._weaponSprite.zIndex = ZINDEXES.WEAPON_BACK;
         this.container.addChild(this._weaponSprite);
 
         // Name
@@ -313,11 +314,21 @@ export class Player extends BaseEntity {
         this._direction = getDirection(rotation);
 
         switch (this._direction) {
-            case 'left':
+            case 'top-left':
                 this.sprite.scale.x = -2;
+                this._weaponSprite.zIndex = ZINDEXES.WEAPON_BACK;
                 break;
-            case 'right':
+            case 'top-right':
                 this.sprite.scale.x = 2;
+                this._weaponSprite.zIndex = ZINDEXES.WEAPON_BACK;
+                break;
+            case 'bottom-left':
+                this.sprite.scale.x = -2;
+                this._weaponSprite.zIndex = ZINDEXES.WEAPON_FRONT;
+                break;
+            case 'bottom-right':
+                this.sprite.scale.x = 2;
+                this._weaponSprite.zIndex = ZINDEXES.WEAPON_FRONT;
                 break;
             default:
                 break;
@@ -325,6 +336,7 @@ export class Player extends BaseEntity {
 
         this._rotation = rotation;
         this._weaponSprite.rotation = rotation;
+        this.container.sortChildren();
     }
 
     set isGhost(isGhost: boolean) {
@@ -404,9 +416,23 @@ const getTexture = (lives: number): Texture[] => {
  * Get a direction given a rotation.
  */
 function getDirection(rotation: number): PlayerDirection {
-    if (rotation >= -(Math.PI / 2) && rotation <= Math.PI / 2) {
-        return 'right';
+    const top = -(Math.PI / 2);
+    const right = 0;
+    const bottom = Math.PI / 2;
+
+    // Top
+    if (rotation < right) {
+        if (rotation > top) {
+            return 'top-right';
+        }
+
+        return 'top-left';
     }
 
-    return 'left';
+    // Bottom
+    if (rotation < bottom) {
+        return 'bottom-right';
+    }
+
+    return 'bottom-left';
 }
