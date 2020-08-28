@@ -4,7 +4,6 @@ import LineSprite from './LineSprite';
 import RectangleSprite from './RectangleSprite';
 
 export * from './AnchorContainer';
-export * from './BulletSprite';
 export * from './CircleSprite';
 export * from './LineSprite';
 export * from './PlayerLivesSprite';

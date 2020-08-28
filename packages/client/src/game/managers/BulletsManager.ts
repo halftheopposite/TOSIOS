@@ -1,10 +1,11 @@
-import { BulletSprite } from '../sprites';
-import { ManagerContainer } from './ManagerContainer';
+import { BaseManager } from './BaseManager';
+import { Bullet } from '../entities';
+import { Container } from 'pixi.js';
 import { Models } from '@tosios/common';
 
-export default class BulletsManager extends ManagerContainer<BulletSprite> {
+export default class BulletsManager extends BaseManager<Bullet> {
     constructor() {
-        super('BULLETS');
+        super('Bullets');
     }
 
     // Methods
@@ -16,7 +17,7 @@ export default class BulletsManager extends ManagerContainer<BulletSprite> {
         return this.getAll().find((item) => !item.active);
     }
 
-    addOrCreate(bullet: Models.BulletJSON) {
+    addOrCreate(bullet: Models.BulletJSON, particlesContainer: Container) {
         // Check if bullet has already been created
         const isSame = this.isSameBullet(bullet.playerId, bullet.shotAt);
         if (isSame) {
@@ -45,19 +46,22 @@ export default class BulletsManager extends ManagerContainer<BulletSprite> {
             const randomId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             this.add(
                 randomId,
-                new BulletSprite({
-                    x: bullet.fromX,
-                    y: bullet.fromY,
-                    radius: bullet.radius,
-                    rotation: bullet.rotation,
-                    active: bullet.active,
-                    fromX: bullet.fromX,
-                    fromY: bullet.fromY,
-                    shotAt: bullet.shotAt,
-                    playerId: bullet.playerId,
-                    team: bullet.team,
-                    color: bullet.color,
-                }),
+                new Bullet(
+                    {
+                        x: bullet.fromX,
+                        y: bullet.fromY,
+                        radius: bullet.radius,
+                        rotation: bullet.rotation,
+                        active: bullet.active,
+                        fromX: bullet.fromX,
+                        fromY: bullet.fromY,
+                        shotAt: bullet.shotAt,
+                        playerId: bullet.playerId,
+                        team: bullet.team,
+                        color: bullet.color,
+                    },
+                    particlesContainer,
+                ),
             );
         }
     }

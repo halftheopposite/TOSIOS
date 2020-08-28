@@ -1,8 +1,8 @@
 import { Texture } from 'pixi.js';
-import bullet from './bullet.png';
-import staff from './staff.png';
+import bulletImage from './bullet.png';
+import staffImage from './staff.png';
 
-const bulletTexture = Texture.from(bullet);
-const staffTexture = Texture.from(staff);
+const bullet = Texture.from(bulletImage);
+const staff = Texture.from(staffImage);
 
-export { bulletTexture, staffTexture };
+export { bullet, staff };

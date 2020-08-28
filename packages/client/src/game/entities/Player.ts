@@ -76,7 +76,7 @@ export class Player extends BaseEntity {
         });
 
         // Weapon
-        this._weaponSprite = new Sprite(WeaponTextures.staffTexture);
+        this._weaponSprite = new Sprite(WeaponTextures.staff);
         this._weaponSprite.anchor.set(0, 0.5);
         this._weaponSprite.position.set(props.radius, props.radius);
         this._weaponSprite.zIndex = ZINDEXES.WEAPON_BACK;
