@@ -111,3 +111,10 @@ export function shuffleArray(array: any[]) {
 
     return result;
 }
+
+/**
+ * Convert radians to degrees
+ */
+export function rad2Deg(radians: number) {
+    return (radians * 180) / Math.PI;
+}
