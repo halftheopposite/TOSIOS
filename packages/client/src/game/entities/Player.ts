@@ -66,32 +66,32 @@ export class Player extends BaseEntity {
     private _lastSmokeAt: number = 0;
 
     // Init
-    constructor(props: Models.PlayerJSON, isGhost: boolean, particlesContainer?: Container) {
+    constructor(player: Models.PlayerJSON, isGhost: boolean, particlesContainer?: Container) {
         super({
-            x: props.x,
-            y: props.y,
-            radius: props.radius,
-            textures: getTexture(props.lives),
+            x: player.x,
+            y: player.y,
+            radius: player.radius,
+            textures: getTexture(player.lives),
             zIndex: ZINDEXES.PLAYER,
         });
 
         // Weapon
         this._weaponSprite = new Sprite(WeaponTextures.staff);
         this._weaponSprite.anchor.set(0, 0.5);
-        this._weaponSprite.position.set(props.radius, props.radius);
+        this._weaponSprite.position.set(player.radius, player.radius);
         this._weaponSprite.zIndex = ZINDEXES.WEAPON_BACK;
         this.container.addChild(this._weaponSprite);
 
         // Name
-        this._nameTextSprite = new TextSprite(props.name, 8, 0.5, 1);
-        this._nameTextSprite.position.set(props.radius, -NAME_OFFSET);
+        this._nameTextSprite = new TextSprite(player.name, 8, 0.5, 1);
+        this._nameTextSprite.position.set(player.radius, -NAME_OFFSET);
         this._nameTextSprite.zIndex = ZINDEXES.INFOS;
         this.container.addChild(this._nameTextSprite);
 
         // Lives
-        this._livesSprite = new PlayerLivesSprite(0.5, 1, 8, props.maxLives, props.lives);
+        this._livesSprite = new PlayerLivesSprite(0.5, 1, 8, player.maxLives, player.lives);
         this._livesSprite.position.set(
-            props.radius,
+            player.radius,
             this._nameTextSprite.y - this._nameTextSprite.height - LIVES_OFFSET,
         );
         this._livesSprite.anchorX = 0.5;
@@ -103,7 +103,7 @@ export class Player extends BaseEntity {
         this._shadow.zIndex = ZINDEXES.SHADOW;
         this._shadow.pivot.set(0.5);
         this._shadow.beginFill(0x000000, 0.3);
-        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius * 0.7, props.radius * 0.3);
+        this._shadow.drawEllipse(player.radius, player.radius * 2, player.radius * 0.7, player.radius * 0.3);
         this._shadow.endFill();
         this.container.addChild(this._shadow);
 
@@ -114,16 +114,16 @@ export class Player extends BaseEntity {
         this._particlesContainer = particlesContainer;
 
         // Player
-        this.playerId = props.playerId;
-        this.toX = props.x;
-        this.toY = props.y;
-        this.rotation = props.rotation;
-        this.name = props.name;
-        this.color = props.color;
-        this.lives = props.lives;
-        this.maxLives = props.maxLives;
-        this.kills = props.kills;
-        this.team = props.team;
+        this.playerId = player.playerId;
+        this.toX = player.x;
+        this.toY = player.y;
+        this.rotation = player.rotation;
+        this.name = player.name;
+        this.color = player.color;
+        this.lives = player.lives;
+        this.maxLives = player.maxLives;
+        this.kills = player.kills;
+        this.team = player.team;
         this.isGhost = isGhost;
 
         // Ghost

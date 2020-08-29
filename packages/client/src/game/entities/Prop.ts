@@ -16,12 +16,12 @@ export class Prop extends BaseEntity {
     private _shadow: Graphics;
 
     // Init
-    constructor(props: Models.PropJSON) {
+    constructor(prop: Models.PropJSON) {
         super({
-            x: props.x,
-            y: props.y,
-            radius: props.radius,
-            textures: getTexture(props.type),
+            x: prop.x,
+            y: prop.y,
+            radius: prop.radius,
+            textures: getTexture(prop.type),
             zIndex: ZINDEXES.PROP,
         });
 
@@ -30,7 +30,7 @@ export class Prop extends BaseEntity {
         this._shadow.zIndex = ZINDEXES.SHADOW;
         this._shadow.pivot.set(0.5);
         this._shadow.beginFill(0x000000, 0.3);
-        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius / 2, props.radius / 4);
+        this._shadow.drawEllipse(prop.radius, prop.radius * 2, prop.radius / 2, prop.radius / 4);
         this._shadow.endFill();
         this.container.addChild(this._shadow);
 
@@ -38,8 +38,8 @@ export class Prop extends BaseEntity {
         this.container.sortChildren();
 
         // Prop
-        this._type = props.type;
-        this.active = props.active;
+        this._type = prop.type;
+        this.active = prop.active;
     }
 
     // Setters

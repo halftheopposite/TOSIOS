@@ -1,6 +1,8 @@
 import { Container, utils } from 'pixi.js';
-import { Models, Types } from '@tosios/common';
+import { Maths, Models, Types } from '@tosios/common';
+import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../particles';
 import { BaseEntity } from '.';
+import { Emitter } from 'pixi-particles';
 import { WeaponTextures } from '../images/textures';
 
 const ZINDEXES = {
@@ -20,21 +22,31 @@ export class Bullet extends BaseEntity {
 
     private _shotAt: number = 0;
 
+    private _trailEmitter: Emitter;
+
     // Init
-    constructor(props: Models.BulletJSON, particlesContainer: Container) {
+    constructor(bullet: Models.BulletJSON, particlesContainer: Container) {
         super({
-            x: props.x,
-            y: props.y,
-            radius: props.radius,
-            textures: [WeaponTextures.bullet],
+            x: bullet.x,
+            y: bullet.y,
+            radius: bullet.radius,
+            textures: WeaponTextures.fire,
             zIndex: ZINDEXES.BULLET,
         });
 
-        this.playerId = props.playerId;
-        this.team = props.team;
-        this.active = props.active;
-        this.color = props.color;
-        this.shotAt = props.shotAt;
+        // Trail emitter
+        this._trailEmitter = new Emitter(particlesContainer, [Trail100Texture, Trail50Texture, Trail25Texture], {
+            ...TrailConfig,
+        });
+        this._trailEmitter.autoUpdate = true;
+
+        // Bullet
+        this.rotation = bullet.rotation;
+        this.playerId = bullet.playerId;
+        this.team = bullet.team;
+        this.active = bullet.active;
+        this.color = bullet.color;
+        this.shotAt = bullet.shotAt;
 
         // Sort rendering order
         this.container.sortChildren();
@@ -55,6 +67,20 @@ export class Bullet extends BaseEntity {
     move = (speed: number) => {
         this.x += Math.cos(this.rotation) * speed;
         this.y += Math.sin(this.rotation) * speed;
+
+        this._trailEmitter.updateSpawnPos(this.x, this.y);
+    };
+
+    updateTrail = () => {
+        if (this.active) {
+            // console.log('Rotation(deg):', -Maths.rad2Deg(this.rotation));
+            this._trailEmitter.updateSpawnPos(this.x, this.y);
+            this._trailEmitter.emit = true;
+            this.container.rotation = this.rotation;
+            // this._trailEmitter.rotate(-Maths.rad2Deg(this.rotation + Math.PI));
+        } else {
+            this._trailEmitter.emit = false;
+        }
     };
 
     // Setters
@@ -83,6 +109,8 @@ export class Bullet extends BaseEntity {
     set active(active: boolean) {
         this._active = active;
         this.sprite.visible = active;
+
+        this.updateTrail();
     }
 
     set color(color: string) {

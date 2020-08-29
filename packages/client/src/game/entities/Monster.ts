@@ -22,11 +22,11 @@ export class Monster extends BaseEntity {
     private _shadow: Graphics;
 
     // Init
-    constructor(props: Models.MonsterJSON) {
+    constructor(monster: Models.MonsterJSON) {
         super({
-            x: props.x,
-            y: props.y,
-            radius: props.radius,
+            x: monster.x,
+            y: monster.y,
+            radius: monster.radius,
             textures: MonstersTextures.Bat,
             zIndex: ZINDEXES.MONSTER,
         });
@@ -36,7 +36,7 @@ export class Monster extends BaseEntity {
         this._shadow.zIndex = ZINDEXES.SHADOW;
         this._shadow.pivot.set(0.5);
         this._shadow.beginFill(0x000000, 0.3);
-        this._shadow.drawEllipse(props.radius, props.radius * 2, props.radius / 2, props.radius / 4);
+        this._shadow.drawEllipse(monster.radius, monster.radius * 2, monster.radius / 2, monster.radius / 4);
         this._shadow.endFill();
         this.container.addChild(this._shadow);
 

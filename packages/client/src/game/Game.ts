@@ -247,7 +247,12 @@ export class Game {
             }
 
             // Collisions: Me
-            if (this.me && this.me.lives && Collisions.circleToCircle(bullet.body, this.me.body)) {
+            if (
+                this.me &&
+                this.me.canBulletHurt(bullet.playerId, bullet.team) &&
+                this.me.lives &&
+                Collisions.circleToCircle(bullet.body, this.me.body)
+            ) {
                 bullet.active = false;
                 this.me.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
