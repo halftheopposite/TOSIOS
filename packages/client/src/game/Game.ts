@@ -40,6 +40,9 @@ export interface Stats {
     playersMaxCount: number;
 }
 
+/**
+ * The main entrypoint for the game logic on the client-side.
+ */
 export class Game {
     public inputs: Inputs = new Inputs();
 
@@ -347,9 +350,13 @@ export class Game {
             },
         };
 
+        // Send the action to the server
         this.onActionSend(action);
+
+        // Save the action for reconciliation
         this.moveActions.push(action);
 
+        // Actually move the player
         this.me.move(dir.x, dir.y, Constants.PLAYER_SPEED);
 
         // Collisions: Map
