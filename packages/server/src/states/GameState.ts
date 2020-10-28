@@ -245,7 +245,7 @@ export class GameState extends Schema {
                 continue;
             }
 
-            if (Collisions.circleToRectangle(player.body, prop.body)) {
+            if (Collisions.circleToCircle(player.body, prop.body)) {
                 switch (prop.type) {
                     case 'potion-red':
                         if (!player.isFullLives) {
@@ -351,16 +351,16 @@ export class GameState extends Schema {
     }
 
     private getPositionRandomly(
-        body: Geometry.RectangleBody,
+        body: Geometry.CircleBody,
         snapToGrid: boolean,
         withCollisions: boolean,
-    ): Geometry.RectangleBody {
+    ): Geometry.CircleBody {
         body.x = Maths.getRandomInt(Constants.TILE_SIZE, this.map.width - Constants.TILE_SIZE);
         body.y = Maths.getRandomInt(Constants.TILE_SIZE, this.map.height - Constants.TILE_SIZE);
 
         // Should we compute collisions?
         if (withCollisions) {
-            while (this.walls.collidesWithRectangle(body)) {
+            while (this.walls.collidesWithCircle(body)) {
                 body.x = Maths.getRandomInt(Constants.TILE_SIZE, this.map.width - Constants.TILE_SIZE);
                 body.y = Maths.getRandomInt(Constants.TILE_SIZE, this.map.height - Constants.TILE_SIZE);
             }
@@ -405,7 +405,7 @@ export class GameState extends Schema {
     private monstersAdd = (count: number) => {
         for (let i = 0; i < count; i++) {
             const body = this.getPositionRandomly(
-                new Geometry.CircleBody(0, 0, Constants.MONSTER_SIZE / 2).box,
+                new Geometry.CircleBody(0, 0, Constants.MONSTER_SIZE / 2),
                 false,
                 false,
             );
@@ -544,12 +544,8 @@ export class GameState extends Schema {
     // PROPS
     private propsAdd(count: number) {
         for (let i = 0; i < count; i++) {
-            const body = this.getPositionRandomly(
-                new Geometry.RectangleBody(0, 0, Constants.FLASK_SIZE, Constants.FLASK_SIZE),
-                false,
-                true,
-            );
-            const prop = new Prop('potion-red', body.x, body.y, body.width, body.height);
+            const body = this.getPositionRandomly(new Geometry.CircleBody(0, 0, Constants.FLASK_SIZE / 2), false, true);
+            const prop = new Prop('potion-red', body.x, body.y, body.radius);
 
             this.props.push(prop);
         }

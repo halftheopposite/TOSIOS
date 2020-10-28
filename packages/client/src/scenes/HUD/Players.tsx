@@ -2,7 +2,7 @@ import { Inline, Text } from '../../components';
 import React, { CSSProperties } from 'react';
 import { Container } from './';
 import { IconButton } from './IconButton';
-import { Menu } from '../../images/icons';
+import { Menu } from '../../icons';
 import { isMobile } from 'react-device-detect';
 
 /**

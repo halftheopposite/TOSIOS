@@ -18,7 +18,7 @@ import { RouteComponentProps, navigate } from '@reach/router';
 import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
-import playerImage from '../images/textures/player/player-idle-2.png';
+import { playerImage } from '../images';
 import qs from 'querystringify';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({

@@ -1,6 +1,6 @@
 import { Inline, View } from './';
 import React, { CSSProperties } from 'react';
-import { GitHubIcon } from '../images/icons';
+import { GitHubIcon } from '../icons';
 import { Text } from './Text';
 
 const URL = 'https://github.com/halftheopposite/tosios';
