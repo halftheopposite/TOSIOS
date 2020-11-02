@@ -1,5 +1,5 @@
 import { Container, utils } from 'pixi.js';
-import { Maths, Models, Types } from '@tosios/common';
+import { Models, Types } from '@tosios/common';
 import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../particles';
 import { BaseEntity } from '.';
 import { Emitter } from 'pixi-particles';
@@ -73,11 +73,9 @@ export class Bullet extends BaseEntity {
 
     updateTrail = () => {
         if (this.active) {
-            // console.log('Rotation(deg):', -Maths.rad2Deg(this.rotation));
             this._trailEmitter.updateSpawnPos(this.x, this.y);
             this._trailEmitter.emit = true;
             this.container.rotation = this.rotation;
-            // this._trailEmitter.rotate(-Maths.rad2Deg(this.rotation + Math.PI));
         } else {
             this._trailEmitter.emit = false;
         }

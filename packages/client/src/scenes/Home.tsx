@@ -15,10 +15,10 @@ import {
 import { Constants, Types } from '@tosios/common';
 import React, { Component, Fragment } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
+import { playerImage, titleImage } from '../images';
 import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
-import { playerImage } from '../images';
 import qs from 'querystringify';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
@@ -169,18 +169,36 @@ export default class Home extends Component<IProps, IState> {
             >
                 <Helmet>
                     <title>{`${Constants.APP_TITLE} - Home`}</title>
+                    <meta
+                        name="description"
+                        content="The Open-Source IO Shooter is an open-source multiplayer game in the browser meant to be hostable, modifiable, and playable by anyone."
+                    />
                 </Helmet>
 
-                <View flex center column>
-                    <h1 style={{ color: 'white' }}>{Constants.APP_TITLE}</h1>
+                <View
+                    flex
+                    center
+                    column
+                    style={{
+                        width: 700,
+                        maxWidth: '100%',
+                    }}
+                >
+                    <img alt="TOSIOS" src={titleImage} />
+                    <Space size="xs" />
+                    <Text style={{ color: 'white', fontSize: 13 }}>
+                        An open-source multiplayer game in the browser meant to be hostable, modifiable, and playable by
+                        anyone.
+                    </Text>
                     <Space size="xxs" />
-                    <GitHub />
                 </View>
 
                 <Space size="m" />
                 {this.renderName()}
                 <Space size="m" />
                 {this.renderRoom()}
+                <Space size="m" />
+                <GitHub />
             </View>
         );
     }

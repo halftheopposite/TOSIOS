@@ -16,7 +16,7 @@ export function GitHub(): React.ReactElement {
             <View flex center style={GITHUB}>
                 <GitHubIcon />
                 <Inline size="xxs" />
-                <Text>GitHub</Text>
+                <Text>GitHub (v0.14.0)</Text>
             </View>
         </a>
     );

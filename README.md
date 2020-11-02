@@ -1,6 +1,7 @@
-# TOSIOS (The Open-Source IO Shooter)
+# <p align="center"><img src="images/title.png" /></p>
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/halftheopposite/tosios/blob/master/LICENSE) [![](https://github.com/halftheopposite/tosios/workflows/Docker%20Publish/badge.svg)](https://hub.docker.com/r/halftheopposite/tosios)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/halftheopposite/tosios/blob/master/LICENSE)
+[![](https://img.shields.io/docker/pulls/halftheopposite/tosios)](https://hub.docker.com/r/halftheopposite/tosios)
 
 The Open-Source IO Shooter is an open-source multiplayer game in the browser (desktop or browser). It is meant to be hostable and playable by anyone. This is not an attempt at creating an outstanding gaming experience, but to create an easily understandable and modifiable multiplayer browser game.
 

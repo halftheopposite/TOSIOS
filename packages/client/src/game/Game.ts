@@ -622,7 +622,7 @@ export class Game {
         // If the player is "you"
         if (isMe && this.me) {
             this.playersManager.removeChild(this.me.container);
-            delete this.me;
+            this.me = null;
         }
     };
 
