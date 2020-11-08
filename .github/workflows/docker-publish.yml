@@ -20,3 +20,4 @@ jobs:
           name: halftheopposite/tosios
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          buildargs: REACT_APP_GA_TRACKING_ID

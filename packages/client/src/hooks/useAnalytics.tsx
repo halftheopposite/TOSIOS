@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactGA from 'react-ga';
 
-const GA_TRACKING_ID: string | undefined = process.env.REACT_APP_GA_TRACKING_ID;
+const GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID;
 const DEBUG = process.env.NODE_ENV === 'production';
 
 type EventCategory = 'User' | 'Game' | 'Room';
@@ -23,9 +23,14 @@ export function useAnalytics(): {
      * Initialize analytics.
      */
     const init = () => {
-        if (GA_TRACKING_ID) {
-            ReactGA.initialize(GA_TRACKING_ID, { debug: DEBUG });
+        if (!GA_TRACKING_ID) {
+            console.warn(
+                `Variable REACT_APP_GA_TRACKING_ID=${GA_TRACKING_ID} was not provided and analytics will not load.`,
+            );
+            return;
         }
+
+        ReactGA.initialize(GA_TRACKING_ID, { debug: DEBUG });
     };
 
     /**
