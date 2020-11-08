@@ -1,6 +1,7 @@
 import { Box, Button, Inline, Input, KeyboardKey, Space, Text, View } from '../../components';
 import React, { CSSProperties } from 'react';
 import { ArrowLeft } from '../../icons';
+import { useAnalytics } from '../../hooks';
 
 /**
  * A menu displaying important room actions and informations.
@@ -9,6 +10,7 @@ export function Menu(props: { onClose?: () => void; onLeave?: () => void }): Rea
     const { onClose, onLeave } = props;
     const roomURL = window.location.href;
     const inputRef = React.useRef<HTMLInputElement>(null);
+    const analytics = useAnalytics();
 
     // Copy the room's link to the clipboard
     const copyToClipboard = () => {
@@ -19,6 +21,11 @@ export function Menu(props: { onClose?: () => void; onLeave?: () => void }): Rea
         inputRef.current.select();
         window.document.execCommand('copy');
         inputRef.current.blur();
+
+        analytics.track({
+            category: 'Game',
+            action: 'Share',
+        });
     };
 
     return (

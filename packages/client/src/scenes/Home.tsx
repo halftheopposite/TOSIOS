@@ -20,6 +20,7 @@ import { Client } from 'colyseus.js';
 import { Helmet } from 'react-helmet';
 import { RoomAvailable } from 'colyseus.js/lib/Room';
 import qs from 'querystringify';
+import { useAnalytics } from '../hooks';
 
 const MapsList: IListItem[] = Constants.MAPS_NAMES.map((value) => ({
     value,
@@ -106,10 +107,14 @@ export default class Home extends Component<IProps, IState> {
 
     handleNameSave = () => {
         const { playerName } = this.state;
+        const analytics = useAnalytics();
+
         localStorage.setItem('playerName', playerName);
         this.setState({
             hasNameChanged: false,
         });
+
+        analytics.track({ category: 'User', action: 'Rename' });
     };
 
     handleRoomNameChange = (event: any) => {
@@ -121,11 +126,19 @@ export default class Home extends Component<IProps, IState> {
     };
 
     handleRoomClick = (roomId: string) => {
+        const analytics = useAnalytics();
+
+        analytics.track({
+            category: 'Room',
+            action: 'Join',
+        });
+
         navigate(`/${roomId}`);
     };
 
     handleCreateRoomClick = () => {
         const { playerName, roomName, roomMap, roomMaxPlayers, mode } = this.state;
+        const analytics = useAnalytics();
 
         const options: Types.IRoomOptions = {
             playerName,
@@ -134,6 +147,8 @@ export default class Home extends Component<IProps, IState> {
             roomMaxPlayers,
             mode,
         };
+
+        analytics.track({ category: 'Game', action: 'Create', label: 'Start' });
 
         navigate(`/new${qs.stringify(options, true)}`);
     };
@@ -253,6 +268,7 @@ export default class Home extends Component<IProps, IState> {
 
     renderNewRoom = () => {
         const { isNewRoom, roomName, roomMap, roomMaxPlayers, mode } = this.state;
+        const analytics = useAnalytics();
 
         return (
             <View
@@ -288,7 +304,15 @@ export default class Home extends Component<IProps, IState> {
                         <Select
                             value={roomMap}
                             values={MapsList}
-                            onChange={(event: any) => this.setState({ roomMap: event.target.value })}
+                            onChange={(event: any) => {
+                                this.setState({ roomMap: event.target.value });
+                                analytics.track({
+                                    category: 'Game',
+                                    action: 'Create',
+                                    label: 'Map',
+                                    value: event.target.value,
+                                });
+                            }}
                         />
                         <Space size="s" />
 
@@ -298,7 +322,15 @@ export default class Home extends Component<IProps, IState> {
                         <Select
                             value={roomMaxPlayers}
                             values={PlayersCountList}
-                            onChange={(event: any) => this.setState({ roomMaxPlayers: event.target.value })}
+                            onChange={(event: any) => {
+                                this.setState({ roomMaxPlayers: event.target.value });
+                                analytics.track({
+                                    category: 'Game',
+                                    action: 'Create',
+                                    label: 'Players',
+                                    value: event.target.value,
+                                });
+                            }}
                         />
                         <Space size="s" />
 
@@ -308,7 +340,15 @@ export default class Home extends Component<IProps, IState> {
                         <Select
                             value={mode}
                             values={GameModesList}
-                            onChange={(event: any) => this.setState({ mode: event.target.value })}
+                            onChange={(event: any) => {
+                                this.setState({ mode: event.target.value });
+                                analytics.track({
+                                    category: 'Game',
+                                    action: 'Create',
+                                    label: 'Mode',
+                                    value: event.target.value,
+                                });
+                            }}
                         />
                         <Space size="s" />
 
