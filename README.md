@@ -193,6 +193,7 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 - [x] Add some monsters. (Q1 2020)
 - [x] Improve the UI of the game menu. (Q2 2020)
 - [x] Improve particle effects. (Q3 2020)
+- [x] Add analytics
 - [ ] Add sound effects. (Q3 2020)
 - [ ] Add powers up and pickable items. (Q3 2020)
 - [ ] Add ground monster. (Q3 2020)
