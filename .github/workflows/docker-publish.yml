@@ -14,6 +14,8 @@ jobs:
 
       - name: Build & Publish
         uses: elgohr/Publish-Docker-Github-Action@master
+        env:
+          REACT_APP_GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
         with:
           name: halftheopposite/tosios
           username: ${{ secrets.DOCKER_USERNAME }}
