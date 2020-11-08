@@ -2,6 +2,7 @@ import React from 'react';
 import ReactGA from 'react-ga';
 
 const GA_TRACKING_ID: string | undefined = process.env.REACT_APP_GA_TRACKING_ID;
+const DEBUG = process.env.NODE_ENV === 'production';
 
 type EventCategory = 'User' | 'Game' | 'Room';
 type EventAction = 'Create' | 'Rename' | 'Share' | 'Join';
@@ -23,7 +24,7 @@ export function useAnalytics(): {
      */
     const init = () => {
         if (GA_TRACKING_ID) {
-            ReactGA.initialize(GA_TRACKING_ID);
+            ReactGA.initialize(GA_TRACKING_ID, { debug: DEBUG });
         }
     };
 
