@@ -148,7 +148,7 @@ export default class Home extends Component<IProps, IState> {
             mode,
         };
 
-        analytics.track({ category: 'Game', action: 'Create', label: 'Start' });
+        analytics.track({ category: 'Game', action: 'Create' });
 
         navigate(`/new${qs.stringify(options, true)}`);
     };
@@ -308,9 +308,8 @@ export default class Home extends Component<IProps, IState> {
                                 this.setState({ roomMap: event.target.value });
                                 analytics.track({
                                     category: 'Game',
-                                    action: 'Create',
-                                    label: 'Map',
-                                    value: event.target.value,
+                                    action: 'Map',
+                                    label: event.target.value,
                                 });
                             }}
                         />
@@ -326,8 +325,7 @@ export default class Home extends Component<IProps, IState> {
                                 this.setState({ roomMaxPlayers: event.target.value });
                                 analytics.track({
                                     category: 'Game',
-                                    action: 'Create',
-                                    label: 'Players',
+                                    action: 'Players',
                                     value: event.target.value,
                                 });
                             }}
@@ -344,9 +342,8 @@ export default class Home extends Component<IProps, IState> {
                                 this.setState({ mode: event.target.value });
                                 analytics.track({
                                     category: 'Game',
-                                    action: 'Create',
-                                    label: 'Mode',
-                                    value: event.target.value,
+                                    action: 'Mode',
+                                    label: event.target.value,
                                 });
                             }}
                         />

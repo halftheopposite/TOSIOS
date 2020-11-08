@@ -5,7 +5,7 @@ const GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID;
 const DEBUG = process.env.NODE_ENV !== 'production';
 
 type EventCategory = 'User' | 'Game' | 'Room';
-type EventAction = 'Create' | 'Rename' | 'Share' | 'Join';
+type EventAction = 'Create' | 'Rename' | 'Share' | 'Join' | 'Players' | 'Mode' | 'Map';
 
 interface EventArgs {
     category: EventCategory;
