@@ -3,7 +3,9 @@ import { Constants, Maths, Models, Types } from '@tosios/common';
 import { GameState } from '../states/GameState';
 
 export class GameRoom extends Room<GameState> {
-    // LIFECYCLE
+    //
+    // Lifecycle
+    //
     onCreate(options: Types.IRoomOptions) {
         // Set max number of clients for this room
         this.maxClients = Maths.clamp(
@@ -34,6 +36,25 @@ export class GameRoom extends Room<GameState> {
                 this.maxClients
             } mode=${options.mode}`,
         );
+
+        // Listen to messages from clients
+        this.onMessage('*', (client: Client, type: string | number, message: Models.ActionJSON) => {
+            const playerId = client.sessionId;
+
+            // Validate which type of message is accepted
+            switch (type) {
+                case 'move':
+                case 'rotate':
+                case 'shoot':
+                    this.state.playerPushAction({
+                        playerId,
+                        ...message,
+                    });
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     onJoin(client: Client, options: Types.IPlayerOptions) {
@@ -42,37 +63,20 @@ export class GameRoom extends Room<GameState> {
         console.log(`${new Date().toISOString()} [Join] id=${client.sessionId} player=${options.playerName}`);
     }
 
-    onMessage(client: Client, data: any) {
-        const playerId = client.sessionId;
-        const { type } = data;
-
-        // Validate which type of message is accepted
-        switch (type as Models.ActionType) {
-            case 'move':
-            case 'rotate':
-            case 'shoot':
-                this.state.playerPushAction({
-                    playerId,
-                    ...data,
-                });
-                break;
-            default:
-                break;
-        }
-    }
-
     onLeave(client: Client) {
         this.state.playerRemove(client.sessionId);
 
         console.log(`${new Date().toISOString()} [Leave] id=${client.sessionId}`);
     }
 
-    // HANDLERS
+    //
+    // Handlers
+    //
     handleTick = () => {
         this.state.update();
     };
 
     handleMessage = (message: Models.MessageJSON) => {
-        this.broadcast(message);
+        this.broadcast(message.type, message);
     };
 }

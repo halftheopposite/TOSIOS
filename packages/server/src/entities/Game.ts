@@ -176,12 +176,7 @@ export class Game extends Schema {
 }
 
 function countPlayers(players: MapSchema<Player>) {
-    let count = 0;
-    for (const playerId in players) {
-        count++;
-    }
-
-    return count;
+    return players.size;
 }
 
 function countActivePlayers(players: MapSchema<Player>) {

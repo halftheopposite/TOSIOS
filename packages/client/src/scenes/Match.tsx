@@ -1,11 +1,10 @@
 import { Client, Room } from 'colyseus.js';
-import { Constants, Maths, Types } from '@tosios/common';
+import { Constants, Maths, Types, Models } from '@tosios/common';
 import { HUD, HUDProps } from './HUD';
 import React, { Component, RefObject } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
 import { Game } from '../game/Game';
 import { Helmet } from 'react-helmet';
-import { Models } from '@tosios/common';
 import ReactNipple from 'react-nipple';
 import { View } from '../components';
 import { isMobile } from 'react-device-detect';
@@ -129,7 +128,7 @@ export default class Match extends Component<IProps, IState> {
         this.room.state.bullets.onRemove = this.handleBulletRemove;
 
         // Listen for Messages
-        this.room.onMessage(this.handleMessage);
+        this.room.onMessage('*', this.handleMessage);
 
         // Start game
         this.game.start(this.canvasRef.current);
@@ -215,11 +214,11 @@ export default class Match extends Component<IProps, IState> {
         this.game.bulletRemove(bulletId);
     };
 
-    handleMessage = (message: Models.MessageJSON) => {
+    handleMessage = (type: any, message: Models.MessageJSON) => {
         const { messages } = this.state.hud;
 
         let announce = '';
-        switch (message.type) {
+        switch (type) {
             case 'waiting':
                 announce = `Waiting for other players...`;
                 break;
@@ -254,7 +253,7 @@ export default class Match extends Component<IProps, IState> {
             return;
         }
 
-        this.room.send(action);
+        this.room.send(action.type, action);
     };
 
     // HANDLERS: Inputs
