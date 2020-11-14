@@ -118,7 +118,7 @@ export class Game extends Schema {
         // Death Match
         if (this.mode === 'deathmatch' && countActivePlayers(players) === 1) {
             // Check to see if only one player is alive
-            const player: Player | null = getWinningPlayer(players);
+            const player = getWinningPlayer(players);
             if (player) {
                 this.onGameEnd({
                     type: 'won',
@@ -137,7 +137,7 @@ export class Game extends Schema {
         // Team Death Match
         if (this.mode === 'team deathmatch') {
             // Check to see if only one team is alive
-            const team: Types.Teams | null = getWinningTeam(players);
+            const team = getWinningTeam(players);
             if (team) {
                 this.onGameEnd({
                     type: 'won',
@@ -181,31 +181,33 @@ function countPlayers(players: MapSchema<Player>) {
 
 function countActivePlayers(players: MapSchema<Player>) {
     let count = 0;
-    for (const playerId in players) {
-        if (players[playerId].isAlive) {
+
+    players.forEach((player) => {
+        if (player.isAlive) {
             count++;
         }
-    }
+    });
 
     return count;
 }
 
 function getWinningPlayer(players: MapSchema<Player>): Player | null {
-    for (const playerId in players) {
-        if (players[playerId].isAlive) {
-            return players[playerId];
-        }
-    }
+    let winningPlayer = null;
 
-    return null;
+    players.forEach((player, playerId) => {
+        if (player.isAlive) {
+            winningPlayer = players.get(playerId);
+        }
+    });
+
+    return winningPlayer;
 }
 
 function getWinningTeam(players: MapSchema<Player>): Types.Teams | null {
     let redAlive = false;
     let blueAlive = false;
 
-    for (const playerId in players) {
-        const player = players[playerId];
+    players.forEach((player) => {
         if (player.isAlive) {
             if (player.team === 'Red') {
                 redAlive = true;
@@ -213,7 +215,7 @@ function getWinningTeam(players: MapSchema<Player>): Types.Teams | null {
                 blueAlive = true;
             }
         }
-    }
+    });
 
     if (redAlive && blueAlive) {
         return null;

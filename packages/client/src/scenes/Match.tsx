@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js';
-import { Constants, Maths, Types, Models } from '@tosios/common';
+import { Constants, Maths, Models, Types } from '@tosios/common';
 import { HUD, HUDProps } from './HUD';
 import React, { Component, RefObject } from 'react';
 import { RouteComponentProps, navigate } from '@reach/router';
@@ -115,16 +115,12 @@ export default class Match extends Component<IProps, IState> {
         // Listen for state changes
         this.room.state.game.onChange = this.handleGameChange;
         this.room.state.players.onAdd = this.handlePlayerAdd;
-        this.room.state.players.onChange = this.handlePlayerUpdate;
         this.room.state.players.onRemove = this.handlePlayerRemove;
         this.room.state.monsters.onAdd = this.handleMonsterAdd;
-        this.room.state.monsters.onChange = this.handleMonsterUpdate;
         this.room.state.monsters.onRemove = this.handleMonsterRemove;
         this.room.state.props.onAdd = this.handlePropAdd;
-        this.room.state.props.onChange = this.handlePropUpdate;
         this.room.state.props.onRemove = this.handlePropRemove;
         this.room.state.bullets.onAdd = this.handleBulletAdd;
-        this.room.state.bullets.onChange = this.handleBulletAdd;
         this.room.state.bullets.onRemove = this.handleBulletRemove;
 
         // Listen for Messages
@@ -165,13 +161,17 @@ export default class Match extends Component<IProps, IState> {
         }
     };
 
-    handlePlayerAdd = (player: Models.PlayerJSON, playerId: string) => {
+    handlePlayerAdd = (player: any, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
         this.game.playerAdd(playerId, player, isMe);
         this.updateRoom();
+
+        player.onChange = () => {
+            this.handlePlayerUpdate(player, playerId);
+        };
     };
 
-    handlePlayerUpdate = (player: Models.PlayerJSON, playerId: string) => {
+    handlePlayerUpdate = (player: any, playerId: string) => {
         const isMe = this.isPlayerIdMe(playerId);
         this.game.playerUpdate(playerId, player, isMe);
     };
@@ -182,8 +182,12 @@ export default class Match extends Component<IProps, IState> {
         this.updateRoom();
     };
 
-    handleMonsterAdd = (monster: Models.MonsterJSON, monsterId: string) => {
+    handleMonsterAdd = (monster: any, monsterId: string) => {
         this.game.monsterAdd(monsterId, monster);
+
+        monster.onChange = () => {
+            this.handleMonsterUpdate(monster, monsterId);
+        };
     };
 
     handleMonsterUpdate = (monster: Models.MonsterJSON, monsterId: string) => {
@@ -194,8 +198,12 @@ export default class Match extends Component<IProps, IState> {
         this.game.monsterRemove(monsterId);
     };
 
-    handlePropAdd = (prop: Models.PropJSON, propId: string) => {
+    handlePropAdd = (prop: any, propId: string) => {
         this.game.propAdd(propId, prop);
+
+        prop.onChange = () => {
+            this.handlePropUpdate(prop, propId);
+        };
     };
 
     handlePropUpdate = (prop: Models.PropJSON, propId: string) => {
