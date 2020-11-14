@@ -225,7 +225,7 @@ export default class Match extends Component<IProps, IState> {
     handleMessage = (type: any, message: Models.MessageJSON) => {
         const { messages } = this.state.hud;
 
-        let announce = '';
+        let announce: string | undefined;
         switch (type) {
             case 'waiting':
                 announce = `Waiting for other players...`;

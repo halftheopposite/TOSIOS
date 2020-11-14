@@ -20,7 +20,7 @@ export interface HUDProps {
     playersCount: number;
     playersMaxCount: number;
     messages: Models.MessageJSON[];
-    announce: string;
+    announce?: string;
 }
 
 /**

@@ -8,12 +8,13 @@ const ANNOUNCE_ANIM_TICK = 50;
 const TICK = ANNOUNCE_ANIM_TICK / ANNOUNCE_LIFETIME;
 
 /**
- * Render the players count.
+ * Render an announce.
  */
-export const Announce = React.memo((props: { announce: string; style?: CSSProperties }): React.ReactElement | null => {
+export const Announce = React.memo((props: { announce?: string; style?: CSSProperties }): React.ReactElement | null => {
     const { announce, style } = props;
     const [opacity, setOpacity] = React.useState<number>(0);
     const [display, setDisplay] = React.useState<'none' | 'flex'>('none');
+    const [displayedText, setDisplayedText] = React.useState(announce);
     const intervalRef = React.useRef<number>(0);
 
     const launchFade = () => {
@@ -35,13 +36,18 @@ export const Announce = React.memo((props: { announce: string; style?: CSSProper
 
     // Whenever the announce changes
     React.useEffect(() => {
+        if (!announce) {
+            return;
+        }
+
+        setDisplayedText(announce);
         clearInterval(intervalRef.current);
         setOpacity(1);
         setDisplay('flex');
         launchFade();
     }, [announce]);
 
-    if (!announce || !announce.length) {
+    if (!displayedText) {
         return null;
     }
 
@@ -54,7 +60,7 @@ export const Announce = React.memo((props: { announce: string; style?: CSSProper
                 display,
             }}
         >
-            <Text style={styles.announceText}>{announce}</Text>
+            <Text style={styles.announceText}>{displayedText}</Text>
         </Container>
     );
 });
