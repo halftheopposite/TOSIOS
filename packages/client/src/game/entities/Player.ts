@@ -1,8 +1,8 @@
 import { Constants, Maths, Models, Types } from '@tosios/common';
 import { Container, Graphics, Sprite, Texture, utils } from 'pixi.js';
 import { Effects, PlayerLivesSprite, TextSprite } from '../sprites';
-import { PlayerTextures, WeaponTextures } from '../images/textures';
-import { SmokeConfig, SmokeTexture } from '../particles';
+import { PlayerTextures, WeaponTextures } from '../assets/images/textures';
+import { SmokeConfig, SmokeTexture } from '../assets/particles';
 import { BaseEntity } from '.';
 import { Emitter } from 'pixi-particles';
 

@@ -1,12 +1,12 @@
 import { Application, Container, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
-import { ImpactConfig, ImpactTexture } from './particles';
+import { ImpactConfig, ImpactTexture } from './assets/particles';
 import { Monster, Player, Prop } from './entities';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
-import { SpriteSheets } from './images/maps';
+import { SpriteSheets } from './assets/images/maps';
 import { Viewport } from 'pixi-viewport';
 
 // We don't want to scale textures linearly because they would appear blurry.

@@ -2,7 +2,7 @@ import { BaseEntity } from './';
 import { Effects } from '../sprites';
 import { Graphics } from 'pixi.js';
 import { Models } from '@tosios/common';
-import { MonstersTextures } from '../images/textures';
+import { MonstersTextures } from '../assets/images/textures';
 
 const HURT_COLOR = 0xff0000;
 const ZINDEXES = {

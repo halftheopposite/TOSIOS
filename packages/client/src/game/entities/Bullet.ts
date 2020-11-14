@@ -1,9 +1,9 @@
 import { Container, utils } from 'pixi.js';
 import { Models, Types } from '@tosios/common';
-import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../particles';
+import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../assets/particles';
 import { BaseEntity } from '.';
 import { Emitter } from 'pixi-particles';
-import { WeaponTextures } from '../images/textures';
+import { WeaponTextures } from '../assets/images/textures';
 
 const ZINDEXES = {
     BULLET: 0,
