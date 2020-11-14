@@ -299,7 +299,7 @@ export class Player extends BaseEntity {
         setTimeout(() => {
             this.sprite.tint = utils.string2hex(color);
             this._weaponSprite.tint = utils.string2hex(color);
-        }, 100);
+        }, 300);
     }
 
     set kills(kills: number) {

@@ -80,8 +80,9 @@ the following command to get your local network IP: `ipconfig getifaddr en0`. Yo
 To run the project in development:
 
 1. Install dependencies with `yarn`.
-2. Start game with `yarn start`.
-3. The game is available at http://localhost:3001.
+2. Make a first build with `yarn build`
+3. Start game with `yarn start`.
+4. The game is available at http://localhost:3001.
 
 If you encounter a **white screen** the first time you try to load the game in the browser, that's normal, just refresh the page. This is due to the order in which things are built the first time at launch.
 

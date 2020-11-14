@@ -1,5 +1,5 @@
 import { Health, Leaderboard, Menu, Messages, Players, Time } from './';
-import { Keys, Models, Types } from '@tosios/common';
+import { Keys, Models } from '@tosios/common';
 import React, { CSSProperties } from 'react';
 import { Announce } from './Announce';
 import { View } from '../../components';
@@ -20,7 +20,7 @@ export interface HUDProps {
     playersCount: number;
     playersMaxCount: number;
     messages: Models.MessageJSON[];
-    announce: string;
+    announce?: string;
 }
 
 /**

@@ -28,7 +28,9 @@ export class GameState extends Schema {
 
     private onMessage: (message: Models.MessageJSON) => void;
 
-    // INIT
+    //
+    // Init
+    //
     constructor(
         roomName: string,
         mapName: string,
@@ -57,36 +59,9 @@ export class GameState extends Schema {
         this.onMessage = onMessage;
     }
 
-    initializeMap = (mapName: string) => {
-        const data = Maps.List[mapName];
-        const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
-
-        // Set the map boundaries
-        this.map = new Entities.Map(tiledMap.widthInPixels, tiledMap.heightInPixels);
-
-        // Create a R-Tree for walls
-        this.walls = new Collisions.TreeCollider();
-        tiledMap.collisions.forEach((tile) => {
-            if (tile.tileId > 0) {
-                this.walls.insert({
-                    minX: tile.minX,
-                    minY: tile.minY,
-                    maxX: tile.maxX,
-                    maxY: tile.maxY,
-                    collider: tile.type,
-                });
-            }
-        });
-
-        // Create spawners
-        tiledMap.spawners.forEach((tile) => {
-            if (tile.tileId > 0) {
-                this.spawners.push(new Geometry.RectangleBody(tile.minX, tile.minY, tile.maxX, tile.maxY));
-            }
-        });
-    };
-
-    // UPDATES
+    //
+    // Updates
+    //
     update() {
         this.updateGame();
         this.updatePlayers();
@@ -121,9 +96,9 @@ export class GameState extends Schema {
     }
 
     private updateMonsters() {
-        for (const monsterId in this.monsters) {
+        this.monsters.forEach((monster, monsterId) => {
             this.monsterUpdate(monsterId);
-        }
+        });
     }
 
     private updateBullets() {
@@ -132,7 +107,9 @@ export class GameState extends Schema {
         }
     }
 
-    // GAME: State changes
+    //
+    // Game: State changes
+    //
     private handleWaitingStart = () => {
         this.setPlayersActive(false);
         this.onMessage({
@@ -179,7 +156,41 @@ export class GameState extends Schema {
         });
     };
 
-    // PLAYERS: single
+    //
+    // Map
+    //
+    initializeMap = (mapName: string) => {
+        const data = Maps.List[mapName];
+        const tiledMap = new Tiled.Map(data, Constants.TILE_SIZE);
+
+        // Set the map boundaries
+        this.map = new Entities.Map(tiledMap.widthInPixels, tiledMap.heightInPixels);
+
+        // Create a R-Tree for walls
+        this.walls = new Collisions.TreeCollider();
+        tiledMap.collisions.forEach((tile) => {
+            if (tile.tileId > 0) {
+                this.walls.insert({
+                    minX: tile.minX,
+                    minY: tile.minY,
+                    maxX: tile.maxX,
+                    maxY: tile.maxY,
+                    collider: tile.type,
+                });
+            }
+        });
+
+        // Create spawners
+        tiledMap.spawners.forEach((tile) => {
+            if (tile.tileId > 0) {
+                this.spawners.push(new Geometry.RectangleBody(tile.minX, tile.minY, tile.maxX, tile.maxY));
+            }
+        });
+    };
+
+    //
+    // Players: single
+    //
     playerAdd(id: string, name: string) {
         const spawner = this.getSpawnerRandomly();
         const player = new Player(
@@ -197,7 +208,7 @@ export class GameState extends Schema {
             player.setTeam('Red');
         }
 
-        this.players[id] = player;
+        this.players.set(id, player);
 
         // Broadcast message to other players
         this.onMessage({
@@ -205,7 +216,7 @@ export class GameState extends Schema {
             from: 'server',
             ts: Date.now(),
             params: {
-                name: this.players[id].name,
+                name: this.players.get(id).name,
             },
         });
     }
@@ -215,7 +226,7 @@ export class GameState extends Schema {
     }
 
     private playerMove(id: string, ts: number, dir: Geometry.Vector2) {
-        const player: Player = this.players[id];
+        const player = this.players.get(id);
         if (!player || dir.empty) {
             return;
         }
@@ -261,7 +272,7 @@ export class GameState extends Schema {
     }
 
     private playerRotate(id: string, ts: number, rotation: number) {
-        const player: Player = this.players[id];
+        const player = this.players.get(id);
         if (!player) {
             return;
         }
@@ -270,7 +281,7 @@ export class GameState extends Schema {
     }
 
     private playerShoot(id: string, ts: number, angle: number) {
-        const player: Player = this.players[id];
+        const player = this.players.get(id);
         if (!player || !player.isAlive || this.game.state !== 'game') {
             return;
         }
@@ -307,7 +318,7 @@ export class GameState extends Schema {
     }
 
     private playerUpdateKills(playerId: string) {
-        const player: Player = this.players[playerId];
+        const player = this.players.get(playerId);
         if (!player) {
             return;
         }
@@ -321,33 +332,30 @@ export class GameState extends Schema {
             from: 'server',
             ts: Date.now(),
             params: {
-                name: this.players[id].name,
+                name: this.players.get(id).name,
             },
         });
 
-        delete this.players[id];
+        this.players.delete(id);
     }
 
-    // PLAYERS: multiple
+    //
+    // Players: multiple
+    //
     private setPlayersActive(active: boolean) {
-        let player: Player;
-        for (const playerId in this.players) {
-            player = this.players[playerId];
+        this.players.forEach((player) => {
             player.setLives(active ? player.maxLives : 0);
-        }
+        });
     }
 
     private setPlayersPositionRandomly() {
         let spawner: Geometry.RectangleBody;
-        let player: Player;
-        for (const playerId in this.players) {
-            spawner = this.getSpawnerRandomly();
-            player = this.players[playerId];
 
+        this.players.forEach((player) => {
+            spawner = this.getSpawnerRandomly();
             player.setPosition(spawner.x + Constants.PLAYER_SIZE / 2, spawner.y + Constants.PLAYER_SIZE / 2);
-            // Reset last acknowledge move action
             player.ack = 0;
-        }
+        });
     }
 
     private getPositionRandomly(
@@ -376,21 +384,14 @@ export class GameState extends Schema {
     }
 
     private setPlayersTeamsRandomly() {
-        // Add all players' ids into an array
-        let playersIds: string[] = [];
-        for (const playerId in this.players) {
-            playersIds.push(playerId);
-        }
-
-        // Shuffle players' ids
-        playersIds = Maths.shuffleArray(playersIds);
+        const playersIds = Maths.shuffleArray(Array.from(this.players.keys()));
 
         const minimumPlayersPerTeam = Math.floor(playersIds.length / 2);
         const rest = playersIds.length % 2;
 
         for (let i = 0; i < playersIds.length; i++) {
             const playerId = playersIds[i];
-            const player = this.players[playerId];
+            const player = this.players.get(playerId);
             const isBlueTeam = i < minimumPlayersPerTeam + rest;
 
             player.setTeam(isBlueTeam ? 'Blue' : 'Red');
@@ -401,7 +402,9 @@ export class GameState extends Schema {
         return this.spawners[Maths.getRandomInt(0, this.spawners.length - 1)];
     }
 
-    // MONSTERS
+    //
+    // Monsters
+    //
     private monstersAdd = (count: number) => {
         for (let i = 0; i < count; i++) {
             const body = this.getPositionRandomly(
@@ -418,12 +421,12 @@ export class GameState extends Schema {
                 Constants.MONSTER_LIVES,
             );
 
-            this.monsters[Maths.getRandomInt(0, 1000)] = monster;
+            this.monsters.set(Maths.getRandomInt(0, 1000).toString(), monster);
         }
     };
 
     private monsterUpdate = (id: string) => {
-        const monster: Monster = this.monsters[id];
+        const monster = this.monsters.get(id);
         if (!monster || !monster.isAlive) {
             return;
         }
@@ -432,12 +435,10 @@ export class GameState extends Schema {
         monster.update(this.players);
 
         // Collisions: Players
-        for (const playerId in this.players) {
-            const player: Player = this.players[playerId];
-
+        this.players.forEach((player) => {
             // Check if the monster can hurt the player
             if (!player.isAlive || !monster.canAttack || !Collisions.circleToCircle(monster.body, player.body)) {
-                continue;
+                return;
             }
 
             monster.attack();
@@ -454,25 +455,21 @@ export class GameState extends Schema {
                     },
                 });
             }
-            return;
-        }
+        });
     };
 
     private monsterRemove = (id: string) => {
-        delete this.monsters[id];
+        this.monsters.delete(id);
     };
 
     private monstersClear = () => {
-        const monstersIds: string[] = [];
-
-        for (const monsterId in this.monsters) {
-            monstersIds.push(monsterId);
-        }
-
+        const monstersIds = Array.from(this.monsters.keys());
         monstersIds.forEach(this.monsterRemove);
     };
 
-    // BULLETS
+    //
+    // Bullets
+    //
     private bulletUpdate(bulletId: number) {
         const bullet = this.bullets[bulletId];
         if (!bullet || !bullet.active) {
@@ -482,15 +479,13 @@ export class GameState extends Schema {
         bullet.move(Constants.BULLET_SPEED);
 
         // Collisions: Players
-        for (const playerId in this.players) {
-            const player: Player = this.players[playerId];
-
+        this.players.forEach((player) => {
             // Check if the bullet can hurt the player
             if (
                 !player.canBulletHurt(bullet.playerId, bullet.team) ||
                 !Collisions.circleToCircle(bullet.body, player.body)
             ) {
-                continue;
+                return;
             }
 
             bullet.active = false;
@@ -508,16 +503,13 @@ export class GameState extends Schema {
                 });
                 this.playerUpdateKills(bullet.playerId);
             }
-            return;
-        }
+        });
 
         // Collisions: Monsters
-        for (const monsterId in this.monsters) {
-            const monster: Monster = this.monsters[monsterId];
-
+        this.monsters.forEach((monster, monsterId) => {
             // Check if the bullet can hurt the player
             if (!Collisions.circleToCircle(bullet.body, monster.body)) {
-                continue;
+                return;
             }
 
             bullet.active = false;
@@ -526,8 +518,7 @@ export class GameState extends Schema {
             if (!monster.isAlive) {
                 this.monsterRemove(monsterId);
             }
-            return;
-        }
+        });
 
         // Collisions: Walls
         if (this.walls.collidesWithCircle(bullet.body, 'half')) {
@@ -541,7 +532,9 @@ export class GameState extends Schema {
         }
     }
 
-    // PROPS
+    //
+    // Props
+    //
     private propsAdd(count: number) {
         for (let i = 0; i < count; i++) {
             const body = this.getPositionRandomly(new Geometry.CircleBody(0, 0, Constants.FLASK_SIZE / 2), false, true);

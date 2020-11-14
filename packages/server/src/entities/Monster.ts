@@ -183,25 +183,20 @@ export class Monster extends Circle {
 }
 
 function getPlayerFromId(id: string, players: MapSchema<Player>): Player | null {
-    for (const playerId in players) {
-        if (id === playerId) {
-            return players[playerId];
-        }
-    }
-
-    return null;
+    return players.get(id);
 }
 
 function getClosestPlayerId(x: number, y: number, players: MapSchema<Player>): string | null {
-    for (const playerId in players) {
-        const player = players[playerId];
+    let selectedPlayerId = null;
+
+    players.forEach((player, playerId) => {
         if (player.isAlive) {
             const distance = Maths.getDistance(x, y, player.x, player.y);
             if (distance <= Constants.MONSTER_SIGHT) {
-                return playerId;
+                selectedPlayerId = playerId;
             }
         }
-    }
+    });
 
-    return null;
+    return selectedPlayerId;
 }
