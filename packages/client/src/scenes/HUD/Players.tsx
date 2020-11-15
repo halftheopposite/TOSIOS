@@ -43,6 +43,7 @@ export const Players = React.memo(
 const styles: { [key: string]: CSSProperties } = {
     players: {
         flexDirection: 'row',
+        pointerEvents: 'all',
     },
     playersText: {
         color: 'white',

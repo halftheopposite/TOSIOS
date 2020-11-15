@@ -8,6 +8,7 @@ import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
 import { SpriteSheets } from './assets/images/maps';
 import { Viewport } from 'pixi-viewport';
+import { crosshairIco } from './assets/images/textures/gui';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -114,6 +115,11 @@ export class Game {
             screenHeight,
         });
         this.app.stage.addChild(this.viewport);
+
+        // Cursor
+        const defaultIcon = `url('${crosshairIco}') 32 32, auto`;
+        this.app.renderer.plugins.interaction.cursor = 'default';
+        this.app.renderer.plugins.interaction.cursorStyles.default = defaultIcon;
 
         // Walls R-Tree
         this.walls = new Collisions.TreeCollider();
