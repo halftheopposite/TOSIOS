@@ -9,6 +9,7 @@ import { Inputs } from './utils/inputs';
 import { SpriteSheets } from './assets/images/maps';
 import { Viewport } from 'pixi-viewport';
 import { crosshairIco } from './assets/images/textures/gui';
+import { distanceBetween } from './utils/distance';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -249,7 +250,7 @@ export class Game {
                     continue;
                 }
 
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 player.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
@@ -262,7 +263,7 @@ export class Game {
                 this.me.lives &&
                 Collisions.circleToCircle(bullet.body, this.me.body)
             ) {
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.me.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
@@ -274,7 +275,7 @@ export class Game {
                     continue;
                 }
 
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 monster.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
@@ -282,14 +283,14 @@ export class Game {
 
             // Collisions: Walls
             if (this.walls.collidesWithCircle(bullet.body, 'half')) {
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
             }
 
             // Collisions: Map
             if (this.map.isCircleOutside(bullet.body)) {
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.spawnImpact(Maths.clamp(bullet.x, 0, this.map.width), Maths.clamp(bullet.y, 0, this.map.height));
                 continue;
             }

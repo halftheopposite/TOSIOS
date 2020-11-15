@@ -118,3 +118,10 @@ export function shuffleArray(array: any[]) {
 export function rad2Deg(radians: number) {
     return (radians * 180) / Math.PI;
 }
+
+/**
+ * Normalize a number
+ */
+export function normalize(value: number, min: number, max: number) {
+    return (value - min) / (max - min);
+}
