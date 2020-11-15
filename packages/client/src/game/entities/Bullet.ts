@@ -89,7 +89,7 @@ export class Bullet extends BaseEntity {
         this.active = false;
 
         const volume = Maths.clamp(1 - Maths.normalize(playerDistance, 0, Constants.PLAYER_HEARING_DISTANCE), 0, 1);
-        ExplosionSound.volume(1 - volume);
+        ExplosionSound.volume(volume);
         ExplosionSound.play();
     };
 
