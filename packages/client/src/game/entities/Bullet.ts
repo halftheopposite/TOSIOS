@@ -88,9 +88,11 @@ export class Bullet extends BaseEntity {
     kill = (playerDistance: number) => {
         this.active = false;
 
-        const volume = Maths.clamp(1 - Maths.normalize(playerDistance, 0, Constants.PLAYER_HEARING_DISTANCE), 0, 1);
-        ExplosionSound.volume(volume);
-        ExplosionSound.play();
+        setTimeout(() => {
+            const volume = Maths.clamp(1 - Maths.normalize(playerDistance, 0, Constants.PLAYER_HEARING_DISTANCE), 0, 1);
+            ExplosionSound.volume(volume);
+            ExplosionSound.play();
+        }, 100);
     };
 
     // Setters
