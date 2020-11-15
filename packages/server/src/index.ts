@@ -1,3 +1,4 @@
+import * as compression from 'compression';
 import * as cors from 'cors';
 import * as express from 'express';
 import { MonitorOptions, monitor } from '@colyseus/monitor';
@@ -12,6 +13,7 @@ const PORT = Number(process.env.PORT || Constants.WS_PORT);
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(compression());
 
 // Game server
 const server = new Server({
