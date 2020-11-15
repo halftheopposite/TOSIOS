@@ -1,7 +1,7 @@
 import { Graphics, Texture } from 'pixi.js';
 import { BaseEntity } from '.';
 import { Models } from '@tosios/common';
-import { PropTextures } from '../assets/images/textures';
+import { PropTextures } from '../assets/images';
 
 const ZINDEXES = {
     SHADOW: 0,

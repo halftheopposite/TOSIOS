@@ -8,7 +8,7 @@ import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
 import { SpriteSheets } from './assets/images/maps';
 import { Viewport } from 'pixi-viewport';
-import { crosshairIco } from './assets/images/textures/gui';
+import { GUITextures } from './assets/images';
 import { distanceBetween } from './utils/distance';
 
 // We don't want to scale textures linearly because they would appear blurry.
@@ -118,7 +118,7 @@ export class Game {
         this.app.stage.addChild(this.viewport);
 
         // Cursor
-        const defaultIcon = `url('${crosshairIco}') 32 32, auto`;
+        const defaultIcon = `url('${GUITextures.crosshairIco}') 32 32, auto`;
         this.app.renderer.plugins.interaction.cursor = 'default';
         this.app.renderer.plugins.interaction.cursorStyles.default = defaultIcon;
 

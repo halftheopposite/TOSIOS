@@ -4,7 +4,7 @@ import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '..
 import { BaseEntity } from '.';
 import { Emitter } from 'pixi-particles';
 import { ExplosionSound } from '../assets/sounds';
-import { WeaponTextures } from '../assets/images/textures';
+import { WeaponTextures } from '../assets/images';
 
 const ZINDEXES = {
     BULLET: 0,
