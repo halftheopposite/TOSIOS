@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactGA from 'react-ga';
 
 const GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID;
@@ -24,9 +23,6 @@ export function useAnalytics(): {
      */
     const init = () => {
         if (!GA_TRACKING_ID) {
-            console.warn(
-                `Variable REACT_APP_GA_TRACKING_ID=${GA_TRACKING_ID} was not provided and analytics will not load.`,
-            );
             return;
         }
 
@@ -37,6 +33,10 @@ export function useAnalytics(): {
      * Track a page.
      */
     const page = (path: string) => {
+        if (!GA_TRACKING_ID) {
+            return;
+        }
+
         ReactGA.pageview(path);
     };
 
@@ -44,6 +44,10 @@ export function useAnalytics(): {
      * Track an event.
      */
     const track = (args: EventArgs) => {
+        if (!GA_TRACKING_ID) {
+            return;
+        }
+
         ReactGA.event(args);
     };
 

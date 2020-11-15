@@ -1,13 +1,15 @@
 import { Application, Container, SCALE_MODES, settings, utils } from 'pixi.js';
 import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
-import { ImpactConfig, ImpactTexture } from './particles';
+import { ImpactConfig, ImpactTexture } from './assets/particles';
 import { Monster, Player, Prop } from './entities';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 import { Emitter } from 'pixi-particles';
 import { Inputs } from './utils/inputs';
-import { SpriteSheets } from './images/maps';
+import { SpriteSheets } from './assets/images/maps';
 import { Viewport } from 'pixi-viewport';
+import { GUITextures } from './assets/images';
+import { distanceBetween } from './utils/distance';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
@@ -114,6 +116,11 @@ export class Game {
             screenHeight,
         });
         this.app.stage.addChild(this.viewport);
+
+        // Cursor
+        const defaultIcon = `url('${GUITextures.crosshairIco}') 32 32, auto`;
+        this.app.renderer.plugins.interaction.cursor = 'default';
+        this.app.renderer.plugins.interaction.cursorStyles.default = defaultIcon;
 
         // Walls R-Tree
         this.walls = new Collisions.TreeCollider();
@@ -243,7 +250,7 @@ export class Game {
                     continue;
                 }
 
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 player.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
@@ -256,7 +263,7 @@ export class Game {
                 this.me.lives &&
                 Collisions.circleToCircle(bullet.body, this.me.body)
             ) {
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.me.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
@@ -268,7 +275,7 @@ export class Game {
                     continue;
                 }
 
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 monster.hurt();
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
@@ -276,14 +283,14 @@ export class Game {
 
             // Collisions: Walls
             if (this.walls.collidesWithCircle(bullet.body, 'half')) {
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.spawnImpact(bullet.x, bullet.y);
                 continue;
             }
 
             // Collisions: Map
             if (this.map.isCircleOutside(bullet.body)) {
-                bullet.active = false;
+                bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.spawnImpact(Maths.clamp(bullet.x, 0, this.map.width), Maths.clamp(bullet.y, 0, this.map.height));
                 continue;
             }

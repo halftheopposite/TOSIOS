@@ -1,9 +1,10 @@
+import { Constants, Maths, Models, Types } from '@tosios/common';
 import { Container, utils } from 'pixi.js';
-import { Models, Types } from '@tosios/common';
-import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../particles';
+import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../assets/particles';
 import { BaseEntity } from '.';
 import { Emitter } from 'pixi-particles';
-import { WeaponTextures } from '../images/textures';
+import { ExplosionSound } from '../assets/sounds';
+import { WeaponTextures } from '../assets/images';
 
 const ZINDEXES = {
     BULLET: 0,
@@ -62,6 +63,8 @@ export class Bullet extends BaseEntity {
         this.active = bullet.active;
         this.color = bullet.color;
         this.shotAt = bullet.shotAt;
+        this._trailEmitter.cleanup();
+        this.updateTrail();
     }
 
     move = (speed: number) => {
@@ -72,13 +75,24 @@ export class Bullet extends BaseEntity {
     };
 
     updateTrail = () => {
+        this._trailEmitter.updateSpawnPos(this.x, this.y);
+
         if (this.active) {
-            this._trailEmitter.updateSpawnPos(this.x, this.y);
             this._trailEmitter.emit = true;
             this.container.rotation = this.rotation;
         } else {
             this._trailEmitter.emit = false;
         }
+    };
+
+    kill = (playerDistance: number) => {
+        this.active = false;
+
+        setTimeout(() => {
+            const volume = Maths.clamp(1 - Maths.normalize(playerDistance, 0, Constants.PLAYER_HEARING_DISTANCE), 0, 1);
+            ExplosionSound.volume(volume);
+            ExplosionSound.play();
+        }, 100);
     };
 
     // Setters

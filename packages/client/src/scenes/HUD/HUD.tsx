@@ -136,6 +136,7 @@ export const HUD = React.memo(
 const styles: { [key: string]: CSSProperties } = {
     hud: {
         padding: HUD_PADDING,
+        pointerEvents: 'none',
     },
     health: {
         position: 'absolute',

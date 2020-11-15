@@ -17,7 +17,7 @@
         "noEmit": true,
         "jsx": "preserve"
     },
-    "include": ["src/**/*.json", "src/**/*.svg", "src/**/*.png", "src/**/*.ts", "src/**/*.tsx"],
+    "include": ["src/**/*.json", "src/**/*.svg", "src/**/*.png", "src/**/*.ogg", "src/**/*.ts", "src/**/*.tsx"],
     "exclude": ["node_modules", "build"],
     "references": [
         {
