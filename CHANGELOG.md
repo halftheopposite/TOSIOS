@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.15.0
+
+- Migrate Colyseus to 0.14.0.
+- Replace browser crosshair with a friendlier one.
+- Add first sound effects for explosions.
+
 ## 0.14.0
 
 - Big refactoring of the project to remove dependencies from the React (+HUD) and the Game itself.
