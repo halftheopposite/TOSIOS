@@ -13,6 +13,7 @@ import { distanceBetween } from './utils/distance';
 
 // We don't want to scale textures linearly because they would appear blurry.
 settings.SCALE_MODE = SCALE_MODES.NEAREST;
+settings.ROUND_PIXELS = true;
 
 const ZINDEXES = {
     GROUND: 1,
