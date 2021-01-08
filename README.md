@@ -1,4 +1,4 @@
-# <p align="center"><img src="images/title.png" /></p>
+# <p align="center"><img alt="TOSIOS" src="images/title.png" /></p>
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/halftheopposite/tosios/blob/master/LICENSE)
 [![](https://img.shields.io/docker/pulls/halftheopposite/tosios)](https://hub.docker.com/r/halftheopposite/tosios)
