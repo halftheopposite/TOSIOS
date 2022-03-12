@@ -1,8 +1,19 @@
-.editorconfig
+# Root
 .gitignore
-README.
+.prettierrc
+CHANGELOG.md
+docker-compose.yml
+LICENSE
+README.md
+
+# Logs
 yarn-error.log
-node_modules
-*/*/node_modules
-*/*/build
-*/*/dist
+
+# Dependencies
+**/node_modules
+**/dist
+
+# Client
+**/public/assets
+**/public/script.css
+**/public/script.js

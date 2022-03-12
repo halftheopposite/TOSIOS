@@ -16,7 +16,7 @@ RUN yarn
 COPY . .
 
 # Build
-RUN yarn build
+RUN BUILD_MODE=production yarn build
 
 # Port
 EXPOSE 3001
