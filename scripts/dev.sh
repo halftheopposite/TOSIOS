@@ -2,4 +2,4 @@
 
 yarn concurrently --kill-others-on-fail \
     "yarn build" \
-    "yarn serve" \
+    "yarn nodemon ./packages/server/dist/index.js" \

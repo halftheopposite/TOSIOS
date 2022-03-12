@@ -1,3 +1,3 @@
 #!/bin/bash
 
-yarn nodemon ./packages/server/dist/index.js
+node ./packages/server/dist/index.js
