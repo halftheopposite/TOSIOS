@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.16.0 - 2022/03/12
+
+- Use esbuild to build the client and server.
+- Use prettier for linting.
+- Fix blurry textures for players, props, and monsters.
+
 ## 0.15.0
 
 - Migrate Colyseus to 0.14.0.
