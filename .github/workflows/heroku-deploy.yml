@@ -13,26 +13,9 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Master
-              uses: actions/checkout@master
-
-            - name: Log in Heroku
-              uses: sjdonado/heroku@master
+            - uses: actions/checkout@v2
+            - uses: akhileshns/heroku-deploy@v3.12.12
               with:
-                  args: container:login
-              env:
-                  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-            - name: Push to Heroku
-              uses: sjdonado/heroku@master
-              with:
-                  args: container:push -a tosios-demo web
-              env:
-                  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-            - name: Release in Heroku
-              uses: sjdonado/heroku@master
-              with:
-                  args: container:release -a tosios-demo web
-              env:
-                  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+                  heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+                  heroku_app_name: ${{ secrets.HEROKU_APP }}
+                  heroku_email: ${{ secrets.HEROKU_EMAIL }}
