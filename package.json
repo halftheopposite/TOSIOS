@@ -1,32 +1,42 @@
 {
-  "name": "tosios",
-  "version": "0.15.0",
-  "private": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/halftheopposite/tosios"
-  },
-  "author": {
-    "name": "Aymeric Chauvin",
-    "url": "https://halftheopposite.dev"
-  },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
-  "scripts": {
-    "clean": "sh ./scripts/clean.sh",
-    "lint": "sh ./scripts/lint.sh",
-    "lint:fix": "sh ./scripts/lint-fix.sh",
-    "dev": "sh ./scripts/dev.sh",
-    "build": "sh ./scripts/build.sh",
-    "serve": "sh ./scripts/serve.sh"
-  },
-  "dependencies": {
-    "concurrently": "^4.1.1"
-  },
-  "devDependencies": {
-    "typescript": "^3.5.3"
-  }
+    "name": "tosios",
+    "version": "0.15.0",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/halftheopposite/tosios"
+    },
+    "author": {
+        "name": "Aymeric Chauvin",
+        "url": "https://halftheopposite.dev"
+    },
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "clean": "sh ./scripts/clean.sh",
+        "dev": "sh ./scripts/dev.sh",
+        "build": "sh ./scripts/build.sh",
+        "serve": "sh ./scripts/serve.sh"
+    },
+    "devDependencies": {
+        "@types/compression": "^1.7.0",
+        "@types/cors": "^2.8.6",
+        "@types/howler": "^2.2.1",
+        "@types/jest": "^24.0.25",
+        "@types/node": "^13.1.2",
+        "@types/pixi.js": "^5.0.0",
+        "@types/querystringify": "^2.0.0",
+        "@types/rbush": "^3.0.0",
+        "@types/reach__router": "^1.2.6",
+        "@types/react": "^16.9.17",
+        "@types/react-dom": "^16.9.4",
+        "@types/react-helmet": "^5.0.14",
+        "concurrently": "^7.0.0",
+        "esbuild": "^0.14.25",
+        "nodemon": "^2.0.15",
+        "prettier": "^2.5.1",
+        "ts-node": "^10.7.0",
+        "typescript": "^4.6.2"
+    }
 }
