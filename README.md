@@ -84,17 +84,11 @@ To run the project in development:
 3. Start game with `yarn dev`.
 4. The game is available at http://localhost:3001.
 
-If you encounter a **white screen** the first time you try to load the game in the browser, that's normal, just refresh the page. This is due to the order in which things are built the first time at launch.
-
-In development, the `front` application is NOT served by the `server`, thus requiring you to access it through port `3000` instead of `3001` as seen before.
-
-In development changes made to `client` and `server` are live, except for the `common` module.
-
 ## Project architecture
 
 This project is a monorepo (with the help of Yarn workspaces). It contains the following packages:
 
-- `client` - The frontend application using `Create React App`, `PIXI.js` and `Colyseus.js`.
+- `client` - The frontend application using `PIXI.js` and `Colyseus.js`.
 - `server` - The authoritarive server running on `NodeJS`, `Express` and `Colyseus`.
 - `common` - A collection of constants and methods shared amongst `client` and `server`.
 
@@ -196,9 +190,9 @@ This is not an exhaustive, nor final, features list but it will give you a good 
 - [x] Improve particle effects. (Q3 2020)
 - [x] Add analytics
 - [x] Add sound effects. (Q3 2020)
-- [ ] Add powers up and pickable items. (Q4 2020)
-- [ ] Add ground monster. (Q4 2020)
-- [ ] Add random dungeon generation. (Q4 2020)
+- [ ] Add powers up and pickable items.
+- [ ] Add ground monster.
+- [ ] Add random dungeon generation.
 
 ## Special thanks
 
