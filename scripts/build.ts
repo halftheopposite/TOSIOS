@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import svgrPlugin from 'esbuild-plugin-svgr';
 
 const NODE_ENV = process.env.NODE_ENV as Environment;
 
@@ -31,6 +32,15 @@ export async function buildClient(options: BuildOptions) {
         bundle: true,
         minify: env === 'production',
         sourcemap: env === 'development',
+        plugins: [svgrPlugin()],
+        watch:
+            env === 'production'
+                ? false
+                : {
+                      onRebuild: (error, result) => {
+                          console.log(`[Client] Build finished at ${new Date().toISOString()}`);
+                      },
+                  },
     });
 }
 
@@ -52,6 +62,14 @@ export async function buildServer(options: BuildOptions) {
         bundle: true,
         minify: env === 'production',
         sourcemap: env === 'development',
+        watch:
+            env === 'production'
+                ? false
+                : {
+                      onRebuild: (error, result) => {
+                          console.log(`[Server] Build finished at ${new Date().toISOString()}`);
+                      },
+                  },
     });
 }
 

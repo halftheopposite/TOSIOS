@@ -14,6 +14,9 @@
         "packages/*"
     ],
     "scripts": {
+        "client": "yarn workspace @tosios/client",
+        "common": "yarn workspace @tosios/common",
+        "server": "yarn workspace @tosios/server",
         "clean": "sh ./scripts/clean.sh",
         "dev": "sh ./scripts/dev.sh",
         "build": "ts-node ./scripts/build.ts",
@@ -34,6 +37,7 @@
         "@types/react-helmet": "^5.0.14",
         "concurrently": "^7.0.0",
         "esbuild": "^0.14.25",
+        "esbuild-plugin-svgr": "^1.0.0",
         "nodemon": "^2.0.15",
         "prettier": "^2.5.1",
         "ts-node": "^10.7.0",
