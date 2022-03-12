@@ -20,3 +20,4 @@ jobs:
                   heroku_app_name: ${{ secrets.HEROKU_APP }}
                   heroku_email: ${{ secrets.HEROKU_EMAIL }}
                   branch: master
+                  usedocker: true
