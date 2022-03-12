@@ -5,8 +5,8 @@
 
 # build
 **/dist
-**/public/script.css
-**/public/script.js
+**/public/script.css**
+**/public/script.js**
 **/public/assets
 
 # misc

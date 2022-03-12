@@ -1,11 +1,11 @@
 {
     "name": "@tosios/client",
-    "version": "0.16.0",
+    "version": "0.1.0",
     "private": true,
     "main": "./src/index.tsx",
     "dependencies": {
         "@reach/router": "^1.2.1",
-        "@tosios/common": "0.15.0",
+        "@tosios/common": "0.1.0",
         "colyseus.js": "^0.14.0",
         "howler": "^2.2.1",
         "pixi-particles": "^4.2.0",
