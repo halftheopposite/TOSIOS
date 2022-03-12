@@ -1,19 +1,15 @@
-import { Application, Container, SCALE_MODES, settings, utils } from 'pixi.js';
-import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
+import { Emitter } from 'pixi-particles';
+import { Viewport } from 'pixi-viewport';
+import { Application, Container, utils } from 'pixi.js';
+import { GUITextures } from './assets/images';
+import { SpriteSheets } from './assets/images/maps';
 import { ImpactConfig, ImpactTexture } from './assets/particles';
 import { Monster, Player, Prop } from './entities';
-import { getSpritesLayer, getTexturesSet } from './utils/tiled';
-import { Emitter } from 'pixi-particles';
-import { Inputs } from './utils/inputs';
-import { SpriteSheets } from './assets/images/maps';
-import { Viewport } from 'pixi-viewport';
-import { GUITextures } from './assets/images';
+import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from './managers';
 import { distanceBetween } from './utils/distance';
-
-// We don't want to scale textures linearly because they would appear blurry.
-settings.SCALE_MODE = SCALE_MODES.NEAREST;
-settings.ROUND_PIXELS = true;
+import { Inputs } from './utils/inputs';
+import { getSpritesLayer, getTexturesSet } from './utils/tiled';
 
 const ZINDEXES = {
     GROUND: 1,

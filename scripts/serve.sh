@@ -1,3 +1,3 @@
 #!/bin/bash
 
-yarn workspace @tosios/server serve
+node ./packages/server/dist/index.js

@@ -1,6 +1,7 @@
-import { Inline, View } from './';
 import React, { CSSProperties } from 'react';
+import { version } from '../../../../package.json';
 import { GitHubIcon } from '../icons';
+import { Inline, View } from './';
 import { Text } from './Text';
 
 const URL = 'https://github.com/halftheopposite/tosios';
@@ -16,7 +17,7 @@ export function GitHub(): React.ReactElement {
             <View flex center style={GITHUB}>
                 <GitHubIcon />
                 <Inline size="xxs" />
-                <Text>GitHub (v0.15.0)</Text>
+                <Text>GitHub (v{version})</Text>
             </View>
         </a>
     );
