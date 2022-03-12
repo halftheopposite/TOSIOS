@@ -27,7 +27,7 @@ export const TILE_SIZE = 32;
 
 // Player (circle)
 export const PLAYER_SIZE = 32;
-export const PLAYER_SPEED = 3;
+export const PLAYER_SPEED = 1;
 export const PLAYER_MAX_LIVES = 3;
 export const PLAYER_WEAPON_SIZE = 12; // The bigger, the further away a bullet will be shot from.
 export const PLAYER_HEARING_DISTANCE = 256;
@@ -51,5 +51,5 @@ export const FLASK_SIZE = 24;
 
 // Bullet (circle)
 export const BULLET_SIZE = 8;
-export const BULLET_SPEED = 8;
-export const BULLET_RATE = 400; // The bigger, the slower.
+export const BULLET_SPEED = 4;
+export const BULLET_RATE = 800; // The bigger, the slower.
