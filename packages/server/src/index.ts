@@ -1,12 +1,12 @@
-import * as compression from 'compression';
-import * as cors from 'cors';
-import * as express from 'express';
-import { MonitorOptions, monitor } from '@colyseus/monitor';
+import { monitor, MonitorOptions } from '@colyseus/monitor';
 import { Constants } from '@tosios/common';
-import { GameRoom } from './rooms/GameRoom';
 import { Server } from 'colyseus';
+import compression from 'compression';
+import cors from 'cors';
+import express from 'express';
 import { createServer } from 'http';
 import { join } from 'path';
+import { GameRoom } from './rooms/GameRoom';
 
 const PORT = Number(process.env.PORT || Constants.WS_PORT);
 

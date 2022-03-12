@@ -2,12 +2,8 @@
     "name": "@tosios/common",
     "version": "0.15.0",
     "private": true,
-    "main": "src/index.ts",
+    "main": "./src/index.ts",
     "dependencies": {
         "rbush": "^3.0.1"
-    },
-    "scripts": {
-        "build": "tsc --resolveJsonModule",
-        "start": "tsc --resolveJsonModule --watch"
     }
 }

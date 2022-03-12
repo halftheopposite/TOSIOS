@@ -1,19 +1,18 @@
-import { LocationProvider, Router } from '@reach/router';
-import Home from './scenes/Home';
-import Match from './scenes/Match';
+import { LocationProvider, Router, useLocation } from '@reach/router';
 import React from 'react';
 import { useAnalytics } from './hooks';
-import { useLocation } from '@reach/router';
+import Home from './scenes/Home';
+import Match from './scenes/Match';
 
 export default function App(): React.ReactElement {
     return (
         <LocationProvider>
-            <RootedApp />
+            <RoutedApp />
         </LocationProvider>
     );
 }
 
-function RootedApp(): React.ReactElement {
+function RoutedApp(): React.ReactElement {
     const { pathname } = useLocation();
     const analytics = useAnalytics();
 

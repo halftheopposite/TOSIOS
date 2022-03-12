@@ -2,7 +2,7 @@
     "name": "@tosios/server",
     "version": "0.15.0",
     "private": true,
-    "main": "src/index.ts",
+    "main": "./src/index.ts",
     "dependencies": {
         "@colyseus/monitor": "^0.14.0",
         "@colyseus/schema": "^1.0.3",
@@ -10,12 +10,7 @@
         "colyseus": "^0.14.2",
         "compression": "^1.7.4",
         "cors": "^2.8.5",
-        "express": "^4.17.1",
+        "express": "^4.17.13",
         "path": "^0.12.7"
-    },
-    "scripts": {
-        "start": "nodemon --watch './src/**/*.ts' --exec ts-node ./src/index.ts",
-        "build": "tsc",
-        "serve": "node build/index.js"
     }
 }
