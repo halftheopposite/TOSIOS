@@ -16,21 +16,12 @@
     ]
   },
   "scripts": {
-    "clean:dependencies": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' +",
-    "clean:builds": "find . -name \"build\" -type d -prune -exec rm -rf '{}' +",
-    "clean": "yarn clean:dependencies; yarn clean:builds",
-    "lint": "yarn workspace @tosios/client lint; yarn workspace @tosios/server lint; yarn workspace @tosios/common lint",
-    "lint:fix": "yarn workspace @tosios/client lint:fix; yarn workspace @tosios/server lint:fix; yarn workspace @tosios/common lint:fix",
-    "start:common": "yarn workspace @tosios/common start",
-    "start:client": "yarn workspace @tosios/client start",
-    "start:server": "yarn workspace @tosios/server start",
-    "start": "yarn build:common && concurrently --kill-others-on-fail \"yarn start:common\" \"yarn start:client\" \"yarn start:server\"",
-    "build:common": "yarn workspace @tosios/common build",
-    "build:client": "yarn workspace @tosios/client build",
-    "build:server": "yarn workspace @tosios/server build",
-    "build:move": "cp -R ./packages/client/build ./packages/server/build/public",
-    "build": "yarn build:common && yarn build:client && yarn build:server && yarn build:move",
-    "serve": "yarn workspace @tosios/server serve"
+    "clean": "sh ./scripts/clean.sh",
+    "lint": "sh ./scripts/lint.sh",
+    "lint:fix": "sh ./scripts/lint-fix.sh",
+    "dev": "sh ./scripts/dev.sh",
+    "build": "sh ./scripts/build.sh",
+    "serve": "sh ./scripts/serve.sh"
   },
   "dependencies": {
     "concurrently": "^4.1.1"
