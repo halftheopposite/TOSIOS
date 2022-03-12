@@ -1,38 +1,38 @@
 name: Deploy to Heroku
 
 concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 on:
-  push:
-    branches:
-      - master
+    push:
+        branches:
+            - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Master
-        uses: actions/checkout@master
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Master
+              uses: actions/checkout@master
 
-      - name: Log in Heroku
-        uses: sjdonado/heroku@master
-        with:
-          args: container:login
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+            - name: Log in Heroku
+              uses: sjdonado/heroku@master
+              with:
+                  args: container:login
+              env:
+                  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Push to Heroku
-        uses: sjdonado/heroku@master
-        with:
-          args: container:push -a tosios-demo web
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+            - name: Push to Heroku
+              uses: sjdonado/heroku@master
+              with:
+                  args: container:push -a tosios-demo web
+              env:
+                  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Release in Heroku
-        uses: sjdonado/heroku@master
-        with:
-          args: container:release -a tosios-demo web
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+            - name: Release in Heroku
+              uses: sjdonado/heroku@master
+              with:
+                  args: container:release -a tosios-demo web
+              env:
+                  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}

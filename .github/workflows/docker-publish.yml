@@ -1,27 +1,27 @@
 name: Publish to Docker Hub
 
 concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 on:
-  push:
-    branches:
-      - master
+    push:
+        branches:
+            - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Master
-        uses: actions/checkout@master
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Master
+              uses: actions/checkout@master
 
-      - name: Build & Publish
-        uses: elgohr/Publish-Docker-Github-Action@master
-        env:
-          REACT_APP_GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
-        with:
-          name: halftheopposite/tosios
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          buildargs: REACT_APP_GA_TRACKING_ID
+            - name: Build & Publish
+              uses: elgohr/Publish-Docker-Github-Action@master
+              env:
+                  REACT_APP_GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
+              with:
+                  name: halftheopposite/tosios
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+                  buildargs: REACT_APP_GA_TRACKING_ID
