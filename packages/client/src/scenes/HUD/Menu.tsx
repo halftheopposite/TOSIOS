@@ -132,7 +132,7 @@ const styles: { [key: string]: CSSProperties } = {
         position: 'fixed',
         padding: 16,
         zIndex: 1000,
-        pointerEvents: 'all,
+        pointerEvents: 'all',
     },
     box: {
         boxSizing: 'border-box',
