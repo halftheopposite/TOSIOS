@@ -298,23 +298,23 @@ export class GameState extends Schema {
         const bulletY = player.y + Math.sin(angle) * Constants.PLAYER_WEAPON_SIZE;
 
         // Recycle bullets if some are unused to prevent instantiating too many
-        const index = this.bullets.findIndex((bullet) => !bullet.active);
-        if (index === -1) {
+        // const index = this.bullets.findIndex((bullet) => !bullet.active);
+        // if (index === -1) {
             this.bullets.push(
                 new Bullet(id, player.team, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color, Date.now()),
             );
-        } else {
-            this.bullets[index].reset(
-                id,
-                player.team,
-                bulletX,
-                bulletY,
-                Constants.BULLET_SIZE,
-                angle,
-                player.color,
-                Date.now(),
-            );
-        }
+        // } else {
+        //     this.bullets[index].reset(
+        //         id,
+        //         player.team,
+        //         bulletX,
+        //         bulletY,
+        //         Constants.BULLET_SIZE,
+        //         angle,
+        //         player.color,
+        //         Date.now(),
+        //     );
+        // }
     }
 
     private playerUpdateKills(playerId: string) {

@@ -16,6 +16,7 @@ export class Inputs {
         window.addEventListener('keyup', this.handleKeyUp);
         window.document.addEventListener('mousedown', this.handleMouseDown);
         window.document.addEventListener('mouseup', this.handleMouseUp);
+        window.document.addEventListener('contextmenu', this.handleMouseUp);
     };
 
     public stop = () => {
@@ -23,6 +24,7 @@ export class Inputs {
         window.removeEventListener('keyup', this.handleKeyUp);
         window.document.removeEventListener('mousedown', this.handleMouseDown);
         window.document.removeEventListener('mouseup', this.handleMouseUp);
+        window.document.removeEventListener('contextmenu', this.handleContextMenu);
     };
 
     private handleKeyDown = (event: any) => {
@@ -105,5 +107,11 @@ export class Inputs {
         event.stopPropagation();
 
         this.shoot = false;
+    };
+
+    private handleContextMenu = (event: any) => {
+        event.preventDefault();
+        event.stopPropagation();
+
     };
 }

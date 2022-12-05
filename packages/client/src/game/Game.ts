@@ -422,22 +422,22 @@ export class Game {
 
         this.me.lastShootAt = Date.now();
 
-        this.bulletsManager.addOrCreate(
-            {
-                x: bulletX,
-                y: bulletY,
-                radius: Constants.BULLET_SIZE,
-                rotation: this.me.rotation,
-                active: true,
-                fromX: bulletX,
-                fromY: bulletY,
-                playerId: this.me.playerId,
-                team: this.me.team,
-                color: this.me.color,
-                shotAt: this.me.lastShootAt,
-            },
-            this.particlesContainer,
-        );
+        // this.bulletsManager.addOrCreate(
+        //     {
+        //         x: bulletX,
+        //         y: bulletY,
+        //         radius: Constants.BULLET_SIZE,
+        //         rotation: this.me.rotation,
+        //         active: true,
+        //         fromX: bulletX,
+        //         fromY: bulletY,
+        //         playerId: this.me.playerId,
+        //         team: this.me.team,
+        //         color: this.me.color,
+        //         shotAt: this.me.lastShootAt,
+        //     },
+        //     this.particlesContainer,
+        // );
         this.onActionSend({
             type: 'shoot',
             ts: Date.now(),
@@ -678,9 +678,9 @@ export class Game {
 
     // COLYSEUS: Bullets
     bulletAdd = (bulletId: string, attributes: Models.BulletJSON) => {
-        if ((this.me && this.me.playerId === attributes.playerId) || !attributes.active) {
-            return;
-        }
+        // if ((this.me && this.me.playerId === attributes.playerId) || !attributes.active) {
+        //     return;
+        // }
 
         this.bulletsManager.addOrCreate(attributes, this.particlesContainer);
     };
