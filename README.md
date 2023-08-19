@@ -3,6 +3,15 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/halftheopposite/tosios/blob/master/LICENSE)
 [![](https://img.shields.io/docker/pulls/halftheopposite/tosios)](https://hub.docker.com/r/halftheopposite/tosios)
 
+
+---
+
+**Hello fellow game developer 🧙‍♂️!**
+
+**I need less than 5 minutes of your precious time, feedback, and experience, to answer a few questions about multiplayer game development that will help me shape future projects. Survey is available at https://tally.so/r/w81Xr5 and requires no signup and no bs.**
+
+---
+
 The Open-Source IO Shooter is an open-source multiplayer game in the browser (desktop or browser). It is meant to be hostable and playable by anyone. This is not an attempt at creating an outstanding gaming experience, but to create an easily understandable and modifiable multiplayer browser game.
 
 **Desktop version**
