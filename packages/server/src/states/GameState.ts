@@ -304,7 +304,7 @@ export class GameState extends Schema {
                 new Bullet(id, player.team, bulletX, bulletY, Constants.BULLET_SIZE, angle, player.color, Date.now()),
             );
         } else {
-            this.bullets[index].reset(
+            this.bullets[index] = new Bullet(
                 id,
                 player.team,
                 bulletX,
