@@ -2,7 +2,7 @@ import { Constants, Maths, Models, Types } from '@tosios/common';
 import { Container, utils } from 'pixi.js';
 import { Trail100Texture, Trail25Texture, Trail50Texture, TrailConfig } from '../assets/particles';
 import { BaseEntity } from '.';
-import { Emitter } from 'pixi-particles';
+import { Emitter } from '@pixi/particle-emitter';
 import { ExplosionSound } from '../assets/sounds';
 import { WeaponTextures } from '../assets/images';
 
@@ -23,7 +23,7 @@ export class Bullet extends BaseEntity {
 
     private _shotAt: number = 0;
 
-    private _trailEmitter: Emitter;
+    // private _trailEmitter: Emitter;
 
     // Init
     constructor(bullet: Models.BulletJSON, particlesContainer: Container) {
@@ -36,10 +36,10 @@ export class Bullet extends BaseEntity {
         });
 
         // Trail emitter
-        this._trailEmitter = new Emitter(particlesContainer, [Trail100Texture, Trail50Texture, Trail25Texture], {
-            ...TrailConfig,
-        });
-        this._trailEmitter.autoUpdate = true;
+        // this._trailEmitter = new Emitter(particlesContainer, [Trail100Texture, Trail50Texture, Trail25Texture], {
+        //     ...TrailConfig,
+        // });
+        // this._trailEmitter.autoUpdate = true;
 
         // Bullet
         this.rotation = bullet.rotation;
@@ -63,7 +63,7 @@ export class Bullet extends BaseEntity {
         this.active = bullet.active;
         this.color = bullet.color;
         this.shotAt = bullet.shotAt;
-        this._trailEmitter.cleanup();
+        // this._trailEmitter.cleanup();
         this.updateTrail();
     }
 
@@ -71,17 +71,17 @@ export class Bullet extends BaseEntity {
         this.x += Math.cos(this.rotation) * speed;
         this.y += Math.sin(this.rotation) * speed;
 
-        this._trailEmitter.updateSpawnPos(this.x, this.y);
+        // this._trailEmitter.updateSpawnPos(this.x, this.y);
     };
 
     updateTrail = () => {
-        this._trailEmitter.updateSpawnPos(this.x, this.y);
+        // this._trailEmitter.updateSpawnPos(this.x, this.y);
 
         if (this.active) {
-            this._trailEmitter.emit = true;
+            // this._trailEmitter.emit = true;
             this.container.rotation = this.rotation;
         } else {
-            this._trailEmitter.emit = false;
+            // this._trailEmitter.emit = false;
         }
     };
 
