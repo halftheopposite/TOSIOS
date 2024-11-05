@@ -1,5 +1,5 @@
 import { Collisions, Constants, Entities, Geometry, Maps, Maths, Models, Tiled, Types } from '@tosios/common';
-import { Emitter } from 'pixi-particles';
+import { Emitter } from '@pixi/particle-emitter';
 import { Viewport } from 'pixi-viewport';
 import { Application, Container, utils } from 'pixi.js';
 import { GUITextures } from './assets/images';
@@ -10,6 +10,7 @@ import { BulletsManager, MonstersManager, PlayersManager, PropsManager } from '.
 import { distanceBetween } from './utils/distance';
 import { Inputs } from './utils/inputs';
 import { getSpritesLayer, getTexturesSet } from './utils/tiled';
+import { upgradeConfig } from '@pixi/particle-emitter';
 
 const ZINDEXES = {
     GROUND: 1,
@@ -103,6 +104,7 @@ export class Game {
             autoDensity: true,
             resolution: window.devicePixelRatio,
         });
+        document.addEventListener("pointerlockchange", this.onPointerLockChange, false);
 
         // Map
         this.map = new Entities.Map(0, 0);
@@ -155,6 +157,24 @@ export class Game {
         this.onActionSend = onActionSend;
     }
 
+    private onPointerLockChange = () => {
+        if (document.pointerLockElement === this.app.view) {
+            // Pointer is locked, add mouse move listener
+            document.addEventListener("mousemove", this.onMouseMove, false);
+        } else {
+            // Pointer is unlocked, remove mouse move listener
+            document.removeEventListener("mousemove", this.onMouseMove, false);
+        }
+    };
+
+    private onMouseMove = (event: MouseEvent) => {
+        const movementX = event.movementX || 0; // Fallback for browsers that don't support movementX
+        const movementY = event.movementY || 0;
+
+        // Update your game logic based on movementX and movementY
+        this.rotate(movementX, movementY); // Call your rotate method with the movement values
+    };
+
     start = (renderView: any) => {
         renderView.appendChild(this.app.view);
         this.app.start();
@@ -197,7 +217,7 @@ export class Game {
         }
 
         // Rotate
-        this.rotate();
+        // this.rotate();
 
         // Shoot
         if (this.inputs.shoot) {
@@ -249,7 +269,7 @@ export class Game {
 
                 bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 player.hurt();
-                this.spawnImpact(bullet.x, bullet.y);
+                // this.spawnImpact(bullet.x, bullet.y);
                 continue;
             }
 
@@ -262,7 +282,7 @@ export class Game {
             ) {
                 bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 this.me.hurt();
-                this.spawnImpact(bullet.x, bullet.y);
+                // this.spawnImpact(bullet.x, bullet.y);
                 continue;
             }
 
@@ -274,21 +294,21 @@ export class Game {
 
                 bullet.kill(distanceBetween(this.me?.body, bullet.body));
                 monster.hurt();
-                this.spawnImpact(bullet.x, bullet.y);
+                // this.spawnImpact(bullet.x, bullet.y);
                 continue;
             }
 
             // Collisions: Walls
             if (this.walls.collidesWithCircle(bullet.body, 'half')) {
                 bullet.kill(distanceBetween(this.me?.body, bullet.body));
-                this.spawnImpact(bullet.x, bullet.y);
+                // this.spawnImpact(bullet.x, bullet.y);
                 continue;
             }
 
             // Collisions: Map
             if (this.map.isCircleOutside(bullet.body)) {
                 bullet.kill(distanceBetween(this.me?.body, bullet.body));
-                this.spawnImpact(Maths.clamp(bullet.x, 0, this.map.width), Maths.clamp(bullet.y, 0, this.map.height));
+                // this.spawnImpact(Maths.clamp(bullet.x, 0, this.map.width), Maths.clamp(bullet.y, 0, this.map.height));
                 continue;
             }
         }
@@ -450,12 +470,10 @@ export class Game {
 
     // SPAWNERS
     private spawnImpact = (x: number, y: number, color = '#ffffff') => {
-        new Emitter(this.playersManager, [ImpactTexture], {
-            ...ImpactConfig,
-            color: {
-                start: color,
-                end: color,
-            },
+        const upgradedImpactConfig = upgradeConfig(ImpactConfig, [ImpactTexture]);
+
+        new Emitter(this.particlesContainer, [ImpactTexture], {
+            ...upgradedImpactConfig,
             pos: {
                 x,
                 y,
