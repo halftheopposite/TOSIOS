@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactNode } from 'react';
 import { Inline } from './Inline';
 
-const BUTTON_COLOR = '#375a7f';
+const BUTTON_COLOR = '#000000';
 
 const BUTTON: CSSProperties = {
     fontSize: 16,
