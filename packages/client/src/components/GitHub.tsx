@@ -4,7 +4,7 @@ import { GitHubIcon } from '../icons';
 import { Inline, View } from './';
 import { Text } from './Text';
 
-const URL = 'https://github.com/halftheopposite/tosios';
+const URL = 'https://x.com/';
 
 const GITHUB: CSSProperties = {
     color: 'white',
@@ -17,7 +17,7 @@ export function GitHub(): React.ReactElement {
             <View flex center style={GITHUB}>
                 <GitHubIcon />
                 <Inline size="xxs" />
-                <Text>GitHub (v{version})</Text>
+                <Text>Our Twitter</Text>
             </View>
         </a>
     );
