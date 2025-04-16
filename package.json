@@ -36,7 +36,7 @@
         "@types/react-dom": "^16.9.4",
         "@types/react-helmet": "^5.0.14",
         "concurrently": "^7.0.0",
-        "esbuild": "^0.14.25",
+        "esbuild": "^0.25.0",
         "esbuild-plugin-svgr": "^1.0.0",
         "nodemon": "^2.0.15",
         "prettier": "^2.5.1",
