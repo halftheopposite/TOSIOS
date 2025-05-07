@@ -4,7 +4,8 @@ import { Effects, PlayerLivesSprite, TextSprite } from '../sprites';
 import { PlayerTextures, WeaponTextures } from '../assets/images';
 import { SmokeConfig, SmokeTexture } from '../assets/particles';
 import { BaseEntity } from '.';
-import { Emitter } from 'pixi-particles';
+import { Emitter } from '@pixi/particle-emitter';
+import { upgradeConfig } from '@pixi/particle-emitter';
 
 const NAME_OFFSET = 4;
 const LIVES_OFFSET = 10;
@@ -222,8 +223,10 @@ export class Player extends BaseEntity {
             return;
         }
 
+        const upgradedConfig = upgradeConfig(SmokeConfig, [SmokeTexture]);
+
         new Emitter(this._particlesContainer, [SmokeTexture], {
-            ...SmokeConfig,
+            ...upgradedConfig,
             pos: {
                 x: this.body.x,
                 y: this.body.y + this.body.radius / 2,
@@ -237,13 +240,13 @@ export class Player extends BaseEntity {
     set x(x: number) {
         this.container.x = x;
         this.body.x = x;
-        this.spawnSmoke();
+        // this.spawnSmoke();
     }
 
     set y(y: number) {
         this.container.y = y;
         this.body.y = y;
-        this.spawnSmoke();
+        // this.spawnSmoke();
     }
 
     set toX(toX: number) {
